@@ -46,7 +46,7 @@ export default function Header() {
                   WebkitTextFillColor: 'transparent',
                 }}
               >
-                ランチ投票ツール
+                チョイスル
               </Typography>
             </Box>
           </Link>

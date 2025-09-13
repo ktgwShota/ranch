@@ -15,6 +15,8 @@ import {
   Chip,
   Alert,
   CircularProgress,
+  FormControlLabel,
+  Checkbox,
 } from '@mui/material';
 import {
   Add as AddIcon,
@@ -28,6 +30,7 @@ export default function Home() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [urlErrors, setUrlErrors] = useState<{ [key: number]: string }>({});
+  const [agreedToTerms, setAgreedToTerms] = useState(true);
 
   const validateUrl = (url: string): string | null => {
     if (!url.trim()) return null;
@@ -117,14 +120,14 @@ export default function Home() {
       });
 
       if (!response.ok) {
-        throw new Error('投票の作成に失敗しました');
+        throw new Error('多数決の作成に失敗しました');
       }
 
       const poll = await response.json() as { id: string };
       window.location.href = `/poll/${poll.id}`;
     } catch (error) {
       console.error('Error creating poll:', error);
-      setError('投票の作成に失敗しました。もう一度お試しください。');
+      setError('多数決の作成に失敗しました。もう一度お試しください。');
     } finally {
       setLoading(false);
     }
@@ -140,12 +143,39 @@ export default function Home() {
       <Container maxWidth="md" sx={{ py: 8 }}>
         <Fade in timeout={800}>
           <Box>
+            {/* ページタイトルと説明 */}
+            <Box textAlign="center" mb={6}>
+              <Typography
+                variant="h1"
+                component="h1"
+                sx={{
+                  fontSize: 25,
+                  fontWeight: 700,
+                  color: 'text.primary',
+                  mb: 2
+                }}
+              >
+                決まらないお店選びは、多数決ツール「チョイスル」で即決。
+              </Typography>
+              <Typography
+                sx={{
+                  color: 'text.secondary',
+                  fontWeight: 400,
+                  maxWidth: '600px',
+                  mx: 'auto',
+                  lineHeight: 1.6
+                }}
+              >
+                グループでの面倒なお店選びはもう終わり。気になるお店のURLを貼って共有するだけで、みんなの意見がひと目で分かる多数決ページが完成。
+                無料 & 会員登録不要で今すぐ使えます。
+              </Typography>
+            </Box>
 
             {/* メインフォーム */}
             <Paper
               elevation={0}
               sx={{
-                p: 6,
+                p: 5,
                 borderRadius: 1.5,
                 border: '1px solid #ddd',
                 backgroundColor: 'white',
@@ -179,7 +209,7 @@ export default function Home() {
                     variant="outlined"
                     sx={{
                       '& .MuiOutlinedInput-root': {
-                        borderRadius: 0.25,
+                        borderRadius: 0.5,
                         backgroundColor: '#fafafa',
                         '&:hover .MuiOutlinedInput-notchedOutline': {
                           borderColor: '#1976d2',
@@ -193,13 +223,13 @@ export default function Home() {
                   />
                 </Box>
 
-                <Box>
+                <Box mb={3}>
                   <Box mb={3}>
                     <Typography variant="subtitle1" sx={{ fontWeight: 600, color: 'text.primary', mb: 1 }}>
                       お店のリスト
                     </Typography>
                     <Typography variant="body2" color="text.secondary">
-                      食べログまたはグルナビのURLを入力
+                      食べログ または ぐるなび の URL を入力してください
                     </Typography>
                   </Box>
 
@@ -210,13 +240,10 @@ export default function Home() {
                       sx={{
                         mb: 3,
                         p: 3,
-                        borderRadius: 2,
-                        border: '2px solid',
-                        borderColor: urlErrors[option.id] ? '#f44336' : 'transparent',
-                        backgroundColor: 'white',
-                        boxShadow: urlErrors[option.id]
-                          ? '0 0 0 1px #f44336, 0 2px 8px rgba(244, 67, 54, 0.1)'
-                          : '0 1px 3px rgba(0, 0, 0, 0.1)'
+                        borderRadius: 1,
+                        border: '1px solid',
+                        borderColor: urlErrors[option.id] ? '#f44336' : '#ddd',
+                        backgroundColor: 'white'
                       }}
                     >
                       <Box display="flex" gap={3} alignItems="flex-start">
@@ -251,7 +278,7 @@ export default function Home() {
                             helperText={urlErrors[option.id] || ''}
                             sx={{
                               '& .MuiOutlinedInput-root': {
-                                borderRadius: 0.25,
+                                borderRadius: 0.5,
                                 backgroundColor: '#fafafa',
                                 '&:hover .MuiOutlinedInput-notchedOutline': {
                                   borderColor: '#1976d2',
@@ -288,10 +315,11 @@ export default function Home() {
                         startIcon={<AddIcon />}
                         variant="outlined"
                         sx={{
-                          borderRadius: 2,
+                          borderRadius: 1,
                           textTransform: 'none',
                           fontWeight: 500,
-                          px: 4,
+                          pl: 2,
+                          pr: 2.5,
                           py: 1.5,
                           borderColor: '#1976d2',
                           color: '#1976d2',
@@ -307,62 +335,66 @@ export default function Home() {
                   )}
                 </Box>
 
-                {/* 作成ボタン */}
-                <Box sx={{ mt: 6 }}>
-                  <Button
-                    onClick={createPoll}
-                    disabled={loading}
-                    variant="contained"
-                    size="large"
-                    fullWidth
-                    sx={{
-                      py: 3,
-                      fontSize: '1.1rem',
-                      fontWeight: 700,
-                      borderRadius: 2,
-                      background: 'linear-gradient(135deg, #1976d2 0%, #42a5f5 100%)',
-                      textTransform: 'none',
-                      boxShadow: '0 4px 16px rgba(25, 118, 210, 0.3)',
-                      '&:hover': {
-                        background: 'linear-gradient(135deg, #1565c0 0%, #1976d2 100%)',
-                        boxShadow: '0 8px 24px rgba(25, 118, 210, 0.4)',
-                      },
-                      '&:disabled': {
-                        background: '#bdbdbd',
-                        boxShadow: 'none',
-                      }
-                    }}
-                  >
-                    {loading ? (
-                      <Box display="flex" alignItems="center" gap={2}>
-                        <CircularProgress size={24} color="inherit" />
-                        <Typography variant="body1" sx={{ fontWeight: 600 }}>
-                          作成中...
-                        </Typography>
-                      </Box>
-                    ) : (
-                      <Box display="flex" alignItems="center" gap={1.5}>
-                        <Typography variant="body1" sx={{ fontWeight: 700 }}>
-                          投票ページを作成する
-                        </Typography>
-                        <Box
-                          sx={{
-                            width: 20,
-                            height: 20,
-                            borderRadius: '50%',
-                            backgroundColor: 'rgba(255, 255, 255, 0.2)',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            fontSize: '0.75rem'
-                          }}
-                        >
-                          →
-                        </Box>
-                      </Box>
-                    )}
-                  </Button>
+                <Box
+                  sx={{
+                    height: "1px",
+                    backgroundColor: '#ddd',
+                    mb: 0,
+                  }}
+                />
+
+                <Box display="flex" justifyContent="center" m={2}>
+                  <FormControlLabel
+                    control={
+                      <Checkbox
+                        checked={agreedToTerms}
+                        onChange={(e) => setAgreedToTerms(e.target.checked)}
+                        color="primary"
+                      />
+                    }
+                    label={
+                      <Typography variant="body2" color="text.secondary" sx={{ fontWeight: 500 }}>
+                        利用規約に同意する
+                      </Typography>
+                    }
+                  />
                 </Box>
+
+                <Button
+                  onClick={createPoll}
+                  disabled={loading || !agreedToTerms}
+                  variant="contained"
+                  size="large"
+                  fullWidth
+                  sx={{
+                    py: 2,
+                    px: 4,
+                    fontSize: '1rem',
+                    fontWeight: 600,
+                    borderRadius: 1,
+                    backgroundColor: '#1976d2',
+                    textTransform: 'none',
+                    boxShadow: '0 2px 8px rgba(25, 118, 210, 0.2)',
+                    '&:hover': {
+                      backgroundColor: '#1565c0',
+                      boxShadow: '0 4px 12px rgba(25, 118, 210, 0.3)',
+                    },
+                    '&:disabled': {
+                      backgroundColor: '#ddd',
+                      color: '#9e9e9e',
+                      boxShadow: 'none',
+                    }
+                  }}
+                >
+                  {loading ? (
+                    <Box display="flex" alignItems="center" gap={1.5} m={0}>
+                      <CircularProgress size={20} color="inherit" />
+                      作成中...
+                    </Box>
+                  ) : (
+                    'ページを作成'
+                  )}
+                </Button>
               </Box>
             </Paper>
           </Box>

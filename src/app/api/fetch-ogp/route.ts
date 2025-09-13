@@ -1,10 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function POST(request: NextRequest) {
+  console.log('OGP API called');
   try {
     const { url } = await request.json() as { url: string };
+    console.log('Request URL:', url);
 
     if (!url) {
+      console.log('No URL provided');
       return NextResponse.json({ error: 'URL is required' }, { status: 400 });
     }
 
@@ -36,22 +39,26 @@ export async function POST(request: NextRequest) {
         error: 'このURLは対応していません。食べログまたはぐるなびのURLを入力してください。',
         title: '対応していないURLです',
         description: '食べログまたはぐるなびのURLを入力してください',
+        rating: null,
         image: null
       }, { status: 400 });
     }
 
     // HTMLを取得
+    console.log('Fetching HTML from URL:', url);
     const response = await fetch(url, {
       headers: {
         'User-Agent': 'Mozilla/5.0 (compatible; OGP-Fetcher/1.0)',
       },
     });
 
+    console.log('HTML response status:', response.status);
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
 
     const html = await response.text();
+    console.log('HTML length:', html.length);
 
     // OGPタグを抽出する関数
     const extractMetaContent = (html: string, property: string): string | null => {
@@ -61,16 +68,27 @@ export async function POST(request: NextRequest) {
     };
 
     // タイトルを取得（OGP title → og:title → titleタグの順で試行）
-    const title =
+    let title =
       extractMetaContent(html, 'og:title') ||
       extractMetaContent(html, 'title') ||
       'タイトルを取得できませんでした';
 
+    // ぐるなびの場合は「楽天ぐるなび - 」を削除
+    if (parsedUrl.hostname.includes('gurunavi.com') || parsedUrl.hostname.includes('gnavi.co.jp')) {
+      title = title.replace(/^楽天ぐるなび\s*-\s*/, '');
+    }
+
     // 説明文を取得（OGP description → descriptionの順で試行）
-    const description =
+    let description =
       extractMetaContent(html, 'og:description') ||
       extractMetaContent(html, 'description') ||
       '説明を取得できませんでした';
+
+    // 食べログの説明文から星評価を削除
+    description = description.replace(/★+[☆]*[0-9.]+/g, '').trim();
+
+
+
 
     // 画像を取得（OGP image → og:imageの順で試行）
     let image =

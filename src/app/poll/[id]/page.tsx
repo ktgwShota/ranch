@@ -20,15 +20,23 @@ import {
   IconButton,
   Tooltip,
   LinearProgress,
-  Grid,
+  TextField,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
 } from '@mui/material';
 import {
   ThumbUp as ThumbUpIcon,
-  ContentCopy as CopyIcon,
   Restaurant as RestaurantIcon,
   OpenInNew as OpenInNewIcon,
   Home as HomeIcon,
 } from '@mui/icons-material';
+
+interface Voter {
+  id: string;
+  name: string;
+}
 
 interface Option {
   id: number;
@@ -37,6 +45,7 @@ interface Option {
   description?: string;
   image?: string | null;
   votes: number;
+  voters: Voter[];
 }
 
 interface Poll {
@@ -53,8 +62,32 @@ export default function PollPage() {
   const [voting, setVoting] = useState<number | null>(null);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
+  const [userName, setUserName] = useState<string>("");
+  const [userId, setUserId] = useState<string>("");
+  const [nameDialogOpen, setNameDialogOpen] = useState(false);
+  const [tempName, setTempName] = useState<string>("");
 
   useEffect(() => {
+    // クッキーからユーザー情報を取得（URLごと）
+    const pollId = params.id;
+    const cookieName = `voterInfo_${pollId}`;
+    const cookies = document.cookie.split(';');
+    const voterCookie = cookies.find(cookie => cookie.trim().startsWith(`${cookieName}=`));
+
+    if (voterCookie) {
+      try {
+        const cookieValue = decodeURIComponent(voterCookie.split('=')[1]);
+        const userInfo = JSON.parse(cookieValue);
+        setUserName(userInfo.name);
+        setUserId(userInfo.id);
+      } catch (error) {
+        console.error('Error parsing stored user info:', error);
+        setNameDialogOpen(true);
+      }
+    } else {
+      setNameDialogOpen(true);
+    }
+
     const fetchPoll = async () => {
       try {
         const response = await fetch(`/api/polls?id=${params.id}`);
@@ -63,8 +96,10 @@ export default function PollPage() {
           setPoll(pollData);
 
           // OGPデータを取得
+          console.log('Starting OGP data fetch for options:', pollData.options);
           const updatedOptions = await Promise.all(
             pollData.options.map(async (option: Option) => {
+              console.log('Fetching OGP for URL:', option.url);
               try {
                 const ogpResponse = await fetch('/api/fetch-ogp', {
                   method: 'POST',
@@ -74,19 +109,24 @@ export default function PollPage() {
                   body: JSON.stringify({ url: option.url }),
                 });
 
+                console.log('OGP response status:', ogpResponse.status);
                 if (ogpResponse.ok) {
                   const ogpData = await ogpResponse.json() as {
                     title: string;
                     description: string;
+                    rating: string | null;
                     image: string | null;
                     error?: string;
                   };
+
+                  console.log('OGP data received:', ogpData);
 
                   if (ogpData.error) {
                     return {
                       ...option,
                       title: '対応していないURLです',
                       description: '食べログまたはぐるなびのURLを入力してください',
+                      rating: null,
                       image: null,
                     };
                   }
@@ -96,12 +136,17 @@ export default function PollPage() {
                     title: ogpData.title,
                     description: ogpData.description,
                     image: ogpData.image,
+                    voters: option.voters || [],
                   };
                 }
               } catch (error) {
                 console.error('Error fetching OGP data:', error);
               }
-              return option;
+              return {
+                ...option,
+                rating: null,
+                voters: option.voters || [],
+              };
             })
           );
 
@@ -134,14 +179,43 @@ export default function PollPage() {
   }, [params.id]);
 
   const vote = async (optionId: number) => {
-    if (!poll || votedOptions.has(optionId) || voting) return;
+    if (!poll || voting || !userId) return;
 
     setVoting(optionId);
-    const updatedOptions = poll.options.map(option =>
-      option.id === optionId
-        ? { ...option, votes: option.votes + 1 }
-        : option
-    );
+
+    // まず、他の選択肢から投票を削除（一人一票制）
+    let updatedOptions = poll.options.map(option => {
+      if (option.id !== optionId && option.voters.some(voter => voter.id === userId)) {
+        return {
+          ...option,
+          votes: option.votes - 1,
+          voters: option.voters.filter(voter => voter.id !== userId)
+        };
+      }
+      return option;
+    });
+
+    // 次に、対象の選択肢を処理
+    updatedOptions = updatedOptions.map(option => {
+      if (option.id === optionId) {
+        // 既にこの選択肢に投票済みの場合は投票を取り消し
+        if (option.voters.some(voter => voter.id === userId)) {
+          return {
+            ...option,
+            votes: option.votes - 1,
+            voters: option.voters.filter(voter => voter.id !== userId)
+          };
+        } else {
+          // 新しい選択肢に投票を追加
+          return {
+            ...option,
+            votes: option.votes + 1,
+            voters: [...option.voters, { id: userId, name: userName }]
+          };
+        }
+      }
+      return option;
+    });
 
     const updatedPoll = {
       ...poll,
@@ -149,7 +223,15 @@ export default function PollPage() {
     };
 
     setPoll(updatedPoll);
-    setVotedOptions(new Set([...votedOptions, optionId]));
+
+    // 投票状態を更新
+    const newVotedOptions = new Set<number>();
+    updatedOptions.forEach(option => {
+      if (option.voters.some(voter => voter.id === userId)) {
+        newVotedOptions.add(option.id);
+      }
+    });
+    setVotedOptions(newVotedOptions);
 
     try {
       await fetch('/api/polls', {
@@ -169,14 +251,36 @@ export default function PollPage() {
     }
   };
 
-  const copyUrl = () => {
-    navigator.clipboard.writeText(window.location.href);
-    setSnackbarMessage('URLをコピーしました！');
-    setSnackbarOpen(true);
+
+  const handleNameSubmit = () => {
+    if (tempName.trim()) {
+      const pollId = params.id;
+      const userId = `voter_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      const userInfo = {
+        id: userId,
+        name: tempName.trim()
+      };
+
+      setUserName(userInfo.name);
+      setUserId(userInfo.id);
+
+      // クッキーに保存（7日間有効）
+      const cookieName = `voterInfo_${pollId}`;
+      const cookieValue = encodeURIComponent(JSON.stringify(userInfo));
+      const expires = new Date();
+      expires.setDate(expires.getDate() + 7);
+      document.cookie = `${cookieName}=${cookieValue}; expires=${expires.toUTCString()}; path=/`;
+
+      setNameDialogOpen(false);
+    }
   };
 
-  const getTotalVotes = () => {
-    return poll?.options.reduce((sum, option) => sum + option.votes, 0) || 0;
+  const isVotedByUser = (option: Option) => {
+    return option.voters.some(voter => voter.id === userId);
+  };
+
+  const hasUserVoted = () => {
+    return poll?.options.some(option => option.voters.some(voter => voter.id === userId)) || false;
   };
 
   if (loading) {
@@ -221,49 +325,43 @@ export default function PollPage() {
       <Fade in timeout={800}>
         <Box>
           {/* ヘッダー */}
-          <Paper elevation={3} sx={{ p: 4, mb: 4, textAlign: 'center' }}>
-            <Typography variant="h3" component="h1" gutterBottom fontWeight="bold">
-              {poll.title}
-            </Typography>
-            <Typography variant="h6" color="text.secondary" sx={{ mb: 3 }}>
-              総投票数: {getTotalVotes()}票
-            </Typography>
-
-            <Button
-              onClick={copyUrl}
-              variant="contained"
-              startIcon={<CopyIcon />}
-              size="large"
-              sx={{
-                background: 'linear-gradient(45deg, #1976d2 30%, #42a5f5 90%)',
-                '&:hover': {
-                  background: 'linear-gradient(45deg, #1565c0 30%, #1976d2 90%)',
-                }
-              }}
-            >
-              URLをコピー
-            </Button>
-          </Paper>
 
           {/* 選択肢カード */}
-          <Grid container spacing={3}>
+          <Box
+            sx={{
+              display: 'flex',
+              flexWrap: 'wrap',
+              gap: 3,
+              justifyContent: 'center'
+            }}
+          >
             {poll.options.map((option, index) => {
-              const isVoted = votedOptions.has(option.id);
+              const isVoted = isVotedByUser(option);
               const isVoting = voting === option.id;
-              const votePercentage = getTotalVotes() > 0 ? (option.votes / getTotalVotes()) * 100 : 0;
+              const totalVotes = poll?.options.reduce((sum, option) => sum + option.votes, 0) || 0;
+              const votePercentage = totalVotes > 0 ? (option.votes / totalVotes) * 100 : 0;
 
               return (
-                <Grid item xs={12} sm={6} lg={4} key={option.id}>
+                <Box
+                  key={option.id}
+                  sx={{
+                    flex: '0 0 calc(33.333% - 16px)',
+                    minWidth: '280px',
+                    maxWidth: '400px',
+                    '@media (max-width: 900px)': {
+                      flex: '0 0 calc(50% - 12px)',
+                    },
+                    '@media (max-width: 600px)': {
+                      flex: '0 0 100%',
+                    }
+                  }}
+                >
                   <Fade in timeout={600 + index * 100}>
                     <Card
                       sx={{
                         height: '100%',
                         display: 'flex',
-                        flexDirection: 'column',
-                        transition: 'transform 0.2s ease-in-out',
-                        '&:hover': {
-                          transform: 'translateY(-4px)',
-                        }
+                        flexDirection: 'column'
                       }}
                     >
                       {/* 画像エリア */}
@@ -295,19 +393,41 @@ export default function PollPage() {
                         <Typography variant="h6" component="h3" gutterBottom fontWeight="bold">
                           {option.title || "店舗情報を取得中..."}
                         </Typography>
-                        <Typography
-                          variant="body2"
-                          color="text.secondary"
-                          sx={{
-                            mb: 2,
-                            display: '-webkit-box',
-                            WebkitLineClamp: 2,
-                            WebkitBoxOrient: 'vertical',
-                            overflow: 'hidden',
-                          }}
-                        >
-                          {option.description || "説明を取得中..."}
-                        </Typography>
+                        {/* 店舗情報セクション */}
+                        <Box sx={{ mb: 2 }}>
+                          {/* 説明 */}
+                          <Box>
+                            <Typography
+                              variant="body2"
+                              color="text.secondary"
+                              sx={{
+                                display: '-webkit-box',
+                                WebkitLineClamp: 2,
+                                WebkitBoxOrient: 'vertical',
+                                overflow: 'hidden',
+                                fontSize: '0.875rem',
+                                lineHeight: 1.4,
+                              }}
+                            >
+                              {(option.description || "説明を取得中...").replace(/★+[☆]*[0-9.]+/g, '').trim()}
+                            </Typography>
+                          </Box>
+                        </Box>
+
+                        {/* 元のページへのリンク */}
+                        <Box sx={{ p: 2 }}>
+                          <Button
+                            href={option.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            startIcon={<OpenInNewIcon />}
+                            variant="text"
+                            fullWidth
+                            size="small"
+                          >
+                            詳細を見る
+                          </Button>
+                        </Box>
 
                         {/* 投票結果 */}
                         <Box sx={{ mb: 2 }}>
@@ -324,15 +444,35 @@ export default function PollPage() {
                             value={votePercentage}
                             sx={{ height: 8, borderRadius: 4 }}
                           />
+                          {/* 投票者一覧 */}
+                          {option.voters.length > 0 && (
+                            <Box sx={{ mt: 1 }}>
+                              <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5 }}>
+                                投票者:
+                              </Typography>
+                              <Box display="flex" flexWrap="wrap" gap={0.5}>
+                                {option.voters.map((voter, idx) => (
+                                  <Chip
+                                    key={idx}
+                                    label={voter.name}
+                                    size="small"
+                                    variant={voter.id === userId ? "filled" : "outlined"}
+                                    color={voter.id === userId ? "primary" : "default"}
+                                    sx={{ fontSize: '0.7rem' }}
+                                  />
+                                ))}
+                              </Box>
+                            </Box>
+                          )}
                         </Box>
                       </CardContent>
 
                       <CardActions sx={{ p: 2, pt: 0 }}>
                         <Button
                           onClick={() => vote(option.id)}
-                          disabled={isVoted || isVoting}
+                          disabled={isVoting}
                           variant={isVoted ? "outlined" : "contained"}
-                          startIcon={isVoted ? <ThumbUpIcon /> : <ThumbUpIcon />}
+                          startIcon={<ThumbUpIcon />}
                           fullWidth
                           size="large"
                           sx={{
@@ -351,34 +491,46 @@ export default function PollPage() {
                           ) : isVoted ? (
                             '投票済み'
                           ) : (
-                            '👍 いいね'
+                            '投票する'
                           )}
                         </Button>
                       </CardActions>
-
-                      {/* 元のページへのリンク */}
-                      <Box sx={{ p: 2, pt: 0 }}>
-                        <Button
-                          href={option.url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          startIcon={<OpenInNewIcon />}
-                          variant="text"
-                          fullWidth
-                          size="small"
-                        >
-                          詳細を見る
-                        </Button>
-                      </Box>
                     </Card>
                   </Fade>
-                </Grid>
+                </Box>
               );
             })}
-          </Grid>
+          </Box>
 
         </Box>
       </Fade>
+
+      {/* 名前入力ダイアログ */}
+      <Dialog open={nameDialogOpen} onClose={() => { }} maxWidth="sm" fullWidth>
+        <DialogTitle>投票者名を入力してください</DialogTitle>
+        <DialogContent>
+          <TextField
+            autoFocus
+            margin="dense"
+            label="お名前"
+            fullWidth
+            variant="outlined"
+            value={tempName}
+            onChange={(e) => setTempName(e.target.value)}
+            onKeyPress={(e) => {
+              if (e.key === 'Enter') {
+                handleNameSubmit();
+              }
+            }}
+            sx={{ mt: 2 }}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleNameSubmit} variant="contained" disabled={!tempName.trim()}>
+            決定
+          </Button>
+        </DialogActions>
+      </Dialog>
 
       {/* スナックバー */}
       <Snackbar

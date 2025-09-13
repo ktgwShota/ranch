@@ -98,15 +98,8 @@ export default function Footer() {
               </Box>
               <Box>
                 <Typography variant="h5" fontWeight="bold" color="primary" gutterBottom>
-                  ランチ投票ツール
+                  チョイスル
                 </Typography>
-                <Chip
-                  label="β版"
-                  size="small"
-                  color="primary"
-                  variant="outlined"
-                  sx={{ fontSize: '0.75rem' }}
-                />
               </Box>
             </Box>
             <Typography
@@ -118,10 +111,7 @@ export default function Footer() {
                 fontSize: '0.95rem'
               }}
             >
-              面倒なランチ決め、一瞬で解決。お店のURLを貼るだけで写真付きの投票ページを30秒で作成・共有できるWebツール
-            </Typography>
-            <Typography variant="body2" color="text.secondary" sx={{ fontStyle: 'italic' }}>
-              「今日何食べる？」の悩みを、みんなで楽しく解決しましょう 🍽️
+              xxxx Webツール
             </Typography>
           </Box>
 

@@ -14,8 +14,8 @@ const roboto = Roboto({
 });
 
 export const metadata: Metadata = {
-  title: "ランチ投票ツール",
-  description: "面倒なランチ決め、一瞬で解決。お店のURLを貼るだけで写真付きの投票ページを30秒で作成・共有できるWebツール",
+  title: "チョイスル",
+  description: "チョイスルは、ランチのお店選びに特化したログイン不要・無料で使用できるの投票ツールです。主要なグルメサイトに対応、URLを貼るだけで写真付きのアンケートを簡単に作成・共有できます。",
 };
 
 export default function RootLayout({
