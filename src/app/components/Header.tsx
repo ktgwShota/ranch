@@ -7,7 +7,11 @@ import {
   useTheme,
   useMediaQuery,
   Container,
+  Button,
 } from '@mui/material';
+import {
+  Add as AddIcon,
+} from '@mui/icons-material';
 import Link from 'next/link';
 
 export default function Header() {
@@ -19,12 +23,12 @@ export default function Header() {
       position="static"
       elevation={0}
       sx={{
-        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-        borderBottom: '1px solid rgba(255, 255, 255, 0.12)',
+        background: '#fafafa',
         backdropFilter: 'blur(10px)',
+        borderBottom: '1px solid #e0e0e0',
       }}
     >
-      <Container maxWidth={false} sx={{ maxWidth: '1000px' }}>
+      <Container maxWidth={false} sx={{ maxWidth: '900px' }}>
         <Toolbar sx={{
           justifyContent: 'space-between',
           height: '70px',
@@ -37,15 +41,14 @@ export default function Header() {
               component="h1"
               fontWeight="700"
               sx={{
-                color: 'white',
+                color: '#777',
                 letterSpacing: '-0.02em',
                 textShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
               }}
             >
-              チョイスル
+              サイトロゴ【仮】
             </Typography>
           </Link>
-
         </Toolbar>
       </Container>
     </AppBar>

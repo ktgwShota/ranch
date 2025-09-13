@@ -321,7 +321,7 @@ export default function PollPage() {
   }
 
   return (
-    <Container maxWidth={false} sx={{ py: 4, maxWidth: '1000px' }}>
+    <Container maxWidth="md" sx={{ py: 4 }}>
       <Fade in timeout={800}>
         <Box>
           {/* 投票ページヘッダー */}
@@ -330,7 +330,6 @@ export default function PollPage() {
               background: '#f8f9fa',
               borderRadius: 1,
               p: 4,
-              mb: 3,
               textAlign: 'center',
               border: '1px solid #ddd',
             }}
@@ -353,8 +352,9 @@ export default function PollPage() {
             sx={{
               display: 'flex',
               flexWrap: 'wrap',
-              gap: 3,
-              justifyContent: 'center'
+              gap: 4,
+              p: 4,
+              justifyContent: 'center',
             }}
           >
             {poll.options.map((option, index) => {
@@ -378,10 +378,16 @@ export default function PollPage() {
                 >
                   <Fade in timeout={600 + index * 100}>
                     <Card
+                      elevation={0}
                       sx={{
                         height: '100%',
                         display: 'flex',
-                        flexDirection: 'column'
+                        flexDirection: 'column',
+                        boxShadow: 'none',
+                        border: '1px solid #e0e0e0',
+                        '&:hover': {
+                          boxShadow: 'none'
+                        }
                       }}
                     >
                       {/* 画像エリア */}
@@ -536,6 +542,9 @@ export default function PollPage() {
             })}
           </Box>
 
+          <div className="border border-gray-200 bg-gray-100 p-3 rounded-md h-32">
+            バナー広告
+          </div>
         </Box>
       </Fade>
 

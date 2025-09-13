@@ -46,7 +46,7 @@ export default function Footer() {
         }
       }}
     >
-      <Container maxWidth={false} sx={{ maxWidth: '1000px', pt: 4, pb: 2 }}>
+      <Container maxWidth={false} sx={{ maxWidth: '900px', pt: 4, pb: 2 }}>
         {/* メインコンテンツ */}
         <Box
           display="flex"
