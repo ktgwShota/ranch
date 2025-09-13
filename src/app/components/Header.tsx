@@ -13,10 +13,18 @@ import {
   Add as AddIcon,
 } from '@mui/icons-material';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 
 export default function Header() {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+  const pathname = usePathname();
+  const isHomePage = pathname === '/';
+
+  // トップページではヘッダーを非表示
+  if (isHomePage) {
+    return null;
+  }
 
   return (
     <AppBar
@@ -26,6 +34,7 @@ export default function Header() {
         background: '#fafafa',
         backdropFilter: 'blur(10px)',
         borderBottom: '1px solid #e0e0e0',
+        zIndex: 1000,
       }}
     >
       <Container maxWidth={false} sx={{ maxWidth: '900px' }}>

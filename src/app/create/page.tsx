@@ -130,16 +130,13 @@ export default function CreatePage() {
 
   return (
     <Container maxWidth="md">
-      <div className="border border-gray-200 bg-gray-100 p-3 rounded-md h-32 my-6">
-        バナー広告
-      </div>
-
       {/* メインフォーム */}
       <Paper
         elevation={0}
         sx={{
           p: 5,
-          borderRadius: 1.5,
+          mt: 3,
+          borderRadius: 0.5,
           border: '1px solid #ddd',
           backgroundColor: 'white',
         }}
