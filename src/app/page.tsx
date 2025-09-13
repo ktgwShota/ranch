@@ -155,7 +155,7 @@ export default function Home() {
                   mb: 2
                 }}
               >
-                決まらないお店選びは、多数決ツール「チョイスル」で即決。
+                決まらないお店選びは、多数決ツール「チョイスル」で解決できます。
               </Typography>
               <Typography
                 sx={{
@@ -350,11 +350,12 @@ export default function Home() {
                         checked={agreedToTerms}
                         onChange={(e) => setAgreedToTerms(e.target.checked)}
                         color="primary"
+                        size="small"
                       />
                     }
                     label={
                       <Typography variant="body2" color="text.secondary" sx={{ fontWeight: 500 }}>
-                        利用規約に同意する
+                        <a href="/terms" style={{ color: '#1976d2', textDecoration: 'none' }}>利用規約</a>に同意する
                       </Typography>
                     }
                   />

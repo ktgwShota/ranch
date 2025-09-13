@@ -321,10 +321,32 @@ export default function PollPage() {
   }
 
   return (
-    <Container maxWidth="lg" sx={{ py: 4 }}>
+    <Container maxWidth={false} sx={{ py: 4, maxWidth: '1000px' }}>
       <Fade in timeout={800}>
         <Box>
-          {/* ヘッダー */}
+          {/* 投票ページヘッダー */}
+          <Box
+            sx={{
+              background: '#f8f9fa',
+              borderRadius: 1,
+              p: 4,
+              mb: 3,
+              textAlign: 'center',
+              border: '1px solid #ddd',
+            }}
+          >
+            <Typography
+              variant="h6"
+              component="h1"
+              fontWeight="600"
+              sx={{
+                color: '#495057',
+                fontSize: '1.3rem',
+              }}
+            >
+              {poll.title}
+            </Typography>
+          </Box>
 
           {/* 選択肢カード */}
           <Box
@@ -346,8 +368,6 @@ export default function PollPage() {
                   key={option.id}
                   sx={{
                     flex: '0 0 calc(33.333% - 16px)',
-                    minWidth: '280px',
-                    maxWidth: '400px',
                     '@media (max-width: 900px)': {
                       flex: '0 0 calc(50% - 12px)',
                     },
@@ -390,11 +410,24 @@ export default function PollPage() {
                       </CardMedia>
 
                       <CardContent sx={{ flexGrow: 1, p: 3 }}>
-                        <Typography variant="h6" component="h3" gutterBottom fontWeight="bold">
+                        <Typography
+                          variant="h6"
+                          component="h3"
+                          gutterBottom
+                          fontWeight="bold"
+                          sx={{
+                            display: '-webkit-box',
+                            WebkitLineClamp: 1,
+                            WebkitBoxOrient: 'vertical',
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            whiteSpace: 'nowrap'
+                          }}
+                        >
                           {option.title || "店舗情報を取得中..."}
                         </Typography>
                         {/* 店舗情報セクション */}
-                        <Box sx={{ mb: 2 }}>
+                        <Box sx={{ mb: 1 }}>
                           {/* 説明 */}
                           <Box>
                             <Typography
@@ -405,6 +438,7 @@ export default function PollPage() {
                                 WebkitLineClamp: 2,
                                 WebkitBoxOrient: 'vertical',
                                 overflow: 'hidden',
+                                textOverflow: 'ellipsis',
                                 fontSize: '0.875rem',
                                 lineHeight: 1.4,
                               }}
@@ -415,7 +449,7 @@ export default function PollPage() {
                         </Box>
 
                         {/* 元のページへのリンク */}
-                        <Box sx={{ p: 2 }}>
+                        <Box mb={1}>
                           <Button
                             href={option.url}
                             target="_blank"
@@ -423,9 +457,9 @@ export default function PollPage() {
                             startIcon={<OpenInNewIcon />}
                             variant="text"
                             fullWidth
-                            size="small"
+                            size="medium"
                           >
-                            詳細を見る
+                            詳しく見る
                           </Button>
                         </Box>
 

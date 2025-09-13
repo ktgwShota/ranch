@@ -4,16 +4,10 @@ import {
   AppBar,
   Toolbar,
   Typography,
-  Button,
-  Box,
-  IconButton,
   useTheme,
   useMediaQuery,
+  Container,
 } from '@mui/material';
-import {
-  Restaurant as RestaurantIcon,
-  Share as ShareIcon,
-} from '@mui/icons-material';
 import Link from 'next/link';
 
 export default function Header() {
@@ -25,51 +19,35 @@ export default function Header() {
       position="static"
       elevation={0}
       sx={{
-        background: 'linear-gradient(45deg, #1976d2 30%, #42a5f5 90%)',
-        borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
+        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+        borderBottom: '1px solid rgba(255, 255, 255, 0.12)',
+        backdropFilter: 'blur(10px)',
       }}
     >
-      <Toolbar sx={{ justifyContent: 'space-between', py: 1 }}>
-        {/* ロゴとタイトル */}
-        <Box display="flex" alignItems="center" gap={2}>
+      <Container maxWidth={false} sx={{ maxWidth: '1000px' }}>
+        <Toolbar sx={{
+          justifyContent: 'space-between',
+          height: '70px',
+          px: 0.5,
+        }}>
+          {/* ロゴとタイトル */}
           <Link href="/" style={{ textDecoration: 'none', color: 'inherit' }}>
-            <Box display="flex" alignItems="center" gap={1}>
-              <RestaurantIcon sx={{ fontSize: 32 }} />
-              <Typography
-                variant={isMobile ? "h6" : "h5"}
-                component="h1"
-                fontWeight="bold"
-                sx={{
-                  background: 'linear-gradient(45deg, #ffffff 30%, #e3f2fd 90%)',
-                  backgroundClip: 'text',
-                  WebkitBackgroundClip: 'text',
-                  WebkitTextFillColor: 'transparent',
-                }}
-              >
-                チョイスル
-              </Typography>
-            </Box>
+            <Typography
+              variant={isMobile ? "h6" : "h5"}
+              component="h1"
+              fontWeight="700"
+              sx={{
+                color: 'white',
+                letterSpacing: '-0.02em',
+                textShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+              }}
+            >
+              チョイスル
+            </Typography>
           </Link>
-        </Box>
 
-        {/* ナビゲーション */}
-        <Box display="flex" alignItems="center" gap={1}>
-          <Button
-            component={Link}
-            href="/"
-            startIcon={<ShareIcon />}
-            sx={{
-              color: 'white',
-              fontWeight: 500,
-              '&:hover': {
-                backgroundColor: 'rgba(255, 255, 255, 0.1)',
-              }
-            }}
-          >
-            {isMobile ? '' : '新しい投票を作成'}
-          </Button>
-        </Box>
-      </Toolbar>
+        </Toolbar>
+      </Container>
     </AppBar>
   );
 }
