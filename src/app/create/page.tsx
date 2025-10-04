@@ -65,6 +65,7 @@ export default function CreatePage() {
     }
   };
 
+
   const addOption = () => {
     if (options.length < 6) {
       setOptions([...options, { id: Date.now(), url: "" }]);
@@ -165,26 +166,12 @@ export default function CreatePage() {
           backgroundColor: 'white',
         }}
       >
-        {/* エラー表示 */}
-        {error && (
-          <Alert
-            severity="error"
-            sx={{
-              mb: 4,
-              borderRadius: 2,
-              border: '1px solid #ffebee',
-              backgroundColor: '#ffebee'
-            }}
-          >
-            {error}
-          </Alert>
-        )}
-
         <Box component="form" sx={{ '& > *': { mb: 4 } }}>
           <Box>
             <Typography variant="subtitle1" gutterBottom sx={{ fontWeight: 600, color: 'text.primary', mb: 2 }}>
               タイトル <span style={{ color: '#f44336' }}>*</span>
             </Typography>
+
             <TextField
               fullWidth
               placeholder="歓迎会のお店はどこがいい？"
@@ -258,15 +245,18 @@ export default function CreatePage() {
                       size="small"
                       error={!!urlErrors[option.id]}
                       helperText={urlErrors[option.id] || ''}
+                      FormHelperTextProps={{
+                        sx: { fontSize: '0.875rem', fontWeight: 500 }
+                      }}
                       sx={{
                         '& .MuiOutlinedInput-root': {
                           borderRadius: 0.5,
                           backgroundColor: '#fafafa',
                           '&:hover .MuiOutlinedInput-notchedOutline': {
-                            borderColor: '#1976d2',
+                            borderColor: urlErrors[option.id] ? '#f44336' : '#1976d2',
                           },
                           '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                            borderColor: '#1976d2',
+                            borderColor: urlErrors[option.id] ? '#f44336' : '#1976d2',
                             borderWidth: 2,
                           }
                         }
@@ -340,7 +330,7 @@ export default function CreatePage() {
               color: 'text.primary',
               fontWeight: 600
             }}>
-              投票期限設定
+              投票期限
             </Typography>
             <Box display="flex" flexDirection="column" gap={3}>
               <Box display="flex" alignItems="center" gap={3} flexWrap="wrap">
@@ -421,12 +411,12 @@ export default function CreatePage() {
                 textAlign: 'center',
                 lineHeight: 1.6
               }}>
-                締切日時を設定すると指定時刻に投票が自動で終了します。設定しない場合は無期限で投票可能です。
+                投票期限を設定すると指定時刻に投票が自動で終了します。設定しない場合は無期限で投票可能です。
               </Typography>
             </Box>
           </Box>
 
-          <Box display="flex" justifyContent="center" my={3}>
+          <Box display="flex" justifyContent="center" my={4}>
             <FormControlLabel
               control={
                 <Checkbox
@@ -477,6 +467,25 @@ export default function CreatePage() {
               'ページを作成'
             )}
           </Button>
+
+          {/* エラー表示 */}
+          {error && (
+            <Alert
+              severity="error"
+              sx={{
+                mt: 4,
+                mb: 0,
+                border: '1px solid #ffebee',
+                backgroundColor: '#ffebee',
+                '& .MuiAlert-message': {
+                  fontSize: '0.875rem',
+                  fontWeight: 500
+                }
+              }}
+            >
+              {error}
+            </Alert>
+          )}
         </Box>
       </Paper>
     </Container>
