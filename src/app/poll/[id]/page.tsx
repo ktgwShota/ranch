@@ -29,6 +29,7 @@ import {
 } from '@mui/material';
 import {
   ThumbUp as ThumbUpIcon,
+  Check as CheckIcon,
   Restaurant as RestaurantIcon,
   OpenInNew as OpenInNewIcon,
   Home as HomeIcon,
@@ -283,6 +284,7 @@ export default function PollPage() {
     return option.voters.some(voter => voter.id === userId);
   };
 
+
   // TODO: ページが存在しない場合はエラー画面を表示
 
   return (
@@ -455,7 +457,7 @@ export default function PollPage() {
                     target="_blank"
                     rel="noopener noreferrer"
                     sx={{
-                      height: 220,
+                      height: 160,
                       backgroundImage: option.image
                         ? `url(${option.image})`
                         : 'linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%)',
@@ -468,18 +470,13 @@ export default function PollPage() {
                       overflow: 'hidden',
                       textDecoration: 'none',
                       cursor: 'pointer',
-                      transition: 'all 0.3s ease',
                       '&:hover': {
-                        transform: 'scale(1.02)',
-                        '&::after': {
-                          content: '""',
-                          position: 'absolute',
-                          top: 0,
-                          left: 0,
-                          right: 0,
-                          bottom: 0,
-                          background: 'rgba(25, 118, 210, 0.1)',
-                          zIndex: 3
+                        '& .external-link-icon': {
+                          opacity: 1,
+                          transform: 'translateY(0)'
+                        },
+                        '& .title-text': {
+                          color: '#64b5f6 !important'
                         }
                       },
                       '&::before': {
@@ -502,24 +499,38 @@ export default function PollPage() {
                       width: '100%'
                     }}>
                       {option.title ? (
-                        <Typography
-                          variant="h6"
-                          fontWeight="800"
-                          sx={{
-                            color: 'white',
-                            fontSize: '1.2rem',
-                            lineHeight: 1.3,
-                            textShadow: '0 2px 8px rgba(0,0,0,0.7)',
-                            display: '-webkit-box',
-                            WebkitLineClamp: 2,
-                            WebkitBoxOrient: 'vertical',
-                            overflow: 'hidden',
-                            textOverflow: 'ellipsis',
-                            minHeight: '2.6rem'
-                          }}
-                        >
-                          {option.title}
-                        </Typography>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                          <Typography
+                            variant="h6"
+                            fontWeight="800"
+                            className="title-text"
+                            sx={{
+                              color: 'white',
+                              fontSize: '1.2rem',
+                              lineHeight: 1.3,
+                              textShadow: '0 2px 8px rgba(0,0,0,0.7)',
+                              overflow: 'hidden',
+                              textOverflow: 'ellipsis',
+                              whiteSpace: 'nowrap',
+                              flex: 1,
+                              transition: 'color 0.3s ease'
+                            }}
+                          >
+                            {option.title}
+                          </Typography>
+                          {/* 外部リンクアイコン */}
+                          <OpenInNewIcon
+                            className="external-link-icon"
+                            sx={{
+                              color: 'white',
+                              fontSize: '1.2rem',
+                              opacity: 0.7,
+                              transform: 'translateY(4px)',
+                              transition: 'all 0.3s ease',
+                              textShadow: '0 2px 8px rgba(0,0,0,0.7)'
+                            }}
+                          />
+                        </Box>
                       ) : (
                         <Skeleton
                           variant="text"
@@ -589,22 +600,18 @@ export default function PollPage() {
                       {/* 投票数とパーセンテージ */}
                       <Box sx={{ position: 'relative', zIndex: 2 }}>
                         <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
-                          <Box>
+                          <Box textAlign="center">
                             <Typography variant="h3" sx={{
                               color: 'white',
                               fontWeight: 900,
                               fontSize: '2.2rem',
                               textShadow: '0 2px 4px rgba(0,0,0,0.3)',
-                              mb: 0.5
+                              '& .vote-unit': {
+                                fontSize: '0.85rem',
+                                fontWeight: 500
+                              }
                             }}>
-                              {option.votes}
-                            </Typography>
-                            <Typography variant="body2" sx={{
-                              color: 'rgba(255,255,255,0.8)',
-                              fontWeight: 500,
-                              fontSize: '0.85rem'
-                            }}>
-                              票
+                              {option.votes} <span className="vote-unit">票</span>
                             </Typography>
                           </Box>
                           <Box textAlign="center">
@@ -616,18 +623,12 @@ export default function PollPage() {
                             }}>
                               {votePercentage.toFixed(1)}%
                             </Typography>
-                            <Typography variant="body2" sx={{
-                              color: 'rgba(255,255,255,0.8)',
-                              fontWeight: 500,
-                              fontSize: '0.85rem'
-                            }}>
-                              支持率
-                            </Typography>
                           </Box>
                         </Box>
 
+
                         {/* プログレスバー */}
-                        <Box sx={{ mb: 2.5 }}>
+                        <Box sx={{ mb: 3 }}>
                           <LinearProgress
                             variant="determinate"
                             value={votePercentage}
@@ -644,77 +645,44 @@ export default function PollPage() {
                           />
                         </Box>
 
-                        {/* 投票者一覧 */}
-                        {option.voters.length > 0 && (
-                          <Box sx={{ mb: 2.5 }}>
-                            <Typography variant="caption" sx={{
-                              color: 'rgba(255,255,255,0.9)',
-                              fontWeight: 600,
-                              fontSize: '0.8rem',
-                              display: 'block',
-                              mb: 1
-                            }}>
-                              投票者 ({option.voters.length}人)
-                            </Typography>
-                            <Box display="flex" flexWrap="wrap" gap={0.8}>
-                              {option.voters.map((voter, idx) => (
-                                <Chip
-                                  key={idx}
-                                  label={voter.name}
-                                  size="small"
-                                  sx={{
-                                    fontSize: '0.75rem',
-                                    fontWeight: 600,
-                                    backgroundColor: voter.id === userId ? 'rgba(255,255,255,0.9)' : 'rgba(255,255,255,0.2)',
-                                    color: voter.id === userId ? '#667eea' : 'white',
-                                    border: voter.id === userId ? '2px solid rgba(255,255,255,0.5)' : '1px solid rgba(255,255,255,0.3)',
-                                    '&:hover': {
-                                      backgroundColor: voter.id === userId ? 'white' : 'rgba(255,255,255,0.3)'
-                                    }
-                                  }}
-                                />
-                              ))}
-                            </Box>
-                          </Box>
-                        )}
 
                         {/* 投票ボタン */}
                         <Button
                           onClick={() => vote(option.id)}
                           disabled={isVoting}
                           variant={isVoted ? "outlined" : "contained"}
-                          startIcon={<ThumbUpIcon />}
+                          startIcon={isVoted ? <CheckIcon sx={{ fontSize: '1.2rem' }} /> : <ThumbUpIcon sx={{ fontSize: '1.2rem' }} />}
                           fullWidth
                           size="large"
                           sx={{
                             borderRadius: 3,
                             textTransform: 'none',
                             fontWeight: 800,
-                            fontSize: '1.1rem',
+                            fontSize: '1rem',
                             py: 2,
                             position: 'relative',
                             zIndex: 2,
+                            minHeight: '64px',
                             ...(isVoted && {
                               color: 'white',
-                              borderColor: 'rgba(255,255,255,0.8)',
+                              borderColor: 'rgba(255,255,255,0.6)',
                               borderWidth: 2,
-                              backgroundColor: 'rgba(255,255,255,0.1)',
+                              backgroundColor: 'rgba(255,255,255,0.15)',
                               backdropFilter: 'blur(10px)',
                               '&:hover': {
-                                borderColor: 'white',
-                                backgroundColor: 'rgba(255,255,255,0.2)',
-                                transform: 'translateY(-2px)',
-                                boxShadow: '0 8px 25px rgba(0,0,0,0.2)'
+                                backgroundColor: 'rgba(255,255,255,0.25)',
+                                borderColor: 'rgba(255,255,255,0.9)',
+                                color: '#f8f9fa'
                               }
                             }),
                             ...(!isVoted && {
                               background: 'linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%)',
                               color: '#667eea',
-                              boxShadow: '0 4px 15px rgba(0,0,0,0.2)',
+                              boxShadow: '0 4px 15px rgba(0,0,0,0.15)',
                               '&:hover': {
-                                background: 'linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%)',
-                                transform: 'translateY(-2px)',
-                                boxShadow: '0 8px 25px rgba(0,0,0,0.3)'
+                                background: 'linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%)',
+                                color: '#5a67d8',
+                                boxShadow: '0 6px 20px rgba(0,0,0,0.25)'
                               }
                             })
                           }}
@@ -727,7 +695,7 @@ export default function PollPage() {
                               </Typography>
                             </Box>
                           ) : isVoted ? (
-                            '✓ 投票済み'
+                            '投票済み'
                           ) : (
                             '投票する'
                           )}
