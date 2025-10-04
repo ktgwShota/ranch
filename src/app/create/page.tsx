@@ -26,6 +26,15 @@ export default function CreatePage() {
   const [error, setError] = useState("");
   const [urlErrors, setUrlErrors] = useState<{ [key: number]: string }>({});
   const [agreedToTerms, setAgreedToTerms] = useState(true);
+  const [duration, setDuration] = useState(5); // デフォルト5分
+  const [endDate, setEndDate] = useState<string>('');
+  const [endTime, setEndTime] = useState<string>('');
+
+  // 今日の日付を取得（YYYY-MM-DD形式）
+  const today = new Date().toISOString().split('T')[0];
+  // 現在時刻を取得（HH:MM形式）
+  const now = new Date();
+  const currentTime = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
 
   const validateUrl = (url: string): string | null => {
     if (!url.trim()) return null;
@@ -99,6 +108,17 @@ export default function CreatePage() {
       return;
     }
 
+    // 締切日時のバリデーション（任意）
+    if (endDate && endTime) {
+      const selectedDateTime = new Date(`${endDate}T${endTime}`);
+      const now = new Date();
+
+      if (selectedDateTime <= now) {
+        setError('締切日時は現在時刻より後の日時を選択してください');
+        return;
+      }
+    }
+
     setLoading(true);
     setError("");
 
@@ -110,7 +130,10 @@ export default function CreatePage() {
         },
         body: JSON.stringify({
           title: title.trim(),
-          options: validOptions.map(option => option.url.trim())
+          options: validOptions.map(option => option.url.trim()),
+          duration: duration, // 締め切り時間（分）を追加
+          endDate: endDate || null, // 締切日
+          endTime: endTime || null // 締切時刻
         }),
       });
 
@@ -160,7 +183,7 @@ export default function CreatePage() {
         <Box component="form" sx={{ '& > *': { mb: 4 } }}>
           <Box>
             <Typography variant="subtitle1" gutterBottom sx={{ fontWeight: 600, color: 'text.primary', mb: 2 }}>
-              タイトル
+              タイトル <span style={{ color: '#f44336' }}>*</span>
             </Typography>
             <TextField
               fullWidth
@@ -187,7 +210,7 @@ export default function CreatePage() {
           <Box mb={3}>
             <Box mb={3}>
               <Typography variant="subtitle1" sx={{ fontWeight: 600, color: 'text.primary', mb: 1 }}>
-                お店のリスト
+                お店のリスト <span style={{ color: '#f44336' }}>*</span>
               </Typography>
               <Typography variant="body2" color="text.secondary">
                 食べログ または ぐるなび の URL を入力してください
@@ -296,11 +319,112 @@ export default function CreatePage() {
 
           <Box
             sx={{
-              height: "1px",
-              backgroundColor: '#ddd',
-              mb: 0,
+              height: "2px",
+              background: 'linear-gradient(90deg, transparent, rgba(102, 126, 234, 0.3), transparent)',
+              mb: 3,
+              mx: 2
             }}
           />
+
+          {/* 締め切り日時設定 */}
+          <Box sx={{
+            mb: 3,
+            p: 4,
+            background: 'linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%)',
+            borderRadius: 3,
+            border: '1px solid rgba(102, 126, 234, 0.1)',
+            backdropFilter: 'blur(10px)'
+          }}>
+            <Typography variant="subtitle1" sx={{
+              mb: 2,
+              color: 'text.primary',
+              fontWeight: 600
+            }}>
+              投票期限設定
+            </Typography>
+            <Box display="flex" flexDirection="column" gap={3}>
+              <Box display="flex" alignItems="center" gap={3} flexWrap="wrap">
+                <TextField
+                  type="date"
+                  value={endDate}
+                  onChange={(e) => {
+                    setEndDate(e.target.value);
+                    // 今日の日付が選択された場合、現在時刻より前の時刻はリセット
+                    if (e.target.value === today && endTime && endTime < currentTime) {
+                      setEndTime('');
+                    }
+                  }}
+                  sx={{
+                    minWidth: 180,
+                    '& .MuiOutlinedInput-root': {
+                      borderRadius: 2,
+                      backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                      '&:hover .MuiOutlinedInput-notchedOutline': {
+                        borderColor: '#667eea',
+                        borderWidth: 2,
+                      },
+                      '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                        borderColor: '#667eea',
+                        borderWidth: 2,
+                      }
+                    }
+                  }}
+                  label="締切日"
+                  InputLabelProps={{ shrink: true }}
+                  inputProps={{ min: today }}
+                />
+                <TextField
+                  type="time"
+                  value={endTime}
+                  onChange={(e) => setEndTime(e.target.value)}
+                  sx={{
+                    minWidth: 150,
+                    '& .MuiOutlinedInput-root': {
+                      borderRadius: 2,
+                      backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                      '&:hover .MuiOutlinedInput-notchedOutline': {
+                        borderColor: '#667eea',
+                        borderWidth: 2,
+                      },
+                      '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                        borderColor: '#667eea',
+                        borderWidth: 2,
+                      }
+                    }
+                  }}
+                  label="締切時刻"
+                  InputLabelProps={{ shrink: true }}
+                  inputProps={{
+                    min: endDate === today ? currentTime : '00:00'
+                  }}
+                />
+              </Box>
+              {endDate && endTime && (
+                <Box sx={{
+                  p: 2,
+                  backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                  borderRadius: 2,
+                  border: '1px solid rgba(102, 126, 234, 0.2)'
+                }}>
+                  <Typography variant="body1" sx={{
+                    color: '#667eea',
+                    fontWeight: 600,
+                    textAlign: 'center'
+                  }}>
+                    締切日時: {new Date(`${endDate}T${endTime}`).toLocaleString('ja-JP')}
+                  </Typography>
+                </Box>
+              )}
+              <Typography variant="body2" sx={{
+                color: '#6c757d',
+                fontSize: '0.95rem',
+                textAlign: 'center',
+                lineHeight: 1.6
+              }}>
+                締切日時を設定すると指定時刻に投票が自動で終了します。設定しない場合は無期限で投票可能です。
+              </Typography>
+            </Box>
+          </Box>
 
           <Box display="flex" justifyContent="center" my={3}>
             <FormControlLabel
@@ -355,10 +479,6 @@ export default function CreatePage() {
           </Button>
         </Box>
       </Paper>
-
-      <div className="border border-gray-200 bg-gray-100 p-3 rounded-md h-32 my-6">
-        バナー広告
-      </div>
     </Container>
   );
 }

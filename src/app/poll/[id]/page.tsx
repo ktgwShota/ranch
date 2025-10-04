@@ -52,6 +52,9 @@ interface Option {
 interface Poll {
   id: string;
   title: string;
+  duration?: number; // 締め切り時間（分）
+  endDateTime?: string | null; // 締切日時
+  createdAt?: string; // 作成日時
   options: Option[];
 }
 
@@ -67,6 +70,34 @@ export default function PollPage() {
   const [userId, setUserId] = useState<string>("");
   const [nameDialogOpen, setNameDialogOpen] = useState(false);
   const [tempName, setTempName] = useState<string>("");
+  const [isPollClosed, setIsPollClosed] = useState(false);
+  const [timeRemaining, setTimeRemaining] = useState<number | null>(null);
+
+  useEffect(() => {
+    // 投票締め切りタイマー（締切日時が設定されている場合のみ）
+    if (!poll || !poll.endDateTime) {
+      setIsPollClosed(false);
+      setTimeRemaining(null);
+      return;
+    }
+
+    const endTime = new Date(poll.endDateTime).getTime();
+
+    const timer = setInterval(() => {
+      const now = Date.now();
+      const remaining = Math.max(0, endTime - now);
+
+      if (remaining <= 0) {
+        setIsPollClosed(true);
+        setTimeRemaining(0);
+        clearInterval(timer);
+      } else {
+        setTimeRemaining(Math.ceil(remaining / 1000));
+      }
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [poll]);
 
   useEffect(() => {
     // クッキーからユーザー情報を取得（URLごと）
@@ -284,6 +315,30 @@ export default function PollPage() {
     return option.voters.some(voter => voter.id === userId);
   };
 
+  const getWinningOption = () => {
+    if (!poll || poll.options.length === 0) return null;
+    return poll.options.reduce((max, option) =>
+      option.votes > max.votes ? option : max
+    );
+  };
+
+  const formatTime = (seconds: number) => {
+    const days = Math.floor(seconds / (24 * 60 * 60));
+    const hours = Math.floor((seconds % (24 * 60 * 60)) / (60 * 60));
+    const mins = Math.floor((seconds % (60 * 60)) / 60);
+    const secs = seconds % 60;
+
+    if (days > 0) {
+      return `${days}日${hours}時間${mins}分`;
+    } else if (hours > 0) {
+      return `${hours}時間${mins}分`;
+    } else if (mins > 0) {
+      return `${mins}分${secs}秒`;
+    } else {
+      return `${secs}秒`;
+    }
+  };
+
 
   // TODO: ページが存在しない場合はエラー画面を表示
 
@@ -304,18 +359,90 @@ export default function PollPage() {
           {loading ? (
             <Skeleton variant="text" width="50%" height={33.27} sx={{ mx: 'auto' }} />
           ) : (
-            <Typography
-              variant="h6"
-              component="h1"
-              fontWeight="600"
-              sx={{
-                color: '#495057',
-                fontSize: '1.3rem',
-              }}
-            >
-              {poll?.title}
-            </Typography>
+            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 2 }}>
+              <Typography
+                variant="h6"
+                component="h1"
+                fontWeight="600"
+                sx={{
+                  color: '#495057',
+                  fontSize: '1.3rem',
+                  flex: 1,
+                  minWidth: 0
+                }}
+              >
+                {poll?.title}
+              </Typography>
+
+              {/* タイマー表示 */}
+              {poll && (
+                <Box sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 1,
+                  px: 2.5,
+                  py: 1.5,
+                  backgroundColor: isPollClosed ? '#ffebee' : poll?.endDateTime ? '#e3f2fd' : '#e8f5e8',
+                  borderRadius: 3,
+                  border: `2px solid ${isPollClosed ? '#f44336' : poll?.endDateTime ? '#2196f3' : '#4caf50'}`,
+                  minWidth: 'fit-content',
+                  boxShadow: isPollClosed ? '0 2px 8px rgba(244, 67, 54, 0.2)' : poll?.endDateTime ? '0 2px 8px rgba(33, 150, 243, 0.2)' : '0 2px 8px rgba(76, 175, 80, 0.2)'
+                }}>
+                  <Typography
+                    variant="caption"
+                    sx={{
+                      color: isPollClosed ? '#d32f2f' : poll?.endDateTime ? '#1976d2' : '#4caf50',
+                      fontWeight: 600,
+                      fontSize: '0.8rem',
+                      whiteSpace: 'nowrap'
+                    }}
+                  >
+                    投票時間:
+                  </Typography>
+                  {poll?.endDateTime ? (
+                    isPollClosed ? (
+                      <Typography
+                        variant="body2"
+                        sx={{
+                          color: '#d32f2f',
+                          fontWeight: 700,
+                          fontSize: '0.9rem',
+                          whiteSpace: 'nowrap'
+                        }}
+                      >
+                        終了
+                      </Typography>
+                    ) : (
+                      <Typography
+                        variant="body2"
+                        sx={{
+                          color: '#1976d2',
+                          fontWeight: 700,
+                          fontSize: '0.9rem',
+                          whiteSpace: 'nowrap'
+                        }}
+                      >
+                        {formatTime(timeRemaining || 0)}
+                      </Typography>
+                    )
+                  ) : (
+                    <Typography
+                      variant="body2"
+                      sx={{
+                        color: '#4caf50',
+                        fontWeight: 700,
+                        fontSize: '0.9rem',
+                        whiteSpace: 'nowrap'
+                      }}
+                    >
+                      無期限
+                    </Typography>
+                  )}
+                </Box>
+              )}
+            </Box>
           )}
+
         </Box>
 
         {/* 選択肢カード */}
@@ -423,6 +550,9 @@ export default function PollPage() {
               const isVoting = voting === option.id;
               const totalVotes = poll?.options.reduce((sum, option) => sum + option.votes, 0) || 0;
               const votePercentage = totalVotes > 0 ? (option.votes / totalVotes) * 100 : 0;
+              const winningOption = getWinningOption();
+              const isWinner = poll?.endDateTime ? (isPollClosed && winningOption && option.id === winningOption.id) : false;
+              const isDisabled = poll?.endDateTime ? (isPollClosed && !isWinner) : false;
 
               return (
                 <Card
@@ -434,7 +564,7 @@ export default function PollPage() {
                     display: 'flex',
                     flexDirection: 'column',
                     borderRadius: 3,
-                    border: '1px solid #e8e8e8',
+                    border: isWinner ? '2px solid #4caf50' : '1px solid #e8e8e8',
                     flex: '0 0 calc(100%)',
                     [`@media (min-width: 600px)`]: {
                       flex: '0 0 calc(50% - 12px)',
@@ -443,11 +573,16 @@ export default function PollPage() {
                       flex: '0 0 calc(50% - 16px)',
                     },
                     transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                    boxShadow: isWinner ? '0 8px 25px rgba(76, 175, 80, 0.3)' : 'none',
                     '&:hover': {
-                      transform: 'translateY(-4px)',
-                      boxShadow: '0 8px 25px rgba(0, 0, 0, 0.15)',
-                      borderColor: '#1976d2'
-                    }
+                      transform: isDisabled ? 'none' : 'translateY(-4px)',
+                      boxShadow: isWinner ? '0 8px 25px rgba(76, 175, 80, 0.4)' : isDisabled ? 'none' : '0 8px 25px rgba(0, 0, 0, 0.15)',
+                      borderColor: isWinner ? '#4caf50' : isDisabled ? '#e8e8e8' : '#1976d2'
+                    },
+                    ...(isDisabled && {
+                      opacity: 0.6,
+                      filter: 'grayscale(0.3)'
+                    })
                   }}
                 >
                   {/* 画像エリア（タイトル重ね表示） */}
@@ -646,10 +781,27 @@ export default function PollPage() {
                         </Box>
 
 
+                        {/* 勝利者表示 */}
+                        {isWinner && (
+                          <Box sx={{ mb: 2, textAlign: 'center' }}>
+                            <Typography
+                              variant="h6"
+                              sx={{
+                                color: '#4caf50',
+                                fontWeight: 800,
+                                fontSize: '1.2rem',
+                                textShadow: '0 2px 4px rgba(76, 175, 80, 0.3)'
+                              }}
+                            >
+                              🏆 勝利！
+                            </Typography>
+                          </Box>
+                        )}
+
                         {/* 投票ボタン */}
                         <Button
                           onClick={() => vote(option.id)}
-                          disabled={isVoting}
+                          disabled={isVoting || (poll?.endDateTime ? isPollClosed : false)}
                           variant={isVoted ? "outlined" : "contained"}
                           startIcon={isVoted ? <CheckIcon sx={{ fontSize: '1.2rem' }} /> : <ThumbUpIcon sx={{ fontSize: '1.2rem' }} />}
                           fullWidth

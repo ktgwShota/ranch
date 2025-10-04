@@ -5,23 +5,39 @@ let polls: any[] = [];
 
 export async function POST(request: NextRequest) {
   try {
-    const { title, options } = await request.json();
+    const body = await request.json();
+    const { title, options, duration = 5, endDate, endTime } = body as {
+      title: string;
+      options: string[];
+      duration?: number;
+      endDate?: string | null;
+      endTime?: string | null;
+    };
 
     if (!title || !options || options.length < 2) {
       return NextResponse.json({ error: 'Title and at least 2 options are required' }, { status: 400 });
     }
 
     const pollId = Date.now().toString();
+    // 締切日時の計算
+    let endDateTime: string | null = null;
+    if (endDate && endTime) {
+      endDateTime = new Date(`${endDate}T${endTime}`).toISOString();
+    }
+
     const poll = {
       id: pollId,
       title,
+      duration: duration, // 締め切り時間（分）を追加
+      endDateTime: endDateTime, // 締切日時を追加
       options: options.map((url: string, index: number) => ({
         id: index + 1,
         url,
         title: '店舗情報を取得中...',
         description: '説明を取得中...',
         image: null,
-        votes: 0
+        votes: 0,
+        voters: [] // 投票者情報を追加
       })),
       createdAt: new Date().toISOString()
     };
@@ -57,7 +73,8 @@ export async function GET(request: NextRequest) {
 
 export async function PUT(request: NextRequest) {
   try {
-    const { id, options } = await request.json();
+    const body = await request.json();
+    const { id, options } = body as { id: string; options: any[] };
 
     const pollIndex = polls.findIndex(p => p.id === id);
     if (pollIndex === -1) {
