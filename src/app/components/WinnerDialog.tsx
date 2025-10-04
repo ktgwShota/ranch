@@ -10,6 +10,7 @@ import {
   Box,
   Link,
   Chip,
+  CardMedia,
 } from '@mui/material';
 import { OpenInNew as OpenInNewIcon } from '@mui/icons-material';
 
@@ -22,6 +23,7 @@ interface Poll {
     title?: string;
     url: string;
     votes: number;
+    image?: string;
   }>;
 }
 
@@ -128,95 +130,144 @@ const WinnerDialog: React.FC = () => {
       }}>
         <Box sx={{
           m: 3,
-          p: 4,
+          p: 0,
           border: '1px solid #e0e0e0',
           borderRadius: 2,
           backgroundColor: '#fafafa',
-          position: 'relative'
+          position: 'relative',
+          overflow: 'hidden'
         }}>
-          <Typography
-            variant="h5"
-            sx={{
-              color: '#333',
-              fontWeight: 600,
-              fontSize: '1.5rem',
+          {/* お店の画像とタイトルオーバーレイ */}
+          {winningOption.image && (
+            <Box sx={{ position: 'relative', height: 200 }}>
+              <CardMedia
+                component="img"
+                height="200"
+                image={winningOption.image}
+                alt={winningOption.title || 'お店の画像'}
+                sx={{
+                  width: '100%',
+                  height: '100%',
+                  objectFit: 'cover',
+                  borderBottom: '1px solid #e0e0e0'
+                }}
+              />
+              {/* タイトルオーバーレイ */}
+              <Box
+                sx={{
+                  position: 'absolute',
+                  bottom: 0,
+                  left: 0,
+                  right: 0,
+                  background: 'linear-gradient(transparent, rgba(0,0,0,0.7))',
+                  p: 3,
+                  display: 'flex',
+                  alignItems: 'flex-end'
+                }}
+              >
+                <Typography
+                  variant="h5"
+                  sx={{
+                    color: '#fff',
+                    fontWeight: 700,
+                    fontSize: '1.8rem',
+                    lineHeight: 1.3,
+                    textShadow: '0 2px 4px rgba(0,0,0,0.5)',
+                    mb: 0
+                  }}
+                >
+                  {winningOption.title}
+                </Typography>
+              </Box>
+            </Box>
+          )}
+
+          <Box sx={{ p: 4 }}>
+            {/* 画像がない場合のタイトル表示 */}
+            {!winningOption.image && (
+              <Typography
+                variant="h5"
+                sx={{
+                  color: '#333',
+                  fontWeight: 600,
+                  fontSize: '1.5rem',
+                  mb: 3,
+                  lineHeight: 1.4
+                }}
+              >
+                {winningOption.title}
+              </Typography>
+            )}
+
+            {/* 投票結果表示 */}
+            <Box sx={{
               mb: 3,
-              lineHeight: 1.4
-            }}
-          >
-            {winningOption.title}
-          </Typography>
+              textAlign: 'center'
+            }}>
+              <Typography
+                variant="h4"
+                sx={{
+                  color: '#1976d2',
+                  fontWeight: 700,
+                  fontSize: '2.2rem',
+                  mb: 1,
+                  letterSpacing: '-0.01em'
+                }}
+              >
+                {winningPercentage}%
+              </Typography>
+              <Typography
+                variant="body1"
+                sx={{
+                  color: '#666',
+                  fontWeight: 500,
+                  fontSize: '1rem',
+                  mb: 1
+                }}
+              >
+                ({winningOption.votes}<span className="mx-0.5">/</span>{totalVotes})
+              </Typography>
+              <Typography
+                variant="body2"
+                sx={{
+                  color: '#888',
+                  fontWeight: 400,
+                  fontSize: '0.9rem'
+                }}
+              >
+                で決定しました
+              </Typography>
+            </Box>
 
-          {/* 投票結果表示 */}
-          <Box sx={{
-            mb: 3,
-            textAlign: 'center'
-          }}>
-            <Typography
-              variant="h4"
+            <Link
+              href={winningOption.url}
+              target="_blank"
+              rel="noopener noreferrer"
               sx={{
-                color: '#1976d2',
-                fontWeight: 700,
-                fontSize: '2.2rem',
-                mb: 1,
-                letterSpacing: '-0.01em'
-              }}
-            >
-              {winningPercentage}%
-            </Typography>
-            <Typography
-              variant="body1"
-              sx={{
-                color: '#666',
-                fontWeight: 500,
-                fontSize: '1rem',
-                mb: 1
-              }}
-            >
-              ({winningOption.votes}<span className="mx-0.5">/</span>{totalVotes})
-            </Typography>
-            <Typography
-              variant="body2"
-              sx={{
-                color: '#888',
-                fontWeight: 400,
-                fontSize: '0.9rem'
-              }}
-            >
-              で決定しました
-            </Typography>
-          </Box>
-
-          <Link
-            href={winningOption.url}
-            target="_blank"
-            rel="noopener noreferrer"
-            sx={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: 1.5,
-              color: '#fff',
-              textDecoration: 'none',
-              fontWeight: 600,
-              fontSize: '1rem',
-              padding: '12px 24px',
-              background: 'linear-gradient(135deg, #1976d2 0%, #42a5f5 100%)',
-              borderRadius: 2,
-              boxShadow: '0 4px 12px rgba(25, 118, 210, 0.3)',
-              transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-              letterSpacing: '0.02em',
-              '&:hover': {
-                background: 'linear-gradient(135deg, #1565c0 0%, #1976d2 100%)',
-                transform: 'translateY(-2px)',
-                boxShadow: '0 6px 20px rgba(25, 118, 210, 0.4)',
+                display: 'inline-flex',
+                alignItems: 'center',
+                color: '#fff',
                 textDecoration: 'none',
-                color: '#fff'
-              }
-            }}
-          >
-            お店の詳細
-            <OpenInNewIcon sx={{ fontSize: '1.1rem' }} />
-          </Link>
+                fontWeight: 600,
+                fontSize: '1rem',
+                padding: '12px 24px',
+                background: 'linear-gradient(135deg, #1976d2 0%, #42a5f5 100%)',
+                borderRadius: 2,
+                boxShadow: '0 4px 12px rgba(25, 118, 210, 0.3)',
+                transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                letterSpacing: '0.02em',
+                '&:hover': {
+                  background: 'linear-gradient(135deg, #1565c0 0%, #1976d2 100%)',
+                  transform: 'translateY(-2px)',
+                  boxShadow: '0 6px 20px rgba(25, 118, 210, 0.4)',
+                  textDecoration: 'none',
+                  color: '#fff'
+                }
+              }}
+            >
+              お店の詳細
+            </Link>
+          </Box>
         </Box>
       </DialogContent>
 

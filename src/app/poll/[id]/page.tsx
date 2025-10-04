@@ -514,7 +514,7 @@ export default function PollPage() {
                       whiteSpace: 'nowrap'
                     }}
                   >
-                    投票時間:
+                    投票受付:
                   </Typography>
                   {(isPollClosed || poll?.isClosed) ? (
                     <Typography
@@ -694,9 +694,7 @@ export default function PollPage() {
                     flexDirection: 'column',
                     borderRadius: 3,
                     border: isDecided ? '3px solid transparent' : '2px solid #e2e8f0',
-                    background: isDecided
-                      ? 'linear-gradient(135deg, #93c5fd 0%, #60a5fa 100%) padding-box, linear-gradient(135deg, #93c5fd 0%, #60a5fa 100%) border-box'
-                      : 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
+                    background: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
                     flex: '0 0 calc(100%)',
                     [`@media (min-width: 600px)`]: {
                       flex: '0 0 calc(50% - 12px)',
@@ -708,9 +706,9 @@ export default function PollPage() {
                     boxShadow: 'none',
                     position: 'relative',
                     '&:hover': {
-                      transform: isDisabled ? 'none' : isDecided ? 'translateY(-8px) scale(1.02)' : 'translateY(-6px)',
-                      boxShadow: isDecided ? '0 20px 40px rgba(147, 197, 253, 0.3)' : '0 10px 30px rgba(0,0,0,0.1)',
-                      borderColor: isDecided ? 'transparent' : isDisabled ? '#e2e8f0' : '#cbd5e1'
+                      transform: isDisabled ? 'none' : 'translateY(-6px)',
+                      boxShadow: '0 10px 30px rgba(0,0,0,0.1)',
+                      borderColor: isDisabled ? '#e2e8f0' : '#cbd5e1'
                     },
                     ...(isDisabled && {
                       opacity: 0.5,
@@ -719,33 +717,6 @@ export default function PollPage() {
                     })
                   }}
                 >
-                  {/* 決定ラベル */}
-                  {isDecided && (
-                    <Box
-                      sx={{
-                        position: 'absolute',
-                        top: 12,
-                        left: 12,
-                        zIndex: 10,
-                        background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
-                        color: 'white',
-                        padding: '6px 12px',
-                        borderRadius: 2,
-                        fontSize: '0.75rem',
-                        fontWeight: 600,
-                        letterSpacing: '0.025em',
-                        boxShadow: '0 4px 12px rgba(16, 185, 129, 0.3)',
-                        border: '1px solid rgba(255,255,255,0.2)',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: 0.5
-                      }}
-                    >
-                      <StarIcon sx={{ fontSize: '1rem' }} />
-                      決定
-                    </Box>
-                  )}
-
                   {/* 画像エリア（タイトル重ね表示） */}
                   <CardMedia
                     component="a"
@@ -767,10 +738,6 @@ export default function PollPage() {
                       textDecoration: 'none',
                       cursor: 'pointer',
                       '&:hover': {
-                        '& .external-link-icon': {
-                          opacity: 1,
-                          transform: 'translateY(0)'
-                        },
                         '& .title-text': {
                           color: '#64b5f6 !important'
                         }
@@ -787,6 +754,30 @@ export default function PollPage() {
                       }
                     }}
                   >
+                    {/* 決定ラベル - 画像の中央に配置 */}
+                    {isDecided && (
+                      <Box
+                        sx={{
+                          position: 'absolute',
+                          top: '50%',
+                          left: '50%',
+                          transform: 'translate(-50%, -50%)',
+                          zIndex: 10,
+                          background: 'rgba(255, 255, 255, 0.6)',
+                          color: '#1976d2',
+                          padding: '6px 12px',
+                          borderRadius: 2,
+                          fontSize: '0.8rem',
+                          fontWeight: 600,
+                          letterSpacing: '0.025em',
+                          boxShadow: '0 1px 4px rgba(0, 0, 0, 0.1)',
+                          border: '1px solid rgba(25, 118, 210, 0.15)',
+                          backdropFilter: 'blur(4px)'
+                        }}
+                      >
+                        決定
+                      </Box>
+                    )}
                     {/* タイトルを画像の上に重ね表示 */}
                     <Box sx={{
                       position: 'relative',
@@ -794,42 +785,27 @@ export default function PollPage() {
                       p: 2.5,
                       width: '100%',
                       display: 'flex',
-                      alignItems: 'center',
-                      gap: 1
+                      alignItems: 'center'
                     }}>
                       {option.title ? (
-                        <>
-                          <Typography
-                            variant="h6"
-                            fontWeight="800"
-                            className="title-text"
-                            sx={{
-                              color: 'white',
-                              fontSize: '1.2rem',
-                              lineHeight: 1.3,
-                              textShadow: '0 2px 8px rgba(0,0,0,0.7)',
-                              overflow: 'hidden',
-                              textOverflow: 'ellipsis',
-                              whiteSpace: 'nowrap',
-                              flex: 1,
-                              transition: 'color 0.3s ease'
-                            }}
-                          >
-                            {option.title}
-                          </Typography>
-                          {/* 外部リンクアイコン */}
-                          <OpenInNewIcon
-                            className="external-link-icon"
-                            sx={{
-                              color: 'white',
-                              fontSize: '1.2rem',
-                              opacity: 0.7,
-                              transform: 'translateY(4px)',
-                              transition: 'all 0.3s ease',
-                              textShadow: '0 2px 8px rgba(0,0,0,0.7)'
-                            }}
-                          />
-                        </>
+                        <Typography
+                          variant="h6"
+                          fontWeight="800"
+                          className="title-text"
+                          sx={{
+                            color: 'white',
+                            fontSize: '1.2rem',
+                            lineHeight: 1.3,
+                            textShadow: '0 2px 8px rgba(0,0,0,0.7)',
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            whiteSpace: 'nowrap',
+                            flex: 1,
+                            transition: 'color 0.3s ease'
+                          }}
+                        >
+                          {option.title}
+                        </Typography>
                       ) : (
                         <Skeleton
                           variant="text"
@@ -874,23 +850,21 @@ export default function PollPage() {
                     p: 3,
                     display: 'flex',
                     flexDirection: 'column',
-                    background: isDecided
-                      ? 'linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(248,250,252,0.95) 100%)'
-                      : 'transparent',
-                    backdropFilter: isDecided ? 'blur(10px)' : 'none',
+                    background: 'transparent',
+                    backdropFilter: 'none',
                     borderRadius: '0 0 12px 12px'
                   }}>
                     {/* 投票結果 */}
                     <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
                       <Typography variant="h3" sx={{
-                        color: isDecided ? '#3b82f6' : '#1d4ed8',
+                        color: '#1d4ed8',
                         fontWeight: 900,
                         fontSize: '2.4rem',
-                        textShadow: isDecided ? '0 2px 4px rgba(59, 130, 246, 0.3)' : 'none',
-                        background: isDecided ? 'linear-gradient(135deg, #93c5fd 0%, #60a5fa 100%)' : 'none',
-                        backgroundClip: isDecided ? 'text' : 'initial',
-                        WebkitBackgroundClip: isDecided ? 'text' : 'initial',
-                        WebkitTextFillColor: isDecided ? 'transparent' : 'initial',
+                        textShadow: 'none',
+                        background: 'none',
+                        backgroundClip: 'initial',
+                        WebkitBackgroundClip: 'initial',
+                        WebkitTextFillColor: 'initial',
                         '& .vote-unit': {
                           fontSize: '0.85rem',
                           fontWeight: 500
@@ -899,14 +873,14 @@ export default function PollPage() {
                         {option.votes} <span className="vote-unit">票</span>
                       </Typography>
                       <Typography variant="h4" sx={{
-                        color: isDecided ? '#3b82f6' : '#1d4ed8',
+                        color: '#1d4ed8',
                         fontWeight: 800,
                         fontSize: '2rem',
-                        textShadow: isDecided ? '0 2px 4px rgba(59, 130, 246, 0.3)' : 'none',
-                        background: isDecided ? 'linear-gradient(135deg, #93c5fd 0%, #60a5fa 100%)' : 'none',
-                        backgroundClip: isDecided ? 'text' : 'initial',
-                        WebkitBackgroundClip: isDecided ? 'text' : 'initial',
-                        WebkitTextFillColor: isDecided ? 'transparent' : 'initial'
+                        textShadow: 'none',
+                        background: 'none',
+                        backgroundClip: 'initial',
+                        WebkitBackgroundClip: 'initial',
+                        WebkitTextFillColor: 'initial'
                       }}>
                         {votePercentage.toFixed(1)}%
                       </Typography>
@@ -919,18 +893,14 @@ export default function PollPage() {
                       sx={{
                         height: 16,
                         borderRadius: 8,
-                        backgroundColor: isDecided
-                          ? 'rgba(147, 197, 253, 0.1)'
-                          : 'rgba(239, 246, 255, 0.8)',
-                        border: `1px solid ${isDecided ? 'rgba(147, 197, 253, 0.3)' : '#bfdbfe'}`,
+                        backgroundColor: 'rgba(239, 246, 255, 0.8)',
+                        border: '1px solid #bfdbfe',
                         mb: 3,
-                        boxShadow: isDecided ? '0 4px 12px rgba(147, 197, 253, 0.2)' : 'none',
+                        boxShadow: 'none',
                         '& .MuiLinearProgress-bar': {
                           borderRadius: 6,
-                          background: isDecided
-                            ? 'linear-gradient(90deg, #93c5fd 0%, #60a5fa 100%)'
-                            : 'linear-gradient(90deg, #60a5fa 0%, #3b82f6 100%)',
-                          boxShadow: isDecided ? '0 2px 8px rgba(147, 197, 253, 0.4)' : 'none'
+                          background: 'linear-gradient(90deg, #60a5fa 0%, #3b82f6 100%)',
+                          boxShadow: 'none'
                         }
                       }}
                     />
@@ -941,11 +911,9 @@ export default function PollPage() {
                       <Box sx={{
                         p: 3,
                         textAlign: 'center',
-                        background: isDecided
-                          ? 'linear-gradient(135deg, rgba(147, 197, 253, 0.05) 0%, rgba(96, 165, 250, 0.05) 100%)'
-                          : 'rgba(107, 114, 128, 0.05)',
+                        background: 'rgba(107, 114, 128, 0.05)',
                         borderRadius: 2,
-                        border: `1px solid ${isDecided ? 'rgba(147, 197, 253, 0.2)' : 'rgba(107, 114, 128, 0.2)'}`,
+                        border: '1px solid rgba(107, 114, 128, 0.2)',
                         backdropFilter: 'blur(4px)'
                       }}>
                         {option.voters && option.voters.length > 0 ? (
@@ -962,16 +930,14 @@ export default function PollPage() {
                                 <Box
                                   key={voter.id}
                                   sx={{
-                                    background: isDecided
-                                      ? 'rgba(147, 197, 253, 0.08)'
-                                      : 'rgba(107, 114, 128, 0.08)',
-                                    color: isDecided ? '#3b82f6' : '#6b7280',
+                                    background: 'rgba(107, 114, 128, 0.08)',
+                                    color: '#6b7280',
                                     px: 0.8,
                                     py: 0.3,
                                     borderRadius: 1,
                                     fontSize: '0.75rem',
                                     fontWeight: 500,
-                                    border: `1px solid ${isDecided ? 'rgba(147, 197, 253, 0.15)' : 'rgba(107, 114, 128, 0.15)'}`
+                                    border: '1px solid rgba(107, 114, 128, 0.15)'
                                   }}
                                 >
                                   {voter.name}
@@ -980,16 +946,14 @@ export default function PollPage() {
                               {option.voters.length > 8 && (
                                 <Box
                                   sx={{
-                                    background: isDecided
-                                      ? 'rgba(147, 197, 253, 0.08)'
-                                      : 'rgba(107, 114, 128, 0.08)',
-                                    color: isDecided ? '#3b82f6' : '#6b7280',
+                                    background: 'rgba(107, 114, 128, 0.08)',
+                                    color: '#6b7280',
                                     px: 0.8,
                                     py: 0.3,
                                     borderRadius: 1,
                                     fontSize: '0.65rem',
                                     fontWeight: 500,
-                                    border: `1px solid ${isDecided ? 'rgba(147, 197, 253, 0.15)' : 'rgba(107, 114, 128, 0.15)'}`
+                                    border: '1px solid rgba(107, 114, 128, 0.15)'
                                   }}
                                 >
                                   +{option.voters.length - 8}
@@ -999,10 +963,10 @@ export default function PollPage() {
                           </Box>
                         ) : (
                           <Typography variant="body2" sx={{
-                            color: isDecided ? '#3b82f6' : '#6b7280',
+                            color: '#6b7280',
                             fontStyle: 'italic'
                           }}>
-                            投票なし
+                            投票者が存在しません
                           </Typography>
                         )}
                       </Box>
@@ -1024,38 +988,30 @@ export default function PollPage() {
                           position: 'relative',
                           minHeight: '64px',
                           ...(isVoted && {
-                            color: isDecided ? '#3b82f6' : '#0369a1',
-                            borderColor: isDecided ? '#3b82f6' : '#bfdbfe',
+                            color: '#0369a1',
+                            borderColor: '#bfdbfe',
                             borderWidth: 2,
-                            background: isDecided
-                              ? 'linear-gradient(135deg, rgba(147, 197, 253, 0.1) 0%, rgba(96, 165, 250, 0.1) 100%)'
-                              : 'linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)',
+                            background: 'linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)',
                             backdropFilter: 'blur(10px)',
-                            boxShadow: isDecided ? '0 4px 16px rgba(147, 197, 253, 0.2)' : 'none',
+                            boxShadow: 'none',
                             fontWeight: 700,
                             '&:hover': {
-                              background: isDecided
-                                ? 'linear-gradient(135deg, rgba(147, 197, 253, 0.2) 0%, rgba(96, 165, 250, 0.2) 100%)'
-                                : 'linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%)',
-                              color: isDecided ? '#2563eb' : '#1e40af',
-                              borderColor: isDecided ? '#2563eb' : '#60a5fa',
-                              boxShadow: isDecided ? '0 6px 20px rgba(147, 197, 253, 0.3)' : 'none',
+                              background: 'linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%)',
+                              color: '#1e40af',
+                              borderColor: '#60a5fa',
+                              boxShadow: 'none',
                               transform: 'none'
                             }
                           }),
                           ...(!isVoted && {
-                            background: isDecided
-                              ? 'linear-gradient(135deg, #93c5fd 0%, #60a5fa 100%)'
-                              : 'linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)',
-                            color: isDecided ? 'white' : '#1d4ed8',
-                            boxShadow: isDecided ? '0 4px 16px rgba(147, 197, 253, 0.3)' : 'none',
-                            border: `2px solid ${isDecided ? 'transparent' : '#bfdbfe'}`,
+                            background: 'linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)',
+                            color: '#1d4ed8',
+                            boxShadow: 'none',
+                            border: '2px solid #bfdbfe',
                             '&:hover': {
-                              background: isDecided
-                                ? 'linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%)'
-                                : 'linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%)',
-                              color: isDecided ? 'white' : '#1e40af',
-                              boxShadow: isDecided ? '0 6px 20px rgba(147, 197, 253, 0.4)' : 'none',
+                              background: 'linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%)',
+                              color: '#1e40af',
+                              boxShadow: 'none',
                               transform: 'none'
                             }
                           })
