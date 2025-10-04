@@ -321,232 +321,228 @@ export default function PollPage() {
   }
 
   return (
-    <Container maxWidth="md" sx={{ py: 4 }}>
-      <Fade in timeout={800}>
-        <Box>
-          {/* 投票ページヘッダー */}
-          <Box
+    // TODO: ここの変化をアニメーションさせる
+    <Container maxWidth="md" sx={{ py: { xs: 2.5, sm: 3, md: 4 } }}>
+      <Box>
+        {/* 投票ページヘッダー */}
+        <Box
+          sx={{
+            background: '#f8f9fa',
+            borderRadius: 1,
+            p: 4,
+            textAlign: 'center',
+            border: '1px solid #ddd',
+          }}
+        >
+          <Typography
+            variant="h6"
+            component="h1"
+            fontWeight="600"
             sx={{
-              background: '#f8f9fa',
-              borderRadius: 1,
-              p: 4,
-              textAlign: 'center',
-              border: '1px solid #ddd',
+              color: '#495057',
+              fontSize: '1.3rem',
             }}
           >
-            <Typography
-              variant="h6"
-              component="h1"
-              fontWeight="600"
-              sx={{
-                color: '#495057',
-                fontSize: '1.3rem',
-              }}
-            >
-              {poll.title}
-            </Typography>
-          </Box>
+            {poll.title}
+          </Typography>
+        </Box>
 
-          {/* 選択肢カード */}
-          <Box
-            sx={{
-              display: 'flex',
-              flexWrap: 'wrap',
-              gap: 4,
-              p: 4,
-              justifyContent: 'center',
-            }}
-          >
-            {poll.options.map((option, index) => {
-              const isVoted = isVotedByUser(option);
-              const isVoting = voting === option.id;
-              const totalVotes = poll?.options.reduce((sum, option) => sum + option.votes, 0) || 0;
-              const votePercentage = totalVotes > 0 ? (option.votes / totalVotes) * 100 : 0;
+        {/* 選択肢カード */}
+        <Box
+          sx={{
+            display: 'flex',
+            flexWrap: 'wrap',
+            // TODO: ここの変化をアニメーションさせる
+            gap: { xs: 2.5, sm: 3, md: 4 },
+            my: { xs: 2.5, sm: 3, md: 4 },
+            justifyContent: 'center',
+            alignItems: 'stretch',
+          }}
+        >
+          {poll.options.map((option, index) => {
+            const isVoted = isVotedByUser(option);
+            const isVoting = voting === option.id;
+            const totalVotes = poll?.options.reduce((sum, option) => sum + option.votes, 0) || 0;
+            const votePercentage = totalVotes > 0 ? (option.votes / totalVotes) * 100 : 0;
 
-              return (
-                <Box
-                  key={option.id}
+            return (
+              <Card
+                key={option.id}
+                elevation={0}
+                sx={{
+                  width: '100%',
+                  height: '100%',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  boxShadow: 'none',
+                  border: '1px solid #e0e0e0',
+                  flex: '0 0 calc(100%)',
+                  [`@media (min-width: 600px)`]: {
+                    flex: '0 0 calc(50% - 12px)',
+                  },
+                  [`@media (min-width: 900px)`]: {
+                    flex: '0 0 calc(50% - 16px)',
+                  },
+                  '&:hover': {
+                    boxShadow: 'none'
+                  }
+                }}
+              >
+                {/* 画像エリア */}
+                <CardMedia
+                  component="div"
                   sx={{
-                    flex: '0 0 calc(33.333% - 16px)',
-                    '@media (max-width: 900px)': {
-                      flex: '0 0 calc(50% - 12px)',
-                    },
-                    '@media (max-width: 600px)': {
-                      flex: '0 0 100%',
-                    }
+                    height: 200,
+                    backgroundImage: option.image
+                      ? `url(${option.image})`
+                      : 'linear-gradient(45deg, #f5f5f5 30%, #e0e0e0 90%)',
+                    backgroundSize: 'cover',
+                    backgroundPosition: 'center',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
                   }}
                 >
-                  <Fade in timeout={600 + index * 100}>
-                    <Card
-                      elevation={0}
-                      sx={{
-                        height: '100%',
-                        display: 'flex',
-                        flexDirection: 'column',
-                        boxShadow: 'none',
-                        border: '1px solid #e0e0e0',
-                        '&:hover': {
-                          boxShadow: 'none'
-                        }
-                      }}
-                    >
-                      {/* 画像エリア */}
-                      <CardMedia
-                        component="div"
+                  {!option.image && (
+                    <Box textAlign="center">
+                      <RestaurantIcon sx={{ fontSize: 60, color: 'text.secondary', mb: 1 }} />
+                      <Typography variant="body2" color="text.secondary">
+                        画像を読み込み中...
+                      </Typography>
+                    </Box>
+                  )}
+                </CardMedia>
+
+                <CardContent sx={{ flexGrow: 1, p: 3 }}>
+                  <Typography
+                    variant="h6"
+                    component="h3"
+                    gutterBottom
+                    fontWeight="bold"
+                    sx={{
+                      display: '-webkit-box',
+                      WebkitLineClamp: 1,
+                      WebkitBoxOrient: 'vertical',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      whiteSpace: 'nowrap'
+                    }}
+                  >
+                    {option.title || "店舗情報を取得中..."}
+                  </Typography>
+                  {/* 店舗情報セクション */}
+                  <Box sx={{ mb: 1 }}>
+                    {/* 説明 */}
+                    <Box>
+                      <Typography
+                        variant="body2"
+                        color="text.secondary"
                         sx={{
-                          height: 200,
-                          backgroundImage: option.image
-                            ? `url(${option.image})`
-                            : 'linear-gradient(45deg, #f5f5f5 30%, #e0e0e0 90%)',
-                          backgroundSize: 'cover',
-                          backgroundPosition: 'center',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
+                          display: '-webkit-box',
+                          WebkitLineClamp: 2,
+                          WebkitBoxOrient: 'vertical',
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                          fontSize: '0.875rem',
+                          lineHeight: 1.4,
                         }}
                       >
-                        {!option.image && (
-                          <Box textAlign="center">
-                            <RestaurantIcon sx={{ fontSize: 60, color: 'text.secondary', mb: 1 }} />
-                            <Typography variant="body2" color="text.secondary">
-                              画像を読み込み中...
-                            </Typography>
-                          </Box>
-                        )}
-                      </CardMedia>
+                        {(option.description || "説明を取得中...").replace(/★+[☆]*[0-9.]+/g, '').trim()}
+                      </Typography>
+                    </Box>
+                  </Box>
 
-                      <CardContent sx={{ flexGrow: 1, p: 3 }}>
-                        <Typography
-                          variant="h6"
-                          component="h3"
-                          gutterBottom
-                          fontWeight="bold"
-                          sx={{
-                            display: '-webkit-box',
-                            WebkitLineClamp: 1,
-                            WebkitBoxOrient: 'vertical',
-                            overflow: 'hidden',
-                            textOverflow: 'ellipsis',
-                            whiteSpace: 'nowrap'
-                          }}
-                        >
-                          {option.title || "店舗情報を取得中..."}
+                  {/* 元のページへのリンク */}
+                  <Box mb={1}>
+                    <Button
+                      href={option.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      startIcon={<OpenInNewIcon />}
+                      variant="text"
+                      fullWidth
+                      size="medium"
+                    >
+                      詳しく見る
+                    </Button>
+                  </Box>
+
+                  {/* 投票結果 */}
+                  <Box sx={{ mb: 2 }}>
+                    <Box display="flex" justifyContent="space-between" alignItems="center" mb={1}>
+                      <Typography variant="h4" color="primary" fontWeight="bold">
+                        {option.votes}
+                      </Typography>
+                      <Typography variant="body2" color="text.secondary">
+                        {votePercentage.toFixed(1)}%
+                      </Typography>
+                    </Box>
+                    <LinearProgress
+                      variant="determinate"
+                      value={votePercentage}
+                      sx={{ height: 8, borderRadius: 4 }}
+                    />
+                    {/* 投票者一覧 */}
+                    {option.voters.length > 0 && (
+                      <Box sx={{ mt: 1 }}>
+                        <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5 }}>
+                          投票者:
                         </Typography>
-                        {/* 店舗情報セクション */}
-                        <Box sx={{ mb: 1 }}>
-                          {/* 説明 */}
-                          <Box>
-                            <Typography
-                              variant="body2"
-                              color="text.secondary"
-                              sx={{
-                                display: '-webkit-box',
-                                WebkitLineClamp: 2,
-                                WebkitBoxOrient: 'vertical',
-                                overflow: 'hidden',
-                                textOverflow: 'ellipsis',
-                                fontSize: '0.875rem',
-                                lineHeight: 1.4,
-                              }}
-                            >
-                              {(option.description || "説明を取得中...").replace(/★+[☆]*[0-9.]+/g, '').trim()}
-                            </Typography>
-                          </Box>
+                        <Box display="flex" flexWrap="wrap" gap={0.5}>
+                          {option.voters.map((voter, idx) => (
+                            <Chip
+                              key={idx}
+                              label={voter.name}
+                              size="small"
+                              variant={voter.id === userId ? "filled" : "outlined"}
+                              color={voter.id === userId ? "primary" : "default"}
+                              sx={{ fontSize: '0.7rem' }}
+                            />
+                          ))}
                         </Box>
+                      </Box>
+                    )}
+                  </Box>
+                </CardContent>
 
-                        {/* 元のページへのリンク */}
-                        <Box mb={1}>
-                          <Button
-                            href={option.url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            startIcon={<OpenInNewIcon />}
-                            variant="text"
-                            fullWidth
-                            size="medium"
-                          >
-                            詳しく見る
-                          </Button>
-                        </Box>
+                <CardActions sx={{ p: 2, pt: 0 }}>
+                  <Button
+                    onClick={() => vote(option.id)}
+                    disabled={isVoting}
+                    variant={isVoted ? "outlined" : "contained"}
+                    startIcon={<ThumbUpIcon />}
+                    fullWidth
+                    size="large"
+                    sx={{
+                      fontWeight: 600,
+                      ...(isVoted && {
+                        color: 'success.main',
+                        borderColor: 'success.main',
+                      })
+                    }}
+                  >
+                    {isVoting ? (
+                      <Box display="flex" alignItems="center" gap={1}>
+                        <CircularProgress size={16} />
+                        投票中...
+                      </Box>
+                    ) : isVoted ? (
+                      '投票済み'
+                    ) : (
+                      '投票する'
+                    )}
+                  </Button>
+                </CardActions>
+              </Card>
 
-                        {/* 投票結果 */}
-                        <Box sx={{ mb: 2 }}>
-                          <Box display="flex" justifyContent="space-between" alignItems="center" mb={1}>
-                            <Typography variant="h4" color="primary" fontWeight="bold">
-                              {option.votes}
-                            </Typography>
-                            <Typography variant="body2" color="text.secondary">
-                              {votePercentage.toFixed(1)}%
-                            </Typography>
-                          </Box>
-                          <LinearProgress
-                            variant="determinate"
-                            value={votePercentage}
-                            sx={{ height: 8, borderRadius: 4 }}
-                          />
-                          {/* 投票者一覧 */}
-                          {option.voters.length > 0 && (
-                            <Box sx={{ mt: 1 }}>
-                              <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5 }}>
-                                投票者:
-                              </Typography>
-                              <Box display="flex" flexWrap="wrap" gap={0.5}>
-                                {option.voters.map((voter, idx) => (
-                                  <Chip
-                                    key={idx}
-                                    label={voter.name}
-                                    size="small"
-                                    variant={voter.id === userId ? "filled" : "outlined"}
-                                    color={voter.id === userId ? "primary" : "default"}
-                                    sx={{ fontSize: '0.7rem' }}
-                                  />
-                                ))}
-                              </Box>
-                            </Box>
-                          )}
-                        </Box>
-                      </CardContent>
-
-                      <CardActions sx={{ p: 2, pt: 0 }}>
-                        <Button
-                          onClick={() => vote(option.id)}
-                          disabled={isVoting}
-                          variant={isVoted ? "outlined" : "contained"}
-                          startIcon={<ThumbUpIcon />}
-                          fullWidth
-                          size="large"
-                          sx={{
-                            fontWeight: 600,
-                            ...(isVoted && {
-                              color: 'success.main',
-                              borderColor: 'success.main',
-                            })
-                          }}
-                        >
-                          {isVoting ? (
-                            <Box display="flex" alignItems="center" gap={1}>
-                              <CircularProgress size={16} />
-                              投票中...
-                            </Box>
-                          ) : isVoted ? (
-                            '投票済み'
-                          ) : (
-                            '投票する'
-                          )}
-                        </Button>
-                      </CardActions>
-                    </Card>
-                  </Fade>
-                </Box>
-              );
-            })}
-          </Box>
-
-          <div className="border border-gray-200 bg-gray-100 p-3 rounded-md h-32">
-            バナー広告
-          </div>
+            );
+          })}
         </Box>
-      </Fade>
+
+        <div className="border border-gray-200 bg-gray-100 p-3 rounded-md h-32">
+          バナー広告
+        </div>
+      </Box>
 
       {/* 名前入力ダイアログ */}
       <Dialog open={nameDialogOpen} onClose={() => { }} maxWidth="sm" fullWidth>

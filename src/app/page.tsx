@@ -39,9 +39,13 @@ const FadeInItem = ({ children, ...props }: { children: React.ReactNode;[key: st
 // --- Main Page Component ---
 export default function Home() {
   const features = [
-    { icon: <BoltIcon />, title: '無料 & 会員登録不要', description: '思い立った瞬間から誰でもすぐに無料で利用を開始できます。', highlight: '完全無料' },
-    { icon: <LinkIcon />, title: '便利な自動生成', description: 'サイトの URL を貼るだけで、お店の名前と写真・説明文付きの投票ページが自動的に作成されます。', highlight: '30秒で完成' },
-    { icon: <HowToVoteIcon />, title: '分かりやすい UI', description: '複雑な設定は不要です。直感的な操作で誰でも簡単に使えます。', highlight: '直感的操作' },
+    { icon: <BoltIcon />, title: "即座に使用可能", description: '会員登録/課金は必要ありません。思い立った瞬間から誰でもすぐに無料で利用を開始できます。' },
+    { icon: <LinkIcon />, title: '自動生成', description: 'サイトの URL を貼るだけで、お店の名前と写真・説明文付きの投票ページが自動的に作成されます。' },
+    {
+      icon: <HowToVoteIcon />,
+      title: '投票の透明性',
+      description: '本音を知りたい時は「匿名」で。誰が何を食べたいかハッキリさせたい時は「実名」で。メンバーの関係性に合わせて選択できます。',
+    },
   ];
 
   const howItWorks = [
@@ -83,11 +87,9 @@ export default function Home() {
                 <Typography sx={{ color: '#666666', maxWidth: '650px', mx: 'auto', mb: 1, fontSize: { xs: '1.1rem', md: '1.25rem' } }}>
                   全員の意思を可視化する。
                 </Typography>
-              </FadeInItem>
 
-              <FadeInItem>
                 <Typography sx={{ color: '#666666', maxWidth: '650px', mx: 'auto', mb: 5, fontSize: { xs: '1.1rem', md: '1.25rem' } }}>
-                  これからの時代<span className="-mr-2">、</span>お店はスマートな多数決で決めましょう。
+                  これからは公平な多数決でお店を決める。
                 </Typography>
               </FadeInItem>
 
@@ -101,30 +103,26 @@ export default function Home() {
         </Container>
 
         {/* 特徴セクション */}
-        <Container component="section" maxWidth="lg" sx={{ height: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', scrollSnapAlign: 'start' }}>
-          <StaggeredContainer>
-            <FadeInItem>
-              <Box textAlign="center" mb={10}>
-                <Typography component="h2" variant="h2" sx={{ fontWeight: 700, mb: 2, fontSize: { xs: '2rem', md: '2.5rem' } }}>
-                  圧倒的な使いやすさ。
-                </Typography>
-                <Typography sx={{ color: '#666666', fontSize: '1.125rem', maxWidth: '600px', mx: 'auto' }}>
-                  誰もが直感的に使えることに拘った3つの特徴。
-                </Typography>
-              </Box>
-            </FadeInItem>
-            <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, gap: 4, justifyContent: 'center', alignItems: 'stretch' }}>
+        <Container component="section" maxWidth={false} sx={{ backgroundColor: '#f8fafc', height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', scrollSnapAlign: 'start', width: '100vw' }}>
+          <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', width: '100%', textAlign: 'center' }}>
+            <Box textAlign="center" mb={10}>
+              <Typography component="h2" variant="h2" sx={{ fontWeight: 700, mb: 2, fontSize: { xs: '2rem', md: '2.5rem' } }}>
+                チョイスルが選ばれる理由
+              </Typography>
+              <Typography sx={{ color: '#666666', fontSize: '1.125rem', maxWidth: '600px', mx: 'auto' }}>
+                ユーザーのニーズを満たすための3つの力
+              </Typography>
+            </Box>
+            <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, gap: 4, justifyContent: 'center', alignItems: 'stretch', width: '100%' }}>
               {features.map((feature, index) => (
-                <FadeInItem key={feature.title}>
-                  <Box sx={{ position: 'relative', p: 5, flex: 1, height: '100%', maxWidth: { xs: '100%', sm: '320px' }, borderRadius: 4, background: 'linear-gradient(135deg, rgba(52, 152, 219, 0.05) 0%, rgba(255, 255, 255, 0.8) 100%)', backdropFilter: 'blur(20px)', border: '1px solid rgba(52, 152, 219, 0.1)', boxShadow: '0 8px 32px 0 rgba(0, 0, 0, 0.1)', transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)', '&:hover': { transform: 'translateY(-8px) scale(1.02)', borderColor: 'rgba(52, 152, 219, 0.3)', boxShadow: '0 16px 48px 0 rgba(52, 152, 219, 0.15)' } }}>
-                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 64, height: 64, borderRadius: '20px', background: 'linear-gradient(135deg, #3498db 0%, #2980b9 100%)', color: 'white', mb: 4, boxShadow: '0 8px 24px rgba(52, 152, 219, 0.3)', fontSize: '1.5rem' }}>{feature.icon}</Box>
-                    <Typography variant="h5" fontWeight="700" mb={2} sx={{ fontSize: '1.25rem', color: '#1a1a1a' }}>{feature.title}</Typography>
-                    <Typography variant="body1" color="#666666" lineHeight={1.7} sx={{ fontSize: '0.95rem' }}>{feature.description}</Typography>
-                  </Box>
-                </FadeInItem>
+                <Box key={feature.title} sx={{ position: 'relative', p: 5, flex: 1, height: '100%', maxWidth: { xs: '100%', sm: '320px' }, borderRadius: 4, background: 'linear-gradient(135deg, rgba(52, 152, 219, 0.05) 0%, rgba(255, 255, 255, 0.8) 100%)', backdropFilter: 'blur(20px)', border: '1px solid rgba(52, 152, 219, 0.1)', boxShadow: '0 8px 32px 0 rgba(0, 0, 0, 0.1)', transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)', '&:hover': { transform: 'translateY(-8px) scale(1.02)', borderColor: 'rgba(52, 152, 219, 0.3)', boxShadow: '0 16px 48px 0 rgba(52, 152, 219, 0.15)' }, }}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 64, height: 64, borderRadius: '20px', background: 'linear-gradient(135deg, #3498db 0%, #2980b9 100%)', color: 'white', mb: 4, boxShadow: '0 8px 24px rgba(52, 152, 219, 0.3)', fontSize: '1.5rem', mx: 'auto' }}>{feature.icon}</Box>
+                  <Typography variant="h5" fontWeight="700" mb={2} sx={{ fontSize: '1.25rem', color: '#1a1a1a', textAlign: 'center' }}>{feature.title}</Typography>
+                  <Typography variant="body1" color="#666666" lineHeight={1.7} sx={{ fontSize: '0.95rem', textAlign: 'center' }}>{feature.description}</Typography>
+                </Box>
               ))}
             </Box>
-          </StaggeredContainer>
+          </Box>
         </Container>
 
         {/* 「使い方」セクション */}
