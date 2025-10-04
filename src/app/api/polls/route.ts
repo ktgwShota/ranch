@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-
-// 簡単なメモリ内ストレージ（本番環境ではデータベースを使用）
-let polls: any[] = [];
+import { pollStore } from '@/lib/pollStore';
 
 export async function POST(request: NextRequest) {
   try {
@@ -30,6 +28,7 @@ export async function POST(request: NextRequest) {
       title,
       duration: duration, // 締め切り時間（分）を追加
       endDateTime: endDateTime, // 締切日時を追加
+      createdBy: Date.now().toString(), // 簡易的な作成者ID（実際は認証から取得）
       options: options.map((url: string, index: number) => ({
         id: index + 1,
         url,
@@ -42,7 +41,7 @@ export async function POST(request: NextRequest) {
       createdAt: new Date().toISOString()
     };
 
-    polls.push(poll);
+    pollStore.savePoll(poll);
 
     return NextResponse.json(poll);
   } catch (error) {
@@ -57,14 +56,14 @@ export async function GET(request: NextRequest) {
     const id = searchParams.get('id');
 
     if (id) {
-      const poll = polls.find(p => p.id === id);
+      const poll = pollStore.getPoll(id);
       if (!poll) {
         return NextResponse.json({ error: 'Poll not found' }, { status: 404 });
       }
       return NextResponse.json(poll);
     }
 
-    return NextResponse.json(polls);
+    return NextResponse.json(pollStore.getAllPolls());
   } catch (error) {
     console.error('Error fetching polls:', error);
     return NextResponse.json({ error: 'Failed to fetch polls' }, { status: 500 });
@@ -76,17 +75,19 @@ export async function PUT(request: NextRequest) {
     const body = await request.json();
     const { id, options } = body as { id: string; options: any[] };
 
-    const pollIndex = polls.findIndex(p => p.id === id);
-    if (pollIndex === -1) {
+    const existingPoll = pollStore.getPoll(id);
+    if (!existingPoll) {
       return NextResponse.json({ error: 'Poll not found' }, { status: 404 });
     }
 
-    polls[pollIndex] = {
-      ...polls[pollIndex],
+    const updatedPoll = {
+      ...existingPoll,
       options
     };
 
-    return NextResponse.json(polls[pollIndex]);
+    pollStore.savePoll(updatedPoll);
+
+    return NextResponse.json(updatedPoll);
   } catch (error) {
     console.error('Error updating poll:', error);
     return NextResponse.json({ error: 'Failed to update poll' }, { status: 500 });

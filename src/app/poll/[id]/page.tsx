@@ -33,6 +33,7 @@ import {
   Restaurant as RestaurantIcon,
   OpenInNew as OpenInNewIcon,
   Home as HomeIcon,
+  Stop as StopIcon,
 } from '@mui/icons-material';
 
 interface Voter {
@@ -55,6 +56,8 @@ interface Poll {
   duration?: number; // 締め切り時間（分）
   endDateTime?: string | null; // 締切日時
   createdAt?: string; // 作成日時
+  createdBy?: string; // 作成者ID
+  isClosed?: boolean; // 投票終了フラグ
   options: Option[];
 }
 
@@ -71,7 +74,14 @@ export default function PollPage() {
   const [nameDialogOpen, setNameDialogOpen] = useState(false);
   const [tempName, setTempName] = useState<string>("");
   const [isPollClosed, setIsPollClosed] = useState(false);
+
+  // isPollClosedの状態変化を追跡
+  useEffect(() => {
+    console.log('isPollClosed状態が変更されました:', isPollClosed);
+  }, [isPollClosed]);
   const [timeRemaining, setTimeRemaining] = useState<number | null>(null);
+  const [endPollDialogOpen, setEndPollDialogOpen] = useState(false);
+  const [isEndingPoll, setIsEndingPoll] = useState(false);
 
   useEffect(() => {
     // 投票締め切りタイマー（締切日時が設定されている場合のみ）
@@ -91,6 +101,10 @@ export default function PollPage() {
         setIsPollClosed(true);
         setTimeRemaining(0);
         clearInterval(timer);
+
+        // 時間切れ時はフロントエンドの状態のみ更新
+        // サーバー側のフラグは既に設定済み
+        console.log('時間切れ - フロントエンド状態を更新');
       } else {
         setTimeRemaining(Math.ceil(remaining / 1000));
       }
@@ -126,7 +140,18 @@ export default function PollPage() {
         const response = await fetch(`/api/polls?id=${params.id}`);
         if (response.ok) {
           const pollData = await response.json() as Poll;
+          console.log('pollData:', pollData);
           setPoll(pollData);
+
+          // 投票終了状態をチェック（初期状態を正しく設定）
+          if (pollData.isClosed) {
+            console.log('サーバーからisClosed=trueを受信、状態を設定');
+            setIsPollClosed(true);
+            setTimeRemaining(0);
+          } else {
+            console.log('サーバーからisClosed=falseを受信、状態をリセット');
+            setIsPollClosed(false);
+          }
 
           // OGPデータを取得
           console.log('Starting OGP data fetch for options:', pollData.options);
@@ -186,6 +211,16 @@ export default function PollPage() {
           };
 
           setPoll(updatedPoll);
+
+          // isClosedフラグが設定されている場合は、状態を再設定
+          if (pollData.isClosed) {
+            console.log('OGPデータ取得後、isClosed=trueを再設定');
+            setIsPollClosed(true);
+            setTimeRemaining(0);
+          } else {
+            console.log('OGPデータ取得後、isClosed=falseを再設定');
+            setIsPollClosed(false);
+          }
 
           await fetch('/api/polls', {
             method: 'PUT',
@@ -317,9 +352,14 @@ export default function PollPage() {
 
   const getWinningOption = () => {
     if (!poll || poll.options.length === 0) return null;
-    return poll.options.reduce((max, option) =>
+    const winning = poll.options.reduce((max, option) =>
       option.votes > max.votes ? option : max
     );
+    console.log('getWinningOption結果:', {
+      winning: winning ? { id: winning.id, votes: winning.votes } : null,
+      allOptions: poll.options.map(o => ({ id: o.id, votes: o.votes }))
+    });
+    return winning;
   };
 
   const formatTime = (seconds: number) => {
@@ -338,6 +378,67 @@ export default function PollPage() {
       return `${secs}秒`;
     }
   };
+
+  // 投票を終了する関数（強制終了）
+  const endPoll = async () => {
+    if (!poll) return;
+
+    console.log('投票終了開始 - 現在のisPollClosed:', isPollClosed);
+
+    setIsEndingPoll(true);
+    try {
+      // サーバー側のフラグを更新
+      const result = await updatePollClosedStatus(poll.id);
+      console.log('APIレスポンス:', result);
+
+      // フロントエンドの状態を更新
+      setIsPollClosed(true);
+      setTimeRemaining(0);
+      setPoll(prev => prev ? { ...prev, isClosed: true } : null);
+
+      console.log('投票終了完了 - isPollClosedをtrueに設定');
+
+      setEndPollDialogOpen(false);
+      setSnackbarMessage("投票を終了しました");
+      setSnackbarOpen(true);
+    } catch (error) {
+      console.error('投票終了エラー:', error);
+      setSnackbarMessage("投票の終了に失敗しました");
+      setSnackbarOpen(true);
+    } finally {
+      setIsEndingPoll(false);
+    }
+  };
+
+  // 投票終了状態をサーバー側に更新する関数
+  const updatePollClosedStatus = async (pollId: string) => {
+    try {
+      const response = await fetch('/api/polls/end', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ pollId }),
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        console.log('投票終了API成功:', result);
+        return result;
+      } else {
+        const errorData = await response.json();
+        console.error('投票終了APIエラー:', errorData);
+        throw new Error(errorData.error || '投票終了に失敗しました');
+      }
+    } catch (error) {
+      console.error('投票終了状態の更新に失敗:', error);
+      throw error;
+    }
+  };
+
+  // 作成者かどうかを判定（簡易版 - 実際は認証が必要）
+  // デモ用に、最初にアクセスしたユーザーを作成者として扱う
+  const isCreator = poll?.createdBy === userId || (poll && !userId);
 
 
   // TODO: ページが存在しない場合はエラー画面を表示
@@ -373,6 +474,31 @@ export default function PollPage() {
               >
                 {poll?.title}
               </Typography>
+
+              {/* 投票終了ボタン（全員に表示） */}
+              {poll && !isPollClosed && (
+                <Button
+                  variant="outlined"
+                  color="error"
+                  startIcon={<StopIcon />}
+                  onClick={() => setEndPollDialogOpen(true)}
+                  sx={{
+                    borderRadius: 2,
+                    textTransform: 'none',
+                    fontWeight: 600,
+                    px: 2,
+                    py: 1,
+                    borderColor: '#f44336',
+                    color: '#f44336',
+                    '&:hover': {
+                      borderColor: '#d32f2f',
+                      backgroundColor: '#ffebee',
+                    }
+                  }}
+                >
+                  投票を終了
+                </Button>
+              )}
 
               {/* タイマー表示 */}
               {poll && (
@@ -551,8 +677,22 @@ export default function PollPage() {
               const totalVotes = poll?.options.reduce((sum, option) => sum + option.votes, 0) || 0;
               const votePercentage = totalVotes > 0 ? (option.votes / totalVotes) * 100 : 0;
               const winningOption = getWinningOption();
-              const isWinner = poll?.endDateTime ? (isPollClosed && winningOption && option.id === winningOption.id) : false;
-              const isDisabled = poll?.endDateTime ? (isPollClosed && !isWinner) : false;
+              const isWinner = isPollClosed && winningOption && option.id === winningOption.id;
+              const isDisabled = isPollClosed && !isWinner;
+
+              // デバッグ用ログ
+              if (index === 0) {
+                console.log('勝者判定デバッグ:', {
+                  isPollClosed,
+                  winningOption: winningOption ? { id: winningOption.id, votes: winningOption.votes } : null,
+                  optionId: option.id,
+                  optionVotes: option.votes,
+                  isWinner,
+                  isDisabled,
+                  totalVotes,
+                  allOptions: poll?.options.map(o => ({ id: o.id, votes: o.votes }))
+                });
+              }
 
               return (
                 <Card
@@ -782,26 +922,29 @@ export default function PollPage() {
 
 
                         {/* 勝利者表示 */}
-                        {isWinner && (
-                          <Box sx={{ mb: 2, textAlign: 'center' }}>
-                            <Typography
-                              variant="h6"
-                              sx={{
-                                color: '#4caf50',
-                                fontWeight: 800,
-                                fontSize: '1.2rem',
-                                textShadow: '0 2px 4px rgba(76, 175, 80, 0.3)'
-                              }}
-                            >
-                              🏆 勝利！
-                            </Typography>
-                          </Box>
-                        )}
+                        {(() => {
+                          console.log(`選択肢${option.id}の勝者表示チェック:`, { isWinner, isPollClosed, winningOption: winningOption?.id, optionId: option.id });
+                          return isWinner;
+                        })() && (
+                            <Box sx={{ mb: 2, textAlign: 'center' }}>
+                              <Typography
+                                variant="h6"
+                                sx={{
+                                  color: '#4caf50',
+                                  fontWeight: 800,
+                                  fontSize: '1.2rem',
+                                  textShadow: '0 2px 4px rgba(76, 175, 80, 0.3)'
+                                }}
+                              >
+                                🏆 勝利！
+                              </Typography>
+                            </Box>
+                          )}
 
                         {/* 投票ボタン */}
                         <Button
                           onClick={() => vote(option.id)}
-                          disabled={isVoting || (poll?.endDateTime ? isPollClosed : false)}
+                          disabled={isVoting || isPollClosed}
                           variant={isVoted ? "outlined" : "contained"}
                           startIcon={isVoted ? <CheckIcon sx={{ fontSize: '1.2rem' }} /> : <ThumbUpIcon sx={{ fontSize: '1.2rem' }} />}
                           fullWidth
@@ -846,6 +989,8 @@ export default function PollPage() {
                                 投票中...
                               </Typography>
                             </Box>
+                          ) : isPollClosed ? (
+                            '投票終了'
                           ) : isVoted ? (
                             '投票済み'
                           ) : (
@@ -866,6 +1011,46 @@ export default function PollPage() {
           バナー広告
         </div>
       </Box>
+
+      {/* 投票終了確認ダイアログ */}
+      <Dialog open={endPollDialogOpen} onClose={() => setEndPollDialogOpen(false)} maxWidth="sm" fullWidth>
+        <DialogTitle sx={{ pb: 1 }}>
+          <Box display="flex" alignItems="center" gap={1}>
+            <StopIcon color="error" />
+            <Typography variant="h6" fontWeight="600">
+              投票を終了しますか？
+            </Typography>
+          </Box>
+        </DialogTitle>
+        <DialogContent>
+          <Typography variant="body1" color="text.secondary" sx={{ mb: 2 }}>
+            投票を終了すると、それ以降は誰も投票できなくなります。
+          </Typography>
+          <Typography variant="body2" color="error" sx={{ fontWeight: 500 }}>
+            この操作は取り消すことができません。
+          </Typography>
+        </DialogContent>
+        <DialogActions sx={{ p: 3, pt: 1 }}>
+          <Button
+            onClick={() => setEndPollDialogOpen(false)}
+            variant="outlined"
+            disabled={isEndingPoll}
+            sx={{ textTransform: 'none' }}
+          >
+            キャンセル
+          </Button>
+          <Button
+            onClick={endPoll}
+            variant="contained"
+            color="error"
+            disabled={isEndingPoll}
+            startIcon={isEndingPoll ? <CircularProgress size={16} color="inherit" /> : <StopIcon />}
+            sx={{ textTransform: 'none', fontWeight: 600 }}
+          >
+            {isEndingPoll ? '終了中...' : '投票を終了'}
+          </Button>
+        </DialogActions>
+      </Dialog>
 
       {/* 名前入力ダイアログ */}
       <Dialog open={nameDialogOpen} onClose={() => { }} maxWidth="sm" fullWidth>
