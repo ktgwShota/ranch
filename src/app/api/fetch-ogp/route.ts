@@ -38,7 +38,6 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({
         error: 'このURLは対応していません。食べログまたはぐるなびのURLを入力してください。',
         title: '対応していないURLです',
-        description: '食べログまたはぐるなびのURLを入力してください',
         rating: null,
         image: null
       }, { status: 400 });
@@ -78,14 +77,6 @@ export async function POST(request: NextRequest) {
       title = title.replace(/^楽天ぐるなび\s*-\s*/, '');
     }
 
-    // 説明文を取得（OGP description → descriptionの順で試行）
-    let description =
-      extractMetaContent(html, 'og:description') ||
-      extractMetaContent(html, 'description') ||
-      '説明を取得できませんでした';
-
-    // 食べログの説明文から星評価を削除
-    description = description.replace(/★+[☆]*[0-9.]+/g, '').trim();
 
 
 
@@ -103,7 +94,6 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({
       title: title.trim(),
-      description: description.trim(),
       image: image || null,
     });
 
@@ -113,7 +103,6 @@ export async function POST(request: NextRequest) {
       {
         error: 'Failed to fetch OGP data',
         title: '店舗情報を取得できませんでした',
-        description: 'URLから情報を取得できませんでした',
         image: null
       },
       { status: 500 }

@@ -25,6 +25,7 @@ import {
   DialogTitle,
   DialogContent,
   DialogActions,
+  Skeleton,
 } from '@mui/material';
 import {
   ThumbUp as ThumbUpIcon,
@@ -42,7 +43,6 @@ interface Option {
   id: number;
   url: string;
   title?: string;
-  description?: string;
   image?: string | null;
   votes: number;
   voters: Voter[];
@@ -89,6 +89,7 @@ export default function PollPage() {
     }
 
     const fetchPoll = async () => {
+      const startTime = Date.now();
       try {
         const response = await fetch(`/api/polls?id=${params.id}`);
         if (response.ok) {
@@ -113,7 +114,6 @@ export default function PollPage() {
                 if (ogpResponse.ok) {
                   const ogpData = await ogpResponse.json() as {
                     title: string;
-                    description: string;
                     rating: string | null;
                     image: string | null;
                     error?: string;
@@ -125,7 +125,6 @@ export default function PollPage() {
                     return {
                       ...option,
                       title: '対応していないURLです',
-                      description: '食べログまたはぐるなびのURLを入力してください',
                       rating: null,
                       image: null,
                     };
@@ -134,7 +133,6 @@ export default function PollPage() {
                   return {
                     ...option,
                     title: ogpData.title,
-                    description: ogpData.description,
                     image: ogpData.image,
                     voters: option.voters || [],
                   };
@@ -171,7 +169,13 @@ export default function PollPage() {
       } catch (error) {
         console.error('Error fetching poll:', error);
       } finally {
-        setLoading(false);
+        // 最低1秒はスケルトンを表示
+        const elapsedTime = Date.now() - startTime;
+        const remainingTime = Math.max(0, 2000 - elapsedTime);
+
+        setTimeout(() => {
+          setLoading(false);
+        }, remainingTime);
       }
     };
 
@@ -279,46 +283,7 @@ export default function PollPage() {
     return option.voters.some(voter => voter.id === userId);
   };
 
-  const hasUserVoted = () => {
-    return poll?.options.some(option => option.voters.some(voter => voter.id === userId)) || false;
-  };
-
-  if (loading) {
-    return (
-      <Container maxWidth="md" sx={{ py: 8 }}>
-        <Box display="flex" flexDirection="column" alignItems="center" gap={3}>
-          <CircularProgress size={60} />
-          <Typography variant="h6" color="text.secondary">
-            投票を読み込み中...
-          </Typography>
-        </Box>
-      </Container>
-    );
-  }
-
-  if (!poll) {
-    return (
-      <Container maxWidth="md" sx={{ py: 8 }}>
-        <Paper elevation={3} sx={{ p: 4, textAlign: 'center' }}>
-          <RestaurantIcon sx={{ fontSize: 80, color: 'text.secondary', mb: 2 }} />
-          <Typography variant="h4" gutterBottom>
-            投票が見つかりません
-          </Typography>
-          <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>
-            この投票は存在しないか、削除された可能性があります。
-          </Typography>
-          <Button
-            variant="contained"
-            startIcon={<HomeIcon />}
-            href="/"
-            size="large"
-          >
-            トップページに戻る
-          </Button>
-        </Paper>
-      </Container>
-    );
-  }
+  // TODO: ページが存在しない場合はエラー画面を表示
 
   return (
     // TODO: ここの変化をアニメーションさせる
@@ -334,17 +299,21 @@ export default function PollPage() {
             border: '1px solid #ddd',
           }}
         >
-          <Typography
-            variant="h6"
-            component="h1"
-            fontWeight="600"
-            sx={{
-              color: '#495057',
-              fontSize: '1.3rem',
-            }}
-          >
-            {poll.title}
-          </Typography>
+          {loading ? (
+            <Skeleton variant="text" width="50%" height={33.27} sx={{ mx: 'auto' }} />
+          ) : (
+            <Typography
+              variant="h6"
+              component="h1"
+              fontWeight="600"
+              sx={{
+                color: '#495057',
+                fontSize: '1.3rem',
+              }}
+            >
+              {poll?.title}
+            </Typography>
+          )}
         </Box>
 
         {/* 選択肢カード */}
@@ -359,15 +328,11 @@ export default function PollPage() {
             alignItems: 'stretch',
           }}
         >
-          {poll.options.map((option, index) => {
-            const isVoted = isVotedByUser(option);
-            const isVoting = voting === option.id;
-            const totalVotes = poll?.options.reduce((sum, option) => sum + option.votes, 0) || 0;
-            const votePercentage = totalVotes > 0 ? (option.votes / totalVotes) * 100 : 0;
-
-            return (
+          {loading ? (
+            // ロード中のスケルトンカード
+            [1, 2].map((index) => (
               <Card
-                key={option.id}
+                key={index}
                 elevation={0}
                 sx={{
                   width: '100%',
@@ -393,9 +358,7 @@ export default function PollPage() {
                   component="div"
                   sx={{
                     height: 200,
-                    backgroundImage: option.image
-                      ? `url(${option.image})`
-                      : 'linear-gradient(45deg, #f5f5f5 30%, #e0e0e0 90%)',
+                    backgroundImage: 'linear-gradient(45deg, #f5f5f5 30%, #e0e0e0 90%)',
                     backgroundSize: 'cover',
                     backgroundPosition: 'center',
                     display: 'flex',
@@ -403,61 +366,22 @@ export default function PollPage() {
                     justifyContent: 'center',
                   }}
                 >
-                  {!option.image && (
-                    <Box textAlign="center">
-                      <RestaurantIcon sx={{ fontSize: 60, color: 'text.secondary', mb: 1 }} />
-                      <Typography variant="body2" color="text.secondary">
-                        画像を読み込み中...
-                      </Typography>
-                    </Box>
-                  )}
+                  <Box textAlign="center">
+                    <RestaurantIcon sx={{ fontSize: 60, color: 'text.secondary', mb: 1 }} />
+                    <Typography variant="body2" color="text.secondary">
+                      画像を読み込み中...
+                    </Typography>
+                  </Box>
                 </CardMedia>
 
                 <CardContent sx={{ flexGrow: 1, p: 3 }}>
-                  <Typography
-                    variant="h6"
-                    component="h3"
-                    gutterBottom
-                    fontWeight="bold"
-                    sx={{
-                      display: '-webkit-box',
-                      WebkitLineClamp: 1,
-                      WebkitBoxOrient: 'vertical',
-                      overflow: 'hidden',
-                      textOverflow: 'ellipsis',
-                      whiteSpace: 'nowrap'
-                    }}
-                  >
-                    {option.title || "店舗情報を取得中..."}
-                  </Typography>
-                  {/* 店舗情報セクション */}
-                  <Box sx={{ mb: 1 }}>
-                    {/* 説明 */}
-                    <Box>
-                      <Typography
-                        variant="body2"
-                        color="text.secondary"
-                        sx={{
-                          display: '-webkit-box',
-                          WebkitLineClamp: 2,
-                          WebkitBoxOrient: 'vertical',
-                          overflow: 'hidden',
-                          textOverflow: 'ellipsis',
-                          fontSize: '0.875rem',
-                          lineHeight: 1.4,
-                        }}
-                      >
-                        {(option.description || "説明を取得中...").replace(/★+[☆]*[0-9.]+/g, '').trim()}
-                      </Typography>
-                    </Box>
-                  </Box>
+                  {/* タイトルスケルトン */}
+                  <Skeleton variant="text" height={32} sx={{ mb: 2 }} />
 
-                  {/* 元のページへのリンク */}
+                  {/* リンクボタン */}
                   <Box mb={1}>
                     <Button
-                      href={option.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
+                      disabled
                       startIcon={<OpenInNewIcon />}
                       variant="text"
                       fullWidth
@@ -467,76 +391,355 @@ export default function PollPage() {
                     </Button>
                   </Box>
 
-                  {/* 投票結果 */}
+                  {/* 投票結果スケルトン */}
                   <Box sx={{ mb: 2 }}>
                     <Box display="flex" justifyContent="space-between" alignItems="center" mb={1}>
-                      <Typography variant="h4" color="primary" fontWeight="bold">
-                        {option.votes}
-                      </Typography>
-                      <Typography variant="body2" color="text.secondary">
-                        {votePercentage.toFixed(1)}%
-                      </Typography>
+                      <Skeleton variant="text" width={60} height={40} />
+                      <Skeleton variant="text" width={40} height={20} />
                     </Box>
-                    <LinearProgress
-                      variant="determinate"
-                      value={votePercentage}
-                      sx={{ height: 8, borderRadius: 4 }}
-                    />
-                    {/* 投票者一覧 */}
-                    {option.voters.length > 0 && (
-                      <Box sx={{ mt: 1 }}>
-                        <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5 }}>
-                          投票者:
-                        </Typography>
-                        <Box display="flex" flexWrap="wrap" gap={0.5}>
-                          {option.voters.map((voter, idx) => (
-                            <Chip
-                              key={idx}
-                              label={voter.name}
-                              size="small"
-                              variant={voter.id === userId ? "filled" : "outlined"}
-                              color={voter.id === userId ? "primary" : "default"}
-                              sx={{ fontSize: '0.7rem' }}
-                            />
-                          ))}
-                        </Box>
-                      </Box>
-                    )}
+                    <Skeleton variant="rectangular" height={8} sx={{ borderRadius: 4 }} />
                   </Box>
                 </CardContent>
 
                 <CardActions sx={{ p: 2, pt: 0 }}>
                   <Button
-                    onClick={() => vote(option.id)}
-                    disabled={isVoting}
-                    variant={isVoted ? "outlined" : "contained"}
+                    disabled
+                    variant="contained"
                     startIcon={<ThumbUpIcon />}
                     fullWidth
                     size="large"
-                    sx={{
-                      fontWeight: 600,
-                      ...(isVoted && {
-                        color: 'success.main',
-                        borderColor: 'success.main',
-                      })
-                    }}
+                    sx={{ fontWeight: 600 }}
                   >
-                    {isVoting ? (
-                      <Box display="flex" alignItems="center" gap={1}>
-                        <CircularProgress size={16} />
-                        投票中...
-                      </Box>
-                    ) : isVoted ? (
-                      '投票済み'
-                    ) : (
-                      '投票する'
-                    )}
+                    投票する
                   </Button>
                 </CardActions>
               </Card>
+            ))
+          ) : (
+            poll?.options.map((option, index) => {
+              const isVoted = isVotedByUser(option);
+              const isVoting = voting === option.id;
+              const totalVotes = poll?.options.reduce((sum, option) => sum + option.votes, 0) || 0;
+              const votePercentage = totalVotes > 0 ? (option.votes / totalVotes) * 100 : 0;
 
-            );
-          })}
+              return (
+                <Card
+                  key={option.id}
+                  elevation={0}
+                  sx={{
+                    width: '100%',
+                    height: '100%',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    borderRadius: 3,
+                    border: '1px solid #e8e8e8',
+                    flex: '0 0 calc(100%)',
+                    [`@media (min-width: 600px)`]: {
+                      flex: '0 0 calc(50% - 12px)',
+                    },
+                    [`@media (min-width: 900px)`]: {
+                      flex: '0 0 calc(50% - 16px)',
+                    },
+                    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                    '&:hover': {
+                      transform: 'translateY(-4px)',
+                      boxShadow: '0 8px 25px rgba(0, 0, 0, 0.15)',
+                      borderColor: '#1976d2'
+                    }
+                  }}
+                >
+                  {/* 画像エリア（タイトル重ね表示） */}
+                  <CardMedia
+                    component="a"
+                    href={option.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    sx={{
+                      height: 220,
+                      backgroundImage: option.image
+                        ? `url(${option.image})`
+                        : 'linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%)',
+                      backgroundSize: 'cover',
+                      backgroundPosition: 'center',
+                      display: 'flex',
+                      alignItems: 'flex-end',
+                      position: 'relative',
+                      borderRadius: '12px 12px 0 0',
+                      overflow: 'hidden',
+                      textDecoration: 'none',
+                      cursor: 'pointer',
+                      transition: 'all 0.3s ease',
+                      '&:hover': {
+                        transform: 'scale(1.02)',
+                        '&::after': {
+                          content: '""',
+                          position: 'absolute',
+                          top: 0,
+                          left: 0,
+                          right: 0,
+                          bottom: 0,
+                          background: 'rgba(25, 118, 210, 0.1)',
+                          zIndex: 3
+                        }
+                      },
+                      '&::before': {
+                        content: '""',
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        background: 'linear-gradient(180deg, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.6) 100%)',
+                        zIndex: 1
+                      }
+                    }}
+                  >
+                    {/* タイトルを画像の上に重ね表示 */}
+                    <Box sx={{
+                      position: 'relative',
+                      zIndex: 2,
+                      p: 2.5,
+                      width: '100%'
+                    }}>
+                      {option.title ? (
+                        <Typography
+                          variant="h6"
+                          fontWeight="800"
+                          sx={{
+                            color: 'white',
+                            fontSize: '1.2rem',
+                            lineHeight: 1.3,
+                            textShadow: '0 2px 8px rgba(0,0,0,0.7)',
+                            display: '-webkit-box',
+                            WebkitLineClamp: 2,
+                            WebkitBoxOrient: 'vertical',
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            minHeight: '2.6rem'
+                          }}
+                        >
+                          {option.title}
+                        </Typography>
+                      ) : (
+                        <Skeleton
+                          variant="text"
+                          height={32}
+                          sx={{
+                            backgroundColor: 'rgba(255,255,255,0.2)',
+                            '& .MuiSkeleton-root': {
+                              backgroundColor: 'rgba(255,255,255,0.2)'
+                            }
+                          }}
+                        />
+                      )}
+                    </Box>
+
+                    {!option.image && (
+                      <Box textAlign="center" sx={{
+                        position: 'absolute',
+                        top: '50%',
+                        left: '50%',
+                        transform: 'translate(-50%, -50%)',
+                        zIndex: 2
+                      }}>
+                        <RestaurantIcon sx={{
+                          fontSize: 64,
+                          color: '#adb5bd',
+                          mb: 1.5,
+                          opacity: 0.8
+                        }} />
+                        <Typography variant="body2" color="text.secondary" sx={{
+                          fontWeight: 500,
+                          opacity: 0.7
+                        }}>
+                          画像を読み込み中...
+                        </Typography>
+                      </Box>
+                    )}
+                  </CardMedia>
+
+                  <CardContent sx={{
+                    flexGrow: 1,
+                    p: 3.5,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: 2
+                  }}>
+
+
+                    {/* 投票結果 */}
+                    <Box sx={{
+                      mt: 'auto',
+                      background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                      borderRadius: 3,
+                      p: 3,
+                      position: 'relative',
+                      overflow: 'hidden',
+                      '&::before': {
+                        content: '""',
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        background: 'linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%)',
+                        zIndex: 1
+                      }
+                    }}>
+                      {/* 投票数とパーセンテージ */}
+                      <Box sx={{ position: 'relative', zIndex: 2 }}>
+                        <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
+                          <Box>
+                            <Typography variant="h3" sx={{
+                              color: 'white',
+                              fontWeight: 900,
+                              fontSize: '2.2rem',
+                              textShadow: '0 2px 4px rgba(0,0,0,0.3)',
+                              mb: 0.5
+                            }}>
+                              {option.votes}
+                            </Typography>
+                            <Typography variant="body2" sx={{
+                              color: 'rgba(255,255,255,0.8)',
+                              fontWeight: 500,
+                              fontSize: '0.85rem'
+                            }}>
+                              票
+                            </Typography>
+                          </Box>
+                          <Box textAlign="center">
+                            <Typography variant="h4" sx={{
+                              color: 'white',
+                              fontWeight: 800,
+                              fontSize: '1.8rem',
+                              textShadow: '0 2px 4px rgba(0,0,0,0.3)'
+                            }}>
+                              {votePercentage.toFixed(1)}%
+                            </Typography>
+                            <Typography variant="body2" sx={{
+                              color: 'rgba(255,255,255,0.8)',
+                              fontWeight: 500,
+                              fontSize: '0.85rem'
+                            }}>
+                              支持率
+                            </Typography>
+                          </Box>
+                        </Box>
+
+                        {/* プログレスバー */}
+                        <Box sx={{ mb: 2.5 }}>
+                          <LinearProgress
+                            variant="determinate"
+                            value={votePercentage}
+                            sx={{
+                              height: 12,
+                              borderRadius: 6,
+                              backgroundColor: 'rgba(255,255,255,0.2)',
+                              '& .MuiLinearProgress-bar': {
+                                borderRadius: 6,
+                                background: 'linear-gradient(90deg, #ffffff 0%, #f0f0f0 100%)',
+                                boxShadow: '0 2px 8px rgba(255,255,255,0.3)'
+                              }
+                            }}
+                          />
+                        </Box>
+
+                        {/* 投票者一覧 */}
+                        {option.voters.length > 0 && (
+                          <Box sx={{ mb: 2.5 }}>
+                            <Typography variant="caption" sx={{
+                              color: 'rgba(255,255,255,0.9)',
+                              fontWeight: 600,
+                              fontSize: '0.8rem',
+                              display: 'block',
+                              mb: 1
+                            }}>
+                              投票者 ({option.voters.length}人)
+                            </Typography>
+                            <Box display="flex" flexWrap="wrap" gap={0.8}>
+                              {option.voters.map((voter, idx) => (
+                                <Chip
+                                  key={idx}
+                                  label={voter.name}
+                                  size="small"
+                                  sx={{
+                                    fontSize: '0.75rem',
+                                    fontWeight: 600,
+                                    backgroundColor: voter.id === userId ? 'rgba(255,255,255,0.9)' : 'rgba(255,255,255,0.2)',
+                                    color: voter.id === userId ? '#667eea' : 'white',
+                                    border: voter.id === userId ? '2px solid rgba(255,255,255,0.5)' : '1px solid rgba(255,255,255,0.3)',
+                                    '&:hover': {
+                                      backgroundColor: voter.id === userId ? 'white' : 'rgba(255,255,255,0.3)'
+                                    }
+                                  }}
+                                />
+                              ))}
+                            </Box>
+                          </Box>
+                        )}
+
+                        {/* 投票ボタン */}
+                        <Button
+                          onClick={() => vote(option.id)}
+                          disabled={isVoting}
+                          variant={isVoted ? "outlined" : "contained"}
+                          startIcon={<ThumbUpIcon />}
+                          fullWidth
+                          size="large"
+                          sx={{
+                            borderRadius: 3,
+                            textTransform: 'none',
+                            fontWeight: 800,
+                            fontSize: '1.1rem',
+                            py: 2,
+                            position: 'relative',
+                            zIndex: 2,
+                            ...(isVoted && {
+                              color: 'white',
+                              borderColor: 'rgba(255,255,255,0.8)',
+                              borderWidth: 2,
+                              backgroundColor: 'rgba(255,255,255,0.1)',
+                              backdropFilter: 'blur(10px)',
+                              '&:hover': {
+                                borderColor: 'white',
+                                backgroundColor: 'rgba(255,255,255,0.2)',
+                                transform: 'translateY(-2px)',
+                                boxShadow: '0 8px 25px rgba(0,0,0,0.2)'
+                              }
+                            }),
+                            ...(!isVoted && {
+                              background: 'linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%)',
+                              color: '#667eea',
+                              boxShadow: '0 4px 15px rgba(0,0,0,0.2)',
+                              '&:hover': {
+                                background: 'linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%)',
+                                transform: 'translateY(-2px)',
+                                boxShadow: '0 8px 25px rgba(0,0,0,0.3)'
+                              }
+                            })
+                          }}
+                        >
+                          {isVoting ? (
+                            <Box display="flex" alignItems="center" gap={1.5}>
+                              <CircularProgress size={20} sx={{ color: 'white' }} />
+                              <Typography sx={{ fontWeight: 800 }}>
+                                投票中...
+                              </Typography>
+                            </Box>
+                          ) : isVoted ? (
+                            '✓ 投票済み'
+                          ) : (
+                            '投票する'
+                          )}
+                        </Button>
+                      </Box>
+                    </Box>
+                  </CardContent>
+                </Card>
+
+              );
+            })
+          )}
         </Box>
 
         <div className="border border-gray-200 bg-gray-100 p-3 rounded-md h-32">

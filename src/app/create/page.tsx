@@ -135,7 +135,8 @@ export default function CreatePage() {
         elevation={0}
         sx={{
           p: 5,
-          mt: 3,
+          // TODO: ここの変化をアニメーションさせる
+          my: { xs: 2.5, sm: 3, md: 4 },
           borderRadius: 0.5,
           border: '1px solid #ddd',
           backgroundColor: 'white',
@@ -301,7 +302,7 @@ export default function CreatePage() {
             }}
           />
 
-          <Box display="flex" justifyContent="center" m={2}>
+          <Box display="flex" justifyContent="center" my={3}>
             <FormControlLabel
               control={
                 <Checkbox
@@ -309,11 +310,14 @@ export default function CreatePage() {
                   onChange={(e) => setAgreedToTerms(e.target.checked)}
                   color="primary"
                   size="small"
+                  sx={{
+                    p: 0,
+                  }}
                 />
               }
               label={
-                <Typography variant="body2" color="text.secondary" sx={{ fontWeight: 500 }}>
-                  <a href="/terms" style={{ color: '#1976d2', textDecoration: 'none' }}>利用規約</a>に同意する
+                <Typography variant="body2" color="text.secondary" sx={{ fontWeight: 500, position: 'relative', top: '0.5px' }}>
+                  <a href="/terms" style={{ color: '#1976d2', textDecoration: 'none', paddingLeft: 4 }}>利用規約</a>に同意する
                 </Typography>
               }
             />
