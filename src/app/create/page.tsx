@@ -408,10 +408,9 @@ export default function CreatePage() {
               <Typography variant="body2" sx={{
                 color: '#6c757d',
                 fontSize: '0.95rem',
-                textAlign: 'center',
                 lineHeight: 1.6
               }}>
-                投票期限を設定すると指定時刻に投票が自動で終了します。設定しない場合は無期限で投票可能です。
+                投票期限を設定すると指定時刻に投票の受付が終了します。
               </Typography>
             </Box>
           </Box>

@@ -34,7 +34,9 @@ import {
   OpenInNew as OpenInNewIcon,
   Home as HomeIcon,
   Stop as StopIcon,
+  Star as StarIcon,
 } from '@mui/icons-material';
+import WinnerDialog from '@/app/components/WinnerDialog';
 
 interface Voter {
   id: string;
@@ -74,25 +76,42 @@ export default function PollPage() {
   const [nameDialogOpen, setNameDialogOpen] = useState(false);
   const [tempName, setTempName] = useState<string>("");
   const [isPollClosed, setIsPollClosed] = useState(false);
-
-  // isPollClosedの状態変化を追跡
-  useEffect(() => {
-    console.log('isPollClosed状態が変更されました:', isPollClosed);
-  }, [isPollClosed]);
   const [timeRemaining, setTimeRemaining] = useState<number | null>(null);
-  const [endPollDialogOpen, setEndPollDialogOpen] = useState(false);
   const [isEndingPoll, setIsEndingPoll] = useState(false);
 
   useEffect(() => {
-    // 投票締め切りタイマー（締切日時が設定されている場合のみ）
-    if (!poll || !poll.endDateTime) {
-      setIsPollClosed(false);
-      setTimeRemaining(null);
+    // サーバーから取得したisClosedフラグに基づいて状態を設定
+    if (poll) {
+      if (poll.isClosed) {
+        setIsPollClosed(true);
+        setTimeRemaining(0);
+      } else if (poll.endDateTime) {
+        // 締切日時が設定されている場合は残り時間を計算
+        const endTime = new Date(poll.endDateTime).getTime();
+        const now = Date.now();
+        const remaining = Math.max(0, endTime - now);
+
+        if (remaining <= 0) {
+          setIsPollClosed(true);
+          setTimeRemaining(0);
+        } else {
+          setIsPollClosed(false);
+          setTimeRemaining(Math.ceil(remaining / 1000));
+        }
+      } else {
+        setIsPollClosed(false);
+        setTimeRemaining(null);
+      }
+    }
+  }, [poll]);
+
+  // 残り時間のカウントダウン（締切日時が設定されている場合のみ）
+  useEffect(() => {
+    if (!poll || !poll.endDateTime || isPollClosed) {
       return;
     }
 
     const endTime = new Date(poll.endDateTime).getTime();
-
     const timer = setInterval(() => {
       const now = Date.now();
       const remaining = Math.max(0, endTime - now);
@@ -101,17 +120,14 @@ export default function PollPage() {
         setIsPollClosed(true);
         setTimeRemaining(0);
         clearInterval(timer);
-
-        // 時間切れ時はフロントエンドの状態のみ更新
-        // サーバー側のフラグは既に設定済み
-        console.log('時間切れ - フロントエンド状態を更新');
       } else {
         setTimeRemaining(Math.ceil(remaining / 1000));
       }
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [poll]);
+  }, [poll, isPollClosed]);
+
 
   useEffect(() => {
     // クッキーからユーザー情報を取得（URLごと）
@@ -207,9 +223,11 @@ export default function PollPage() {
 
           const updatedPoll: Poll = {
             ...pollData,
-            options: updatedOptions
+            options: updatedOptions,
+            isClosed: pollData.isClosed // 明示的にisClosedフラグを保持
           };
 
+          console.log('OGPデータ取得後のupdatedPoll:', { isClosed: updatedPoll.isClosed });
           setPoll(updatedPoll);
 
           // isClosedフラグが設定されている場合は、状態を再設定
@@ -236,13 +254,7 @@ export default function PollPage() {
       } catch (error) {
         console.error('Error fetching poll:', error);
       } finally {
-        // 最低1秒はスケルトンを表示
-        const elapsedTime = Date.now() - startTime;
-        const remainingTime = Math.max(0, 2000 - elapsedTime);
-
-        setTimeout(() => {
-          setLoading(false);
-        }, remainingTime);
+        setLoading(false);
       }
     };
 
@@ -379,28 +391,35 @@ export default function PollPage() {
     }
   };
 
-  // 投票を終了する関数（強制終了）
+
+  // 作成者かどうかを判定（簡易版 - 実際は認証が必要）
+  // デモ用に、最初にアクセスしたユーザーを作成者として扱う
+  const isCreator = poll?.createdBy === userId || (poll && !userId);
+
+  // 投票を強制終了する関数
   const endPoll = async () => {
     if (!poll) return;
 
-    console.log('投票終了開始 - 現在のisPollClosed:', isPollClosed);
-
     setIsEndingPoll(true);
     try {
-      // サーバー側のフラグを更新
-      const result = await updatePollClosedStatus(poll.id);
-      console.log('APIレスポンス:', result);
+      const response = await fetch('/api/polls/end', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ pollId: poll.id }),
+      });
 
-      // フロントエンドの状態を更新
-      setIsPollClosed(true);
-      setTimeRemaining(0);
-      setPoll(prev => prev ? { ...prev, isClosed: true } : null);
-
-      console.log('投票終了完了 - isPollClosedをtrueに設定');
-
-      setEndPollDialogOpen(false);
-      setSnackbarMessage("投票を終了しました");
-      setSnackbarOpen(true);
+      if (response.ok) {
+        // サーバー側でisClosedフラグが設定されるので、pollを再取得
+        const updatedPoll = await fetch(`/api/polls/${poll.id}`).then(res => res.json()) as Poll;
+        setPoll(updatedPoll);
+        setSnackbarMessage("投票を終了しました");
+        setSnackbarOpen(true);
+      } else {
+        setSnackbarMessage("投票の終了に失敗しました");
+        setSnackbarOpen(true);
+      }
     } catch (error) {
       console.error('投票終了エラー:', error);
       setSnackbarMessage("投票の終了に失敗しました");
@@ -409,36 +428,6 @@ export default function PollPage() {
       setIsEndingPoll(false);
     }
   };
-
-  // 投票終了状態をサーバー側に更新する関数
-  const updatePollClosedStatus = async (pollId: string) => {
-    try {
-      const response = await fetch('/api/polls/end', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ pollId }),
-      });
-
-      if (response.ok) {
-        const result = await response.json();
-        console.log('投票終了API成功:', result);
-        return result;
-      } else {
-        const errorData = await response.json();
-        console.error('投票終了APIエラー:', errorData);
-        throw new Error(errorData.error || '投票終了に失敗しました');
-      }
-    } catch (error) {
-      console.error('投票終了状態の更新に失敗:', error);
-      throw error;
-    }
-  };
-
-  // 作成者かどうかを判定（簡易版 - 実際は認証が必要）
-  // デモ用に、最初にアクセスしたユーザーを作成者として扱う
-  const isCreator = poll?.createdBy === userId || (poll && !userId);
 
 
   // TODO: ページが存在しない場合はエラー画面を表示
@@ -475,13 +464,15 @@ export default function PollPage() {
                 {poll?.title}
               </Typography>
 
-              {/* 投票終了ボタン（全員に表示） */}
+
+              {/* 投票終了ボタン */}
               {poll && !isPollClosed && (
                 <Button
                   variant="outlined"
                   color="error"
                   startIcon={<StopIcon />}
-                  onClick={() => setEndPollDialogOpen(true)}
+                  onClick={endPoll}
+                  disabled={isEndingPoll}
                   sx={{
                     borderRadius: 2,
                     textTransform: 'none',
@@ -496,7 +487,7 @@ export default function PollPage() {
                     }
                   }}
                 >
-                  投票を終了
+                  {isEndingPoll ? '終了中...' : '投票を終了'}
                 </Button>
               )}
 
@@ -508,16 +499,16 @@ export default function PollPage() {
                   gap: 1,
                   px: 2.5,
                   py: 1.5,
-                  backgroundColor: isPollClosed ? '#ffebee' : poll?.endDateTime ? '#e3f2fd' : '#e8f5e8',
+                  backgroundColor: (isPollClosed || poll?.isClosed) ? '#ffebee' : poll?.endDateTime ? '#e3f2fd' : '#e8f5e8',
                   borderRadius: 3,
-                  border: `2px solid ${isPollClosed ? '#f44336' : poll?.endDateTime ? '#2196f3' : '#4caf50'}`,
+                  border: `1px solid ${(isPollClosed || poll?.isClosed) ? '#f44336' : poll?.endDateTime ? '#2196f3' : '#4caf50'}`,
                   minWidth: 'fit-content',
-                  boxShadow: isPollClosed ? '0 2px 8px rgba(244, 67, 54, 0.2)' : poll?.endDateTime ? '0 2px 8px rgba(33, 150, 243, 0.2)' : '0 2px 8px rgba(76, 175, 80, 0.2)'
+                  boxShadow: (isPollClosed || poll?.isClosed) ? '0 2px 8px rgba(244, 67, 54, 0.2)' : poll?.endDateTime ? '0 2px 8px rgba(33, 150, 243, 0.2)' : '0 2px 8px rgba(76, 175, 80, 0.2)'
                 }}>
                   <Typography
                     variant="caption"
                     sx={{
-                      color: isPollClosed ? '#d32f2f' : poll?.endDateTime ? '#1976d2' : '#4caf50',
+                      color: (isPollClosed || poll?.isClosed) ? '#d32f2f' : poll?.endDateTime ? '#1976d2' : '#4caf50',
                       fontWeight: 600,
                       fontSize: '0.8rem',
                       whiteSpace: 'nowrap'
@@ -525,39 +516,37 @@ export default function PollPage() {
                   >
                     投票時間:
                   </Typography>
-                  {poll?.endDateTime ? (
-                    isPollClosed ? (
-                      <Typography
-                        variant="body2"
-                        sx={{
-                          color: '#d32f2f',
-                          fontWeight: 700,
-                          fontSize: '0.9rem',
-                          whiteSpace: 'nowrap'
-                        }}
-                      >
-                        終了
-                      </Typography>
-                    ) : (
-                      <Typography
-                        variant="body2"
-                        sx={{
-                          color: '#1976d2',
-                          fontWeight: 700,
-                          fontSize: '0.9rem',
-                          whiteSpace: 'nowrap'
-                        }}
-                      >
-                        {formatTime(timeRemaining || 0)}
-                      </Typography>
-                    )
+                  {(isPollClosed || poll?.isClosed) ? (
+                    <Typography
+                      variant="body2"
+                      sx={{
+                        color: '#d32f2f',
+                        fontWeight: 700,
+                        fontSize: '0.8rem',
+                        whiteSpace: 'nowrap'
+                      }}
+                    >
+                      終了
+                    </Typography>
+                  ) : poll?.endDateTime ? (
+                    <Typography
+                      variant="body2"
+                      sx={{
+                        color: '#1976d2',
+                        fontWeight: 700,
+                        fontSize: '0.9rem',
+                        whiteSpace: 'nowrap'
+                      }}
+                    >
+                      {formatTime(timeRemaining || 0)}
+                    </Typography>
                   ) : (
                     <Typography
                       variant="body2"
                       sx={{
                         color: '#4caf50',
                         fontWeight: 700,
-                        fontSize: '0.9rem',
+                        fontSize: '0.8rem',
                         whiteSpace: 'nowrap'
                       }}
                     >
@@ -677,8 +666,8 @@ export default function PollPage() {
               const totalVotes = poll?.options.reduce((sum, option) => sum + option.votes, 0) || 0;
               const votePercentage = totalVotes > 0 ? (option.votes / totalVotes) * 100 : 0;
               const winningOption = getWinningOption();
-              const isWinner = isPollClosed && winningOption && option.id === winningOption.id;
-              const isDisabled = isPollClosed && !isWinner;
+              const isDecided = isPollClosed && winningOption && option.id === winningOption.id;
+              const isDisabled = isPollClosed && !isDecided;
 
               // デバッグ用ログ
               if (index === 0) {
@@ -687,7 +676,7 @@ export default function PollPage() {
                   winningOption: winningOption ? { id: winningOption.id, votes: winningOption.votes } : null,
                   optionId: option.id,
                   optionVotes: option.votes,
-                  isWinner,
+                  isDecided,
                   isDisabled,
                   totalVotes,
                   allOptions: poll?.options.map(o => ({ id: o.id, votes: o.votes }))
@@ -704,7 +693,10 @@ export default function PollPage() {
                     display: 'flex',
                     flexDirection: 'column',
                     borderRadius: 3,
-                    border: isWinner ? '2px solid #4caf50' : '1px solid #e8e8e8',
+                    border: isDecided ? '3px solid transparent' : '2px solid #e2e8f0',
+                    background: isDecided
+                      ? 'linear-gradient(135deg, #93c5fd 0%, #60a5fa 100%) padding-box, linear-gradient(135deg, #93c5fd 0%, #60a5fa 100%) border-box'
+                      : 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
                     flex: '0 0 calc(100%)',
                     [`@media (min-width: 600px)`]: {
                       flex: '0 0 calc(50% - 12px)',
@@ -712,19 +704,48 @@ export default function PollPage() {
                     [`@media (min-width: 900px)`]: {
                       flex: '0 0 calc(50% - 16px)',
                     },
-                    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                    boxShadow: isWinner ? '0 8px 25px rgba(76, 175, 80, 0.3)' : 'none',
+                    transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
+                    boxShadow: 'none',
+                    position: 'relative',
                     '&:hover': {
-                      transform: isDisabled ? 'none' : 'translateY(-4px)',
-                      boxShadow: isWinner ? '0 8px 25px rgba(76, 175, 80, 0.4)' : isDisabled ? 'none' : '0 8px 25px rgba(0, 0, 0, 0.15)',
-                      borderColor: isWinner ? '#4caf50' : isDisabled ? '#e8e8e8' : '#1976d2'
+                      transform: isDisabled ? 'none' : isDecided ? 'translateY(-8px) scale(1.02)' : 'translateY(-6px)',
+                      boxShadow: isDecided ? '0 20px 40px rgba(147, 197, 253, 0.3)' : '0 10px 30px rgba(0,0,0,0.1)',
+                      borderColor: isDecided ? 'transparent' : isDisabled ? '#e2e8f0' : '#cbd5e1'
                     },
                     ...(isDisabled && {
-                      opacity: 0.6,
-                      filter: 'grayscale(0.3)'
+                      opacity: 0.5,
+                      filter: 'grayscale(0.4)',
+                      background: 'linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%)'
                     })
                   }}
                 >
+                  {/* 決定ラベル */}
+                  {isDecided && (
+                    <Box
+                      sx={{
+                        position: 'absolute',
+                        top: 12,
+                        left: 12,
+                        zIndex: 10,
+                        background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+                        color: 'white',
+                        padding: '6px 12px',
+                        borderRadius: 2,
+                        fontSize: '0.75rem',
+                        fontWeight: 600,
+                        letterSpacing: '0.025em',
+                        boxShadow: '0 4px 12px rgba(16, 185, 129, 0.3)',
+                        border: '1px solid rgba(255,255,255,0.2)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 0.5
+                      }}
+                    >
+                      <StarIcon sx={{ fontSize: '1rem' }} />
+                      決定
+                    </Box>
+                  )}
+
                   {/* 画像エリア（タイトル重ね表示） */}
                   <CardMedia
                     component="a"
@@ -771,10 +792,13 @@ export default function PollPage() {
                       position: 'relative',
                       zIndex: 2,
                       p: 2.5,
-                      width: '100%'
+                      width: '100%',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 1
                     }}>
                       {option.title ? (
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                        <>
                           <Typography
                             variant="h6"
                             fontWeight="800"
@@ -805,7 +829,7 @@ export default function PollPage() {
                               textShadow: '0 2px 8px rgba(0,0,0,0.7)'
                             }}
                           />
-                        </Box>
+                        </>
                       ) : (
                         <Skeleton
                           variant="text"
@@ -821,12 +845,13 @@ export default function PollPage() {
                     </Box>
 
                     {!option.image && (
-                      <Box textAlign="center" sx={{
+                      <Box sx={{
                         position: 'absolute',
                         top: '50%',
                         left: '50%',
                         transform: 'translate(-50%, -50%)',
-                        zIndex: 2
+                        zIndex: 2,
+                        textAlign: 'center'
                       }}>
                         <RestaurantIcon sx={{
                           fontSize: 64,
@@ -846,159 +871,210 @@ export default function PollPage() {
 
                   <CardContent sx={{
                     flexGrow: 1,
-                    p: 3.5,
+                    p: 3,
                     display: 'flex',
                     flexDirection: 'column',
-                    gap: 2
+                    background: isDecided
+                      ? 'linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(248,250,252,0.95) 100%)'
+                      : 'transparent',
+                    backdropFilter: isDecided ? 'blur(10px)' : 'none',
+                    borderRadius: '0 0 12px 12px'
                   }}>
-
-
                     {/* 投票結果 */}
-                    <Box sx={{
-                      mt: 'auto',
-                      background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                      borderRadius: 3,
-                      p: 3,
-                      position: 'relative',
-                      overflow: 'hidden',
-                      '&::before': {
-                        content: '""',
-                        position: 'absolute',
-                        top: 0,
-                        left: 0,
-                        right: 0,
-                        bottom: 0,
-                        background: 'linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%)',
-                        zIndex: 1
-                      }
-                    }}>
-                      {/* 投票数とパーセンテージ */}
-                      <Box sx={{ position: 'relative', zIndex: 2 }}>
-                        <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
-                          <Box textAlign="center">
-                            <Typography variant="h3" sx={{
-                              color: 'white',
-                              fontWeight: 900,
-                              fontSize: '2.2rem',
-                              textShadow: '0 2px 4px rgba(0,0,0,0.3)',
-                              '& .vote-unit': {
-                                fontSize: '0.85rem',
-                                fontWeight: 500
-                              }
-                            }}>
-                              {option.votes} <span className="vote-unit">票</span>
-                            </Typography>
-                          </Box>
-                          <Box textAlign="center">
-                            <Typography variant="h4" sx={{
-                              color: 'white',
-                              fontWeight: 800,
-                              fontSize: '1.8rem',
-                              textShadow: '0 2px 4px rgba(0,0,0,0.3)'
-                            }}>
-                              {votePercentage.toFixed(1)}%
-                            </Typography>
-                          </Box>
-                        </Box>
-
-
-                        {/* プログレスバー */}
-                        <Box sx={{ mb: 3 }}>
-                          <LinearProgress
-                            variant="determinate"
-                            value={votePercentage}
-                            sx={{
-                              height: 12,
-                              borderRadius: 6,
-                              backgroundColor: 'rgba(255,255,255,0.2)',
-                              '& .MuiLinearProgress-bar': {
-                                borderRadius: 6,
-                                background: 'linear-gradient(90deg, #ffffff 0%, #f0f0f0 100%)',
-                                boxShadow: '0 2px 8px rgba(255,255,255,0.3)'
-                              }
-                            }}
-                          />
-                        </Box>
-
-
-                        {/* 勝利者表示 */}
-                        {(() => {
-                          console.log(`選択肢${option.id}の勝者表示チェック:`, { isWinner, isPollClosed, winningOption: winningOption?.id, optionId: option.id });
-                          return isWinner;
-                        })() && (
-                            <Box sx={{ mb: 2, textAlign: 'center' }}>
-                              <Typography
-                                variant="h6"
-                                sx={{
-                                  color: '#4caf50',
-                                  fontWeight: 800,
-                                  fontSize: '1.2rem',
-                                  textShadow: '0 2px 4px rgba(76, 175, 80, 0.3)'
-                                }}
-                              >
-                                🏆 勝利！
-                              </Typography>
-                            </Box>
-                          )}
-
-                        {/* 投票ボタン */}
-                        <Button
-                          onClick={() => vote(option.id)}
-                          disabled={isVoting || isPollClosed}
-                          variant={isVoted ? "outlined" : "contained"}
-                          startIcon={isVoted ? <CheckIcon sx={{ fontSize: '1.2rem' }} /> : <ThumbUpIcon sx={{ fontSize: '1.2rem' }} />}
-                          fullWidth
-                          size="large"
-                          sx={{
-                            borderRadius: 3,
-                            textTransform: 'none',
-                            fontWeight: 800,
-                            fontSize: '1rem',
-                            py: 2,
-                            position: 'relative',
-                            zIndex: 2,
-                            minHeight: '64px',
-                            ...(isVoted && {
-                              color: 'white',
-                              borderColor: 'rgba(255,255,255,0.6)',
-                              borderWidth: 2,
-                              backgroundColor: 'rgba(255,255,255,0.15)',
-                              backdropFilter: 'blur(10px)',
-                              '&:hover': {
-                                backgroundColor: 'rgba(255,255,255,0.25)',
-                                borderColor: 'rgba(255,255,255,0.9)',
-                                color: '#f8f9fa'
-                              }
-                            }),
-                            ...(!isVoted && {
-                              background: 'linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%)',
-                              color: '#667eea',
-                              boxShadow: '0 4px 15px rgba(0,0,0,0.15)',
-                              '&:hover': {
-                                background: 'linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%)',
-                                color: '#5a67d8',
-                                boxShadow: '0 6px 20px rgba(0,0,0,0.25)'
-                              }
-                            })
-                          }}
-                        >
-                          {isVoting ? (
-                            <Box display="flex" alignItems="center" gap={1.5}>
-                              <CircularProgress size={20} sx={{ color: 'white' }} />
-                              <Typography sx={{ fontWeight: 800 }}>
-                                投票中...
-                              </Typography>
-                            </Box>
-                          ) : isPollClosed ? (
-                            '投票終了'
-                          ) : isVoted ? (
-                            '投票済み'
-                          ) : (
-                            '投票する'
-                          )}
-                        </Button>
-                      </Box>
+                    <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
+                      <Typography variant="h3" sx={{
+                        color: isDecided ? '#3b82f6' : '#1d4ed8',
+                        fontWeight: 900,
+                        fontSize: '2.4rem',
+                        textShadow: isDecided ? '0 2px 4px rgba(59, 130, 246, 0.3)' : 'none',
+                        background: isDecided ? 'linear-gradient(135deg, #93c5fd 0%, #60a5fa 100%)' : 'none',
+                        backgroundClip: isDecided ? 'text' : 'initial',
+                        WebkitBackgroundClip: isDecided ? 'text' : 'initial',
+                        WebkitTextFillColor: isDecided ? 'transparent' : 'initial',
+                        '& .vote-unit': {
+                          fontSize: '0.85rem',
+                          fontWeight: 500
+                        }
+                      }}>
+                        {option.votes} <span className="vote-unit">票</span>
+                      </Typography>
+                      <Typography variant="h4" sx={{
+                        color: isDecided ? '#3b82f6' : '#1d4ed8',
+                        fontWeight: 800,
+                        fontSize: '2rem',
+                        textShadow: isDecided ? '0 2px 4px rgba(59, 130, 246, 0.3)' : 'none',
+                        background: isDecided ? 'linear-gradient(135deg, #93c5fd 0%, #60a5fa 100%)' : 'none',
+                        backgroundClip: isDecided ? 'text' : 'initial',
+                        WebkitBackgroundClip: isDecided ? 'text' : 'initial',
+                        WebkitTextFillColor: isDecided ? 'transparent' : 'initial'
+                      }}>
+                        {votePercentage.toFixed(1)}%
+                      </Typography>
                     </Box>
+
+                    {/* プログレスバー */}
+                    <LinearProgress
+                      variant="determinate"
+                      value={votePercentage}
+                      sx={{
+                        height: 16,
+                        borderRadius: 8,
+                        backgroundColor: isDecided
+                          ? 'rgba(147, 197, 253, 0.1)'
+                          : 'rgba(239, 246, 255, 0.8)',
+                        border: `1px solid ${isDecided ? 'rgba(147, 197, 253, 0.3)' : '#bfdbfe'}`,
+                        mb: 3,
+                        boxShadow: isDecided ? '0 4px 12px rgba(147, 197, 253, 0.2)' : 'none',
+                        '& .MuiLinearProgress-bar': {
+                          borderRadius: 6,
+                          background: isDecided
+                            ? 'linear-gradient(90deg, #93c5fd 0%, #60a5fa 100%)'
+                            : 'linear-gradient(90deg, #60a5fa 0%, #3b82f6 100%)',
+                          boxShadow: isDecided ? '0 2px 8px rgba(147, 197, 253, 0.4)' : 'none'
+                        }
+                      }}
+                    />
+
+                    {/* 投票ボタンまたは投票者リスト */}
+                    {isPollClosed ? (
+                      // 投票終了時：投票者リストを表示
+                      <Box sx={{
+                        p: 3,
+                        textAlign: 'center',
+                        background: isDecided
+                          ? 'linear-gradient(135deg, rgba(147, 197, 253, 0.05) 0%, rgba(96, 165, 250, 0.05) 100%)'
+                          : 'rgba(107, 114, 128, 0.05)',
+                        borderRadius: 2,
+                        border: `1px solid ${isDecided ? 'rgba(147, 197, 253, 0.2)' : 'rgba(107, 114, 128, 0.2)'}`,
+                        backdropFilter: 'blur(4px)'
+                      }}>
+                        {option.voters && option.voters.length > 0 ? (
+                          <Box>
+                            <Box sx={{
+                              display: 'flex',
+                              flexWrap: 'wrap',
+                              gap: 1,
+                              justifyContent: 'center',
+                              maxHeight: '120px',
+                              overflow: 'hidden'
+                            }}>
+                              {option.voters.slice(0, 8).map((voter, index) => (
+                                <Box
+                                  key={voter.id}
+                                  sx={{
+                                    background: isDecided
+                                      ? 'rgba(147, 197, 253, 0.08)'
+                                      : 'rgba(107, 114, 128, 0.08)',
+                                    color: isDecided ? '#3b82f6' : '#6b7280',
+                                    px: 0.8,
+                                    py: 0.3,
+                                    borderRadius: 1,
+                                    fontSize: '0.75rem',
+                                    fontWeight: 500,
+                                    border: `1px solid ${isDecided ? 'rgba(147, 197, 253, 0.15)' : 'rgba(107, 114, 128, 0.15)'}`
+                                  }}
+                                >
+                                  {voter.name}
+                                </Box>
+                              ))}
+                              {option.voters.length > 8 && (
+                                <Box
+                                  sx={{
+                                    background: isDecided
+                                      ? 'rgba(147, 197, 253, 0.08)'
+                                      : 'rgba(107, 114, 128, 0.08)',
+                                    color: isDecided ? '#3b82f6' : '#6b7280',
+                                    px: 0.8,
+                                    py: 0.3,
+                                    borderRadius: 1,
+                                    fontSize: '0.65rem',
+                                    fontWeight: 500,
+                                    border: `1px solid ${isDecided ? 'rgba(147, 197, 253, 0.15)' : 'rgba(107, 114, 128, 0.15)'}`
+                                  }}
+                                >
+                                  +{option.voters.length - 8}
+                                </Box>
+                              )}
+                            </Box>
+                          </Box>
+                        ) : (
+                          <Typography variant="body2" sx={{
+                            color: isDecided ? '#3b82f6' : '#6b7280',
+                            fontStyle: 'italic'
+                          }}>
+                            投票なし
+                          </Typography>
+                        )}
+                      </Box>
+                    ) : (
+                      // 投票中：投票ボタンを表示
+                      <Button
+                        onClick={() => vote(option.id)}
+                        disabled={isVoting}
+                        variant={isVoted ? "outlined" : "contained"}
+                        startIcon={isVoted ? <CheckIcon sx={{ fontSize: '1.2rem' }} /> : <ThumbUpIcon sx={{ fontSize: '1.2rem' }} />}
+                        fullWidth
+                        size="large"
+                        sx={{
+                          borderRadius: 3,
+                          textTransform: 'none',
+                          fontWeight: 800,
+                          fontSize: '1rem',
+                          py: 2,
+                          position: 'relative',
+                          minHeight: '64px',
+                          ...(isVoted && {
+                            color: isDecided ? '#3b82f6' : '#0369a1',
+                            borderColor: isDecided ? '#3b82f6' : '#bfdbfe',
+                            borderWidth: 2,
+                            background: isDecided
+                              ? 'linear-gradient(135deg, rgba(147, 197, 253, 0.1) 0%, rgba(96, 165, 250, 0.1) 100%)'
+                              : 'linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)',
+                            backdropFilter: 'blur(10px)',
+                            boxShadow: isDecided ? '0 4px 16px rgba(147, 197, 253, 0.2)' : 'none',
+                            fontWeight: 700,
+                            '&:hover': {
+                              background: isDecided
+                                ? 'linear-gradient(135deg, rgba(147, 197, 253, 0.2) 0%, rgba(96, 165, 250, 0.2) 100%)'
+                                : 'linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%)',
+                              color: isDecided ? '#2563eb' : '#1e40af',
+                              borderColor: isDecided ? '#2563eb' : '#60a5fa',
+                              boxShadow: isDecided ? '0 6px 20px rgba(147, 197, 253, 0.3)' : 'none',
+                              transform: 'none'
+                            }
+                          }),
+                          ...(!isVoted && {
+                            background: isDecided
+                              ? 'linear-gradient(135deg, #93c5fd 0%, #60a5fa 100%)'
+                              : 'linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)',
+                            color: isDecided ? 'white' : '#1d4ed8',
+                            boxShadow: isDecided ? '0 4px 16px rgba(147, 197, 253, 0.3)' : 'none',
+                            border: `2px solid ${isDecided ? 'transparent' : '#bfdbfe'}`,
+                            '&:hover': {
+                              background: isDecided
+                                ? 'linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%)'
+                                : 'linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%)',
+                              color: isDecided ? 'white' : '#1e40af',
+                              boxShadow: isDecided ? '0 6px 20px rgba(147, 197, 253, 0.4)' : 'none',
+                              transform: 'none'
+                            }
+                          })
+                        }}
+                      >
+                        {isVoting ? (
+                          <Box display="flex" alignItems="center" gap={1.5}>
+                            <CircularProgress size={20} sx={{ color: 'white' }} />
+                            <Typography sx={{ fontWeight: 800 }}>
+                              投票中...
+                            </Typography>
+                          </Box>
+                        ) : isVoted ? (
+                          '投票済み'
+                        ) : (
+                          '投票する'
+                        )}
+                      </Button>
+                    )}
                   </CardContent>
                 </Card>
 
@@ -1007,50 +1083,25 @@ export default function PollPage() {
           )}
         </Box>
 
-        <div className="border border-gray-200 bg-gray-100 p-3 rounded-md h-32">
+        <Box sx={{
+          border: '1px solid #e5e7eb',
+          backgroundColor: '#f3f4f6',
+          p: 3,
+          borderRadius: 1,
+          height: 128,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          color: '#6b7280',
+          fontSize: '0.875rem'
+        }}>
           バナー広告
-        </div>
+        </Box>
       </Box>
 
-      {/* 投票終了確認ダイアログ */}
-      <Dialog open={endPollDialogOpen} onClose={() => setEndPollDialogOpen(false)} maxWidth="sm" fullWidth>
-        <DialogTitle sx={{ pb: 1 }}>
-          <Box display="flex" alignItems="center" gap={1}>
-            <StopIcon color="error" />
-            <Typography variant="h6" fontWeight="600">
-              投票を終了しますか？
-            </Typography>
-          </Box>
-        </DialogTitle>
-        <DialogContent>
-          <Typography variant="body1" color="text.secondary" sx={{ mb: 2 }}>
-            投票を終了すると、それ以降は誰も投票できなくなります。
-          </Typography>
-          <Typography variant="body2" color="error" sx={{ fontWeight: 500 }}>
-            この操作は取り消すことができません。
-          </Typography>
-        </DialogContent>
-        <DialogActions sx={{ p: 3, pt: 1 }}>
-          <Button
-            onClick={() => setEndPollDialogOpen(false)}
-            variant="outlined"
-            disabled={isEndingPoll}
-            sx={{ textTransform: 'none' }}
-          >
-            キャンセル
-          </Button>
-          <Button
-            onClick={endPoll}
-            variant="contained"
-            color="error"
-            disabled={isEndingPoll}
-            startIcon={isEndingPoll ? <CircularProgress size={16} color="inherit" /> : <StopIcon />}
-            sx={{ textTransform: 'none', fontWeight: 600 }}
-          >
-            {isEndingPoll ? '終了中...' : '投票を終了'}
-          </Button>
-        </DialogActions>
-      </Dialog>
+
+      {/* 勝者決定ダイアログ */}
+      <WinnerDialog />
 
       {/* 名前入力ダイアログ */}
       <Dialog open={nameDialogOpen} onClose={() => { }} maxWidth="sm" fullWidth>
