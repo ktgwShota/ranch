@@ -1,4 +1,4 @@
-import { callWorkerAPI, createErrorResponse, createSuccessResponse, WORKER_BASE_URL } from '@/lib/api-helpers';
+import { callWorkerAPI, createErrorResponse, createSuccessResponse, WORKER_BASE_URL } from '@/libs/api-helpers';
 
 // 型定義
 interface CreatePollRequest {

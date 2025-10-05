@@ -1,4 +1,4 @@
-import { callWorkerAPI, createErrorResponse, createSuccessResponse } from '@/lib/api-helpers';
+import { callWorkerAPI, createErrorResponse, createSuccessResponse } from '@/libs/api-helpers';
 
 // 型定義
 interface VoteRequest {

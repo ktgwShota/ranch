@@ -1,5 +1,5 @@
 import { D1Database } from '@cloudflare/workers-types';
-import { Poll, CreatePollData, UpdatePollData, VoteData, DBResult, PollOption } from './types';
+import { Poll, CreatePollData, UpdatePollData, VoteData, DBResult, PollOption } from '../../types/worker';
 
 /**
  * 統合されたデータベース操作クラス
@@ -174,7 +174,7 @@ export class Database {
       for (const option of data.options) {
         await this.db.prepare(`
           INSERT INTO poll_options (poll_id, option_id, url, title, description, image, votes, voters)
-          VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+          VALUES (?, ?, ?, ?, ?, ?, ?)
         `).bind(
           data.id,
           option.id,

@@ -1,4 +1,4 @@
-import { callWorkerAPI, createErrorResponse, createSuccessResponse } from '@/lib/api-helpers';
+import { callWorkerAPI, createErrorResponse, createSuccessResponse } from '@/libs/api-helpers';
 
 export async function GET(
   request: Request,

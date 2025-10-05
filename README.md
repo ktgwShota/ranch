@@ -122,10 +122,10 @@ npm run deploy
 
 ```bash
 # 1. スキーマファイルの作成
-# worker/schema.sql にテーブル定義とデータを記述
+# src/worker/sqls/schema.sql にテーブル定義とデータを記述
 
 # 2. ローカルD1にスキーマを適用
-npx wrangler d1 execute myapp-local --local --file=./worker/schema.sql
+npx wrangler d1 execute myapp-local --local --file=./src/worker/sqls/schema.sql
 
 # 3. データの確認
 npx wrangler d1 execute myapp-local --local --command="SELECT * FROM Customers"
@@ -144,7 +144,7 @@ npm run dev
 rm -rf .wrangler/state/v3/d1/
 
 # 再作成
-npx wrangler d1 execute myapp-local --local --file=./worker/schema.sql
+npx wrangler d1 execute myapp-local --local --file=./src/worker/sqls/schema.sql
 ```
 
 ### マイグレーション
@@ -218,7 +218,7 @@ my-next-app/
 │   └── lib/
 │       └── db.ts          # D1接続ユーティリティ
 ├── migrations/            # データベースマイグレーション
-│   ├── worker/schema.sql
+│   ├── src/worker/sqls/schema.sql
 │   ├── 0002_add_sample_data.sql
 │   └── README.md
 ├── wrangler.jsonc         # Cloudflare設定
