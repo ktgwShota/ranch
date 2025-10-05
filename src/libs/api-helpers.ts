@@ -8,6 +8,7 @@ export interface WorkerResult {
 }
 
 // 定数
+// Next.jsアプリがWorker内で動作している場合の設定
 export const WORKER_BASE_URL = process.env.WORKER_BASE_URL || 'http://localhost:8788';
 
 // ヘルパー関数

@@ -3,7 +3,8 @@
 	"version": "0.1.0",
 	"private": true,
 	"scripts": {
-		"dev": "wrangler dev --port 8788",
+		"dev": "concurrently \"npm run dev:worker\" \"npm run dev:next\"",
+		"dev:worker": "wrangler dev --port 8788",
 		"dev:next": "next dev",
 		"build": "next build",
 		"preview": "opennextjs-cloudflare build && opennextjs-cloudflare preview",
@@ -14,8 +15,8 @@
 		"db:setup": "wrangler d1 execute myapp-local --local --file=./src/worker/sqls/schema.sql",
 		"db:setup:stg": "wrangler d1 execute myapp-stg --file=./src/worker/sqls/schema.sql -e stg",
 		"db:setup:prod": "wrangler d1 execute myapp-prod --file=./src/worker/sqls/schema.sql -e prod",
-		"db:local:query": "wrangler d1 execute myapp-local --local --command",
-		"db:local:reset": "rm -rf .wrangler/state/v3/d1/ && npm run db:setup"
+		"db:query": "wrangler d1 execute myapp-local --local --command",
+		"db:reset": "rm -rf .wrangler/state/v3/d1/ && npm run db:setup"
 	},
 	"dependencies": {
 		"@emotion/react": "^11.14.0",
@@ -28,13 +29,13 @@
 		"react-dom": "19.1.0"
 	},
 	"devDependencies": {
-		"@cloudflare/next-on-pages": "^1.13.16",
 		"@cloudflare/workers-types": "^4.20251004.0",
 		"@opennextjs/cloudflare": "^1.9.1",
 		"@tailwindcss/postcss": "^4",
 		"@types/node": "^20.19.14",
 		"@types/react": "^19",
 		"@types/react-dom": "^19",
+		"concurrently": "^9.2.1",
 		"tailwindcss": "^4",
 		"typescript": "^5",
 		"wrangler": "^4.36.0"

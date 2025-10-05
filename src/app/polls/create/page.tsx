@@ -142,8 +142,14 @@ export default function CreatePage() {
         throw new Error('多数決の作成に失敗しました');
       }
 
-      const poll = await response.json() as { id: string };
-      window.location.href = `/polls/${poll.id}`;
+      const result = await response.json();
+      console.log('投票作成レスポンス:', result);
+
+      if (result.poll && result.poll.id) {
+        window.location.href = `/polls/${result.poll.id}`;
+      } else {
+        throw new Error('投票IDが取得できませんでした');
+      }
     } catch (error) {
       console.error('Error creating poll:', error);
       setError('多数決の作成に失敗しました。もう一度お試しください。');

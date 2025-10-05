@@ -11,6 +11,85 @@ Next.js プロジェクトに Cloudflare D1 データベースを統合したア
 - **TypeScript** 完全対応
 - **Material-UI** によるモダンなUI
 
+## 📊 アーキテクチャとデータフロー
+
+### 全体構成
+
+```
+┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
+│   Frontend      │    │   Next.js API   │    │ Cloudflare      │
+│   (React)       │◄──►│   Routes        │◄──►│ Worker + D1     │
+│                 │    │                 │    │                 │
+└─────────────────┘    └─────────────────┘    └─────────────────┘
+```
+
+### リクエストフロー
+
+#### 1. **エントリーポイント (src/worker/main.ts)**
+すべてのリクエストが最初に通る場所：
+
+```
+Cloudflare Worker
+    ↓
+src/worker/main.ts (エントリーポイント)
+    ↓
+URL判定
+    ├── /worker/db/* → Worker DB API
+    └── その他 → Next.js App
+```
+
+#### 2. **Worker DB API の流れ**
+```
+リクエスト → main.ts → routes/index.ts → routes/polls.ts → services/database.ts → D1 Database
+```
+
+#### 3. **Next.js App の流れ**
+```
+リクエスト → main.ts → .open-next/worker.js → Next.js App Router → API Routes
+```
+
+### データベース操作の流れ
+
+#### **投票作成の例:**
+```
+1. Frontend: POST /api/polls
+2. Next.js API: OGP情報取得 + データ整形
+3. Next.js API: POST /worker/db/polls (Worker API呼び出し)
+4. Worker: routes/polls.ts → services/database.ts
+5. Database: D1 にデータ保存
+6. Response: 作成された投票データを返却
+```
+
+#### **投票取得の例:**
+```
+1. Frontend: GET /api/polls/[id]
+2. Next.js API: GET /worker/db/polls/[id] (Worker API呼び出し)
+3. Worker: routes/polls.ts → services/database.ts
+4. Database: D1 からデータ取得
+5. Response: 投票データを返却
+```
+
+### ディレクトリ構造
+
+```
+src/
+├── app/                  # Next.js App Router
+│   ├── api/             # API Routes (ビジネスロジック)
+│   ├── components/      # React Components
+│   └── polls/           # Poll Pages
+├── libs/                 # Libraries & Utilities
+│   ├── mui/             # Material-UI
+│   └── api-helpers.ts   # API Helpers
+├── types/                # Type Definitions
+│   └── worker.ts         # Worker Types
+└── worker/               # Cloudflare Worker
+    ├── main.ts          # エントリーポイント
+    ├── routes/          # ルーティング
+    ├── services/        # ビジネスロジック
+    ├── utils/           # ユーティリティ
+    └── sqls/            # SQL Files
+```
+
 ## 📋 前提条件
 
 - Node.js 20.x 以上

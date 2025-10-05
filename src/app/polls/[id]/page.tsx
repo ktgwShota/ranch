@@ -317,14 +317,16 @@ export default function PollPage() {
     setVotedOptions(newVotedOptions);
 
     try {
-      await fetch('/api/polls', {
-        method: 'PUT',
+      console.log('投票データ送信:', { id: poll.id, options: updatedOptions });
+      await fetch(`/api/polls/${poll.id}/votes`, {
+        method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          id: poll.id,
-          options: updatedOptions
+          optionId,
+          voterId: userId,
+          voterName: userName
         }),
       });
     } catch (error) {
@@ -402,7 +404,7 @@ export default function PollPage() {
 
     setIsEndingPoll(true);
     try {
-      const response = await fetch('/api/polls/close', {
+      const response = await fetch(`/api/polls/${poll.id}/close`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

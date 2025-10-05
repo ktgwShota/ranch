@@ -4,6 +4,7 @@ import { callWorkerAPI, createErrorResponse, createSuccessResponse } from '@/lib
 interface VoteRequest {
   optionId: number;
   voterId: string;
+  voterName: string;
 }
 
 export async function POST(
@@ -13,15 +14,15 @@ export async function POST(
   try {
     const { id: pollId } = await params;
     const body: VoteRequest = await request.json();
-    const { optionId, voterId } = body;
+    const { optionId, voterId, voterName } = body;
 
     // バリデーション
-    if (!optionId || !voterId) {
-      return createErrorResponse('Option ID and Voter ID are required', 400);
+    if (!optionId || !voterId || !voterName) {
+      return createErrorResponse('Option ID, Voter ID, and Voter Name are required', 400);
     }
 
     // Worker API で投票を記録
-    const workerResult = await callWorkerAPI(`/worker/db/polls/${pollId}/votes`, 'POST', { optionId, voterId });
+    const workerResult = await callWorkerAPI(`/worker/db/polls/${pollId}/votes`, 'POST', { optionId, voterId, voterName });
 
     if (!workerResult.success) {
       return createErrorResponse(workerResult.error || '投票の記録に失敗しました', 400);
