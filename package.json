@@ -3,24 +3,11 @@
 	"version": "0.1.0",
 	"private": true,
 	"scripts": {
-		"dev": "next dev --turbopack",
-		"dev:cf": "wrangler pages dev .next --compatibility-date=2025-03-01",
+		"dev:cf": "wrangler pages dev .vercel/output/functions",
 		"build": "next build",
 		"start": "next start",
-		"lint": "next lint",
-		"deploy": "opennextjs-cloudflare build && opennextjs-cloudflare deploy",
-		"deploy:staging": "opennextjs-cloudflare build && opennextjs-cloudflare deploy --env=staging",
-		"deploy:production": "opennextjs-cloudflare build && opennextjs-cloudflare deploy --env=production",
-		"preview": "opennextjs-cloudflare build && opennextjs-cloudflare preview",
-		"cf-typegen": "wrangler types --env-interface CloudflareEnv ./cloudflare-env.d.ts",
-		"db:create:staging": "wrangler d1 create myapp_stg",
-		"db:create:production": "wrangler d1 create myapp_prod",
-		"db:migrate:staging": "wrangler d1 migrations apply myapp_stg --local",
-		"db:migrate:production": "wrangler d1 migrations apply myapp_prod",
-		"db:migrate:staging:remote": "wrangler d1 migrations apply myapp_stg",
-		"db:migrate:production:remote": "wrangler d1 migrations apply myapp_prod",
-		"db:studio:staging": "wrangler d1 execute myapp_stg --local --command='SELECT * FROM sqlite_master'",
-		"db:studio:production": "wrangler d1 execute myapp_prod --command='SELECT * FROM sqlite_master'"
+		"deploy:prod": "wrangler publish --env production",
+		"deploy:stg": "wrangler publish --env staging"
 	},
 	"dependencies": {
 		"@emotion/react": "^11.14.0",

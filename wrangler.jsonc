@@ -1,56 +1,6 @@
-/**
- * For more details on how to configure Wrangler, refer to:
- * https://developers.cloudflare.com/workers/wrangler/configuration/
- */
 {
-	"$schema": "node_modules/wrangler/config-schema.json",
-	"name": "my-next-app",
-	"main": ".open-next/worker.js",
-	"compatibility_date": "2025-03-01",
-	"compatibility_flags": [
-		"nodejs_compat"
-	],
-	"assets": {
-		"binding": "ASSETS",
-		"directory": ".open-next/assets"
-	},
-	"observability": {
-		"enabled": true
-	},
-	"d1_databases": [
-		{
-			"binding": "DB",
-			"database_name": "myapp_stg",
-			"database_id": "3b67aa00-feff-4cb3-ad35-c2b690a222bb"
-		}
-	],
-	"vars": {
-		"NODE_ENV": "development"
-	},
-	"env": {
-		"staging": {
-			"d1_databases": [
-				{
-					"binding": "DB",
-					"database_name": "myapp_stg",
-					"database_id": "3b67aa00-feff-4cb3-ad35-c2b690a222bb"
-				}
-			],
-			"vars": {
-				"NODE_ENV": "staging"
-			}
-		},
-		"production": {
-			"d1_databases": [
-				{
-					"binding": "DB",
-					"database_name": "myapp_prod",
-					"database_id": "c1f272b5-6479-479c-a6e3-61f3ecb94150"
-				}
-			],
-			"vars": {
-				"NODE_ENV": "production"
-			}
-		}
-	}
+  "name": "myapp",
+  "compatibility_date": "2025-10-05",
+  "account_id": "YOUR_CLOUDFLARE_ACCOUNT_ID",
+  "project_name": "myapp"
 }
