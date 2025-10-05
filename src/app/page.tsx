@@ -94,7 +94,7 @@ export default function Home() {
               </FadeInItem>
 
               <FadeInItem>
-                <Button component={Link} href="/create" variant="contained" size="large" sx={{ py: 2, px: 6, fontSize: '1.125rem', fontWeight: 700, borderRadius: '999px', textTransform: 'none', boxShadow: '0 0 20px rgba(52, 152, 219, 0.5)', transition: 'transform 0.2s', '&:hover': { transform: 'scale(1.05)', boxShadow: '0 0 30px rgba(52, 152, 219, 0.7)' } }}>
+                <Button component={Link} href="/polls/create" variant="contained" size="large" sx={{ py: 2, px: 6, fontSize: '1.125rem', fontWeight: 700, borderRadius: '999px', textTransform: 'none', boxShadow: '0 0 20px rgba(52, 152, 219, 0.5)', transition: 'transform 0.2s', '&:hover': { transform: 'scale(1.05)', boxShadow: '0 0 30px rgba(52, 152, 219, 0.7)' } }}>
                   無料で始める
                 </Button>
               </FadeInItem>
@@ -166,7 +166,7 @@ export default function Home() {
               <Typography sx={{ color: '#666666', fontSize: '1.125rem', maxWidth: '600px', mx: 'auto', mb: 5 }}>
                 今すぐ無料で、最高の意思決定ツールを体験してください。
               </Typography>
-              <Button component={Link} href="/create" variant="contained" size="large" sx={{ py: 2, px: 6, fontSize: '1.125rem', fontWeight: 700, borderRadius: '999px', textTransform: 'none', boxShadow: '0 0 30px rgba(52, 152, 219, 0.3)', transition: 'transform 0.2s', '&:hover': { transform: 'scale(1.05)', boxShadow: '0 0 40px rgba(52, 152, 219, 0.5)' } }}>
+              <Button component={Link} href="/polls/create" variant="contained" size="large" sx={{ py: 2, px: 6, fontSize: '1.125rem', fontWeight: 700, borderRadius: '999px', textTransform: 'none', boxShadow: '0 0 30px rgba(52, 152, 219, 0.3)', transition: 'transform 0.2s', '&:hover': { transform: 'scale(1.05)', boxShadow: '0 0 40px rgba(52, 152, 219, 0.5)' } }}>
                 投票ページを作成する
               </Button>
             </Paper>

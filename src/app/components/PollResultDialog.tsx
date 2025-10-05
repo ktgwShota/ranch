@@ -27,7 +27,7 @@ interface Poll {
   }>;
 }
 
-const WinnerDialog: React.FC = () => {
+const PollResultDialog: React.FC = () => {
   const params = useParams();
   const [open, setOpen] = useState(false);
   const [poll, setPoll] = useState<Poll | null>(null);
@@ -275,4 +275,4 @@ const WinnerDialog: React.FC = () => {
   );
 };
 
-export default WinnerDialog;
+export default PollResultDialog;

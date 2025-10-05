@@ -1,5 +1,23 @@
 import { NextRequest, NextResponse } from 'next/server';
 
+export async function GET(request: NextRequest) {
+  const url = new URL(request.url);
+  const targetUrl = url.searchParams.get('url');
+
+  if (!targetUrl) {
+    return NextResponse.json({ error: 'URL is required' }, { status: 400 });
+  }
+
+  // POSTメソッドの処理を呼び出し
+  const postRequest = new Request(request.url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ url: targetUrl })
+  });
+
+  return await POST(postRequest);
+}
+
 export async function POST(request: NextRequest) {
   console.log('OGP API called');
   try {

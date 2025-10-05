@@ -108,6 +108,45 @@ npm run deploy
 
 ## 🗄️ データベース管理
 
+### ローカルD1データベース（完全ローカル環境）
+
+ローカル開発用のD1データベースは、Cloudflare上ではなく、ローカルPC上（Miniflare）に作成されます。
+
+#### ローカルD1の特徴
+- **保存場所**: `.wrangler/state/v3/d1/miniflare-D1DatabaseObject/XXXX.sqlite`
+- **完全ローカル**: Cloudflare上には存在しない
+- **データ永続化**: `wrangler dev`実行時に自動的にマウントされる
+- **任意のID**: `database_id`は任意の値でOK（例: "1"）
+
+#### ローカルD1へのデータ追加
+
+```bash
+# 1. スキーマファイルの作成
+# worker/schema.sql にテーブル定義とデータを記述
+
+# 2. ローカルD1にスキーマを適用
+npx wrangler d1 execute myapp-local --local --file=./worker/schema.sql
+
+# 3. データの確認
+npx wrangler d1 execute myapp-local --local --command="SELECT * FROM Customers"
+
+# 4. 個別のSQLコマンド実行
+npx wrangler d1 execute myapp-local --local --command="INSERT INTO Customers (name, email) VALUES ('新規ユーザー', 'new@example.com')"
+
+# 5. 開発サーバー起動（ローカルD1が自動マウントされる）
+npm run dev
+```
+
+#### ローカルD1のリセット
+
+```bash
+# ローカルD1データベースを削除（完全リセット）
+rm -rf .wrangler/state/v3/d1/
+
+# 再作成
+npx wrangler d1 execute myapp-local --local --file=./worker/schema.sql
+```
+
 ### マイグレーション
 
 ```bash
@@ -179,7 +218,7 @@ my-next-app/
 │   └── lib/
 │       └── db.ts          # D1接続ユーティリティ
 ├── migrations/            # データベースマイグレーション
-│   ├── 0001_initial_schema.sql
+│   ├── worker/schema.sql
 │   ├── 0002_add_sample_data.sql
 │   └── README.md
 ├── wrangler.jsonc         # Cloudflare設定
@@ -251,6 +290,11 @@ npm run db:create:production  # 本番DB作成
 npm run db:migrate:staging    # ローカルマイグレーション
 npm run db:migrate:staging:remote    # リモートマイグレーション（ステージング）
 npm run db:migrate:production:remote # リモートマイグレーション（本番）
+
+# ローカルD1データベース
+npm run db:setup              # ローカルD1にスキーマ適用
+npm run db:local:query        # ローカルD1でクエリ実行
+npm run db:local:reset        # ローカルD1を完全リセット
 
 # その他
 npm run lint             # ESLint実行

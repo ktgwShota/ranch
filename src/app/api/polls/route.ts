@@ -1,95 +1,133 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { pollStore } from '@/lib/pollStore';
+import { callWorkerAPI, createErrorResponse, createSuccessResponse, WORKER_BASE_URL } from '@/lib/api-helpers';
 
-export async function POST(request: NextRequest) {
+// 型定義
+interface CreatePollRequest {
+  title: string;
+  options: string[];
+  duration?: number;
+  endDate?: string | null;
+  endTime?: string | null;
+}
+
+interface EnrichedOption {
+  id: number;
+  url: string;
+  title: string;
+  description: string;
+  image?: string | null;
+}
+
+interface OGPData {
+  title?: string;
+  description?: string;
+  image?: string;
+}
+
+// 定数
+const NEXT_BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
+
+async function fetchOGPData(url: string): Promise<OGPData> {
   try {
-    const body = await request.json();
-    const { title, options, duration = 5, endDate, endTime } = body as {
-      title: string;
-      options: string[];
-      duration?: number;
-      endDate?: string | null;
-      endTime?: string | null;
-    };
+    const response = await fetch(`${NEXT_BASE_URL}/api/ogp?url=${encodeURIComponent(url)}`);
+    return await response.json();
+  } catch (error) {
+    console.error('Error fetching OGP for URL:', url, error);
+    return {};
+  }
+}
 
-    if (!title || !options || options.length < 2) {
-      return NextResponse.json({ error: 'Title and at least 2 options are required' }, { status: 400 });
-    }
-
-    const pollId = Date.now().toString();
-    // 締切日時の計算
-    let endDateTime: string | null = null;
-    if (endDate && endTime) {
-      endDateTime = new Date(`${endDate}T${endTime}`).toISOString();
-    }
-
-    const poll = {
-      id: pollId,
-      title,
-      duration: duration, // 締め切り時間（分）を追加
-      endDateTime: endDateTime, // 締切日時を追加
-      createdBy: Date.now().toString(), // 簡易的な作成者ID（実際は認証から取得）
-      options: options.map((url: string, index: number) => ({
+async function enrichOptions(options: string[]): Promise<EnrichedOption[]> {
+  return Promise.all(
+    options.map(async (url, index) => {
+      const ogpData = await fetchOGPData(url);
+      return {
         id: index + 1,
         url,
-        title: '店舗情報を取得中...',
-        description: '説明を取得中...',
-        image: null,
-        votes: 0,
-        voters: [] // 投票者情報を追加
-      })),
-      createdAt: new Date().toISOString()
-    };
+        title: ogpData.title || '店舗情報を取得中...',
+        description: ogpData.description || '説明を取得中...',
+        image: ogpData.image || null,
+      };
+    })
+  );
+}
 
-    pollStore.savePoll(poll);
+function calculateEndDateTime(endDate?: string | null, endTime?: string | null): string | null {
+  if (!endDate || !endTime) return null;
+  return new Date(`${endDate}T${endTime}`).toISOString();
+}
 
-    return NextResponse.json(poll);
+
+export async function POST(request: Request) {
+  try {
+    const body: CreatePollRequest = await request.json();
+    const { title, options, duration = 5, endDate, endTime } = body;
+
+    // バリデーション
+    if (!title || !options || options.length < 2) {
+      return createErrorResponse('Title and at least 2 options are required', 400);
+    }
+
+    // データ準備
+    const pollId = Date.now().toString();
+    const endDateTime = calculateEndDateTime(endDate, endTime);
+    const createdAt = new Date().toISOString();
+    const createdBy = Date.now().toString();
+    const enrichedOptions = await enrichOptions(options);
+
+    // Worker API で投票作成
+    const workerResult = await callWorkerAPI('/worker/db/polls', 'POST', {
+      id: pollId,
+      title,
+      duration,
+      endDateTime,
+      createdBy,
+      createdAt,
+      isClosed: 0,
+      options: enrichedOptions,
+    });
+
+    if (!workerResult.success) {
+      console.error('Failed to create poll:', workerResult.error);
+      return createErrorResponse('投票の作成に失敗しました', 500);
+    }
+
+    return createSuccessResponse({
+      success: true,
+      message: '投票が正常に作成されました',
+      poll: workerResult.data
+    });
   } catch (error) {
     console.error('Error creating poll:', error);
-    return NextResponse.json({ error: 'Failed to create poll' }, { status: 500 });
+    return createErrorResponse("Failed to create poll");
   }
 }
 
-export async function GET(request: NextRequest) {
-  try {
-    const { searchParams } = new URL(request.url);
-    const id = searchParams.get('id');
 
-    if (id) {
-      const poll = pollStore.getPoll(id);
-      if (!poll) {
-        return NextResponse.json({ error: 'Poll not found' }, { status: 404 });
-      }
-      return NextResponse.json(poll);
-    }
-
-    return NextResponse.json(pollStore.getAllPolls());
-  } catch (error) {
-    console.error('Error fetching polls:', error);
-    return NextResponse.json({ error: 'Failed to fetch polls' }, { status: 500 });
-  }
+interface UpdatePollRequest {
+  id: string;
+  options: EnrichedOption[];
 }
 
-export async function PUT(request: NextRequest) {
+export async function PUT(request: Request) {
   try {
-    const body = await request.json();
-    const { id, options } = body as { id: string; options: any[] };
+    const body: UpdatePollRequest = await request.json();
+    const { id, options } = body;
 
-    const existingPoll = pollStore.getPoll(id);
-    if (!existingPoll) {
-      return NextResponse.json({ error: 'Poll not found' }, { status: 404 });
+    // バリデーション
+    if (!id || !options) {
+      return createErrorResponse('ID and options are required', 400);
     }
 
-    const updatedPoll = {
-      ...existingPoll,
-      options
-    };
+    // Worker API で投票更新
+    const workerResult = await callWorkerAPI(`/worker/db/polls/${id}`, 'PUT', { id, options });
 
-    pollStore.savePoll(updatedPoll);
+    if (!workerResult.success) {
+      return createErrorResponse(workerResult.error || '投票の更新に失敗しました', 500);
+    }
 
-    return NextResponse.json(updatedPoll);
+    return createSuccessResponse(workerResult.data);
   } catch (error) {
     console.error('Error updating poll:', error);
-    return NextResponse.json({ error: 'Failed to update poll' }, { status: 500 });
+    return createErrorResponse("Failed to update poll");
   }
 }

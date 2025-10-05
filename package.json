@@ -3,11 +3,19 @@
 	"version": "0.1.0",
 	"private": true,
 	"scripts": {
-		"dev:cf": "wrangler pages dev .vercel/output/functions",
+		"dev": "wrangler dev --port 8788",
+		"dev:next": "next dev",
 		"build": "next build",
-		"start": "next start",
-		"deploy:prod": "wrangler publish --env production",
-		"deploy:stg": "wrangler publish --env staging"
+		"preview": "opennextjs-cloudflare build && opennextjs-cloudflare preview",
+		"deploy": "opennextjs-cloudflare build && opennextjs-cloudflare deploy",
+		"deploy:stg": "opennextjs-cloudflare build && opennextjs-cloudflare deploy --env stg",
+		"deploy:prod": "opennextjs-cloudflare build && opennextjs-cloudflare deploy --env prod",
+		"cf-typegen": "wrangler types --env-interface CloudflareEnv cloudflare-env.d.ts",
+		"db:setup": "wrangler d1 execute myapp-local --local --file=./worker/schema.sql",
+		"db:setup:stg": "wrangler d1 execute myapp-stg --file=./worker/schema.sql -e stg",
+		"db:setup:prod": "wrangler d1 execute myapp-prod --file=./worker/schema.sql -e prod",
+		"db:local:query": "wrangler d1 execute myapp-local --local --command",
+		"db:local:reset": "rm -rf .wrangler/state/v3/d1/ && npm run db:setup"
 	},
 	"dependencies": {
 		"@emotion/react": "^11.14.0",

@@ -36,7 +36,7 @@ import {
   Stop as StopIcon,
   Star as StarIcon,
 } from '@mui/icons-material';
-import WinnerDialog from '@/app/components/WinnerDialog';
+import PollResultDialog from '@/app/components/PollResultDialog';
 
 interface Voter {
   id: string;
@@ -153,7 +153,7 @@ export default function PollPage() {
     const fetchPoll = async () => {
       const startTime = Date.now();
       try {
-        const response = await fetch(`/api/polls?id=${params.id}`);
+        const response = await fetch(`/api/polls/${params.id}`);
         if (response.ok) {
           const pollData = await response.json() as Poll;
           console.log('pollData:', pollData);
@@ -175,7 +175,7 @@ export default function PollPage() {
             pollData.options.map(async (option: Option) => {
               console.log('Fetching OGP for URL:', option.url);
               try {
-                const ogpResponse = await fetch('/api/fetch-ogp', {
+                const ogpResponse = await fetch('/api/ogp', {
                   method: 'POST',
                   headers: {
                     'Content-Type': 'application/json',
@@ -402,7 +402,7 @@ export default function PollPage() {
 
     setIsEndingPoll(true);
     try {
-      const response = await fetch('/api/polls/end', {
+      const response = await fetch('/api/polls/close', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -1057,7 +1057,7 @@ export default function PollPage() {
 
 
       {/* 勝者決定ダイアログ */}
-      <WinnerDialog />
+      <PollResultDialog />
 
       {/* 名前入力ダイアログ */}
       <Dialog open={nameDialogOpen} onClose={() => { }} maxWidth="sm" fullWidth>

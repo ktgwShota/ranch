@@ -1,6 +1,58 @@
 {
+  // ========================
+  // Wrangler configuration
+  // ========================
+  
+  // Worker 名称
   "name": "myapp",
-  "compatibility_date": "2025-10-05",
-  "account_id": "YOUR_CLOUDFLARE_ACCOUNT_ID",
-  "project_name": "myapp"
+  
+  // メインスクリプト（カスタムWorker）
+  "main": "worker/main.ts",
+  
+  "compatibility_date": "2025-03-25",
+  "compatibility_flags": [
+    "nodejs_compat"
+  ],
+  
+  "assets": {
+    "directory": ".open-next/assets",
+    "binding": "ASSETS"
+  },
+  
+  // デフォルト環境（ローカル開発用）
+  "d1_databases": [
+    {
+      "binding": "DB",            // コード側でアクセスする際の binding 名
+      "database_name": "myapp-local", // ローカル用 DB
+      "database_id": "1"          // ローカル環境では任意の値でOK
+    }
+  ],
+  
+  // 各環境設定
+  "env": {
+    "stg": {
+      // ステージング環境
+      // Cloudflare 上の myapp-stg DB に接続
+      // 使用例: npx wrangler deploy --env stg
+      "d1_databases": [
+        {
+          "binding": "DB",
+          "database_name": "myapp-stg",   // ステージング用 DB
+          "database_id": "3b67aa00-feff-4cb3-ad35-c2b690a222bb"
+        }
+      ]
+    },
+    "prod": {
+      // 本番環境
+      // Cloudflare 上の myapp-prod DB に接続
+      // 使用例: npx wrangler deploy --env prod
+      "d1_databases": [
+        {
+          "binding": "DB",
+          "database_name": "myapp-prod",  // 本番用 DB
+          "database_id": "c1f272b5-6479-479c-a6e3-61f3ecb94150"
+        }
+      ]
+    }
+  }
 }
