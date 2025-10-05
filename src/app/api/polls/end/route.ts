@@ -5,7 +5,7 @@ export async function POST(request: NextRequest) {
   try {
     console.log('投票終了APIが呼び出されました');
 
-    const body = await request.json();
+    const body = await request.json() as { pollId?: string };
     const { pollId } = body;
 
     console.log('投票終了リクエスト - Poll ID:', pollId);

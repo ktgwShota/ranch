@@ -169,7 +169,7 @@ export default function CreatePage() {
         <Box component="form" sx={{ '& > *': { mb: 4 } }}>
           <Box>
             <Typography variant="subtitle1" gutterBottom sx={{ fontWeight: 600, color: 'text.primary', mb: 2 }}>
-              タイトル <span style={{ color: '#f44336' }}>*</span>
+              タイトル <span style={{ color: '#f44336' } as React.CSSProperties}>*</span>
             </Typography>
 
             <TextField
@@ -197,7 +197,7 @@ export default function CreatePage() {
           <Box mb={3}>
             <Box mb={3}>
               <Typography variant="subtitle1" sx={{ fontWeight: 600, color: 'text.primary', mb: 1 }}>
-                お店のリスト <span style={{ color: '#f44336' }}>*</span>
+                お店のリスト <span style={{ color: '#f44336' } as React.CSSProperties}>*</span>
               </Typography>
               <Typography variant="body2" color="text.secondary">
                 食べログ または ぐるなび の URL を入力してください
@@ -430,7 +430,7 @@ export default function CreatePage() {
               }
               label={
                 <Typography variant="body2" color="text.secondary" sx={{ fontWeight: 500, position: 'relative', top: '0.5px' }}>
-                  <a href="/terms" style={{ color: '#1976d2', textDecoration: 'none', paddingLeft: 4 }}>利用規約</a>に同意する
+                  <a href="/terms" style={{ color: '#1976d2', textDecoration: 'none', paddingLeft: 4 } as React.CSSProperties}>利用規約</a>に同意する
                 </Typography>
               }
             />

@@ -22,15 +22,15 @@ export const theme = createTheme({
     h1: {
       fontSize: '2.5rem',
       fontWeight: 600,
-    },
+    } as any,
     h2: {
       fontSize: '2rem',
       fontWeight: 500,
-    },
+    } as any,
     h3: {
       fontSize: '1.5rem',
       fontWeight: 500,
-    },
+    } as any,
   },
   shape: {
     borderRadius: 12,
@@ -42,7 +42,7 @@ export const theme = createTheme({
           textTransform: 'none',
           fontWeight: 500,
           padding: '10px 24px',
-        },
+        } as any,
       },
     },
     MuiCard: {
@@ -52,7 +52,7 @@ export const theme = createTheme({
           '&:hover': {
             boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
           },
-        },
+        } as any,
       },
     },
   },

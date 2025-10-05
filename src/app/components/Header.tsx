@@ -44,7 +44,7 @@ export default function Header() {
           px: 0.5,
         }}>
           {/* ロゴとタイトル */}
-          <Link href="/" style={{ textDecoration: 'none', color: 'inherit' }}>
+          <Link href="/" style={{ textDecoration: 'none', color: 'inherit' } as React.CSSProperties}>
             <Typography
               variant={isMobile ? "h6" : "h5"}
               component="h1"
