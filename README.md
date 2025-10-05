@@ -377,7 +377,7 @@ npm run db:local:reset        # ローカルD1を完全リセット
 
 # その他
 npm run lint             # ESLint実行
-npm run cf-typegen       # Cloudflare型定義生成
+npm run cf-typegen       # Cloudflare型定義生成（src/types/cloudflare-env.d.ts）
 ```
 
 ## 🔍 トラブルシューティング
@@ -397,6 +397,7 @@ npm run cf-typegen       # Cloudflare型定義生成
 
 4. **型エラーが発生する**
    - `npm run cf-typegen` を実行して型定義を更新
+   - Wranglerのバージョンアップ時や新しいCloudflareサービス導入時に実行
 
 5. **デプロイでエラーが発生する**
    - `npm run build` でビルドエラーがないか確認

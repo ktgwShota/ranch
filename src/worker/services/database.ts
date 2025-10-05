@@ -101,8 +101,8 @@ export class Database {
         return { success: false, error: 'Poll not found' };
       }
 
-      poll.options = JSON.parse(poll.options);
-      return { success: true, data: poll as Poll };
+      poll.options = JSON.parse(poll.options as string);
+      return { success: true, data: poll as unknown as Poll };
     } catch (error) {
       console.error('Error fetching poll:', error);
       return {
@@ -137,7 +137,7 @@ export class Database {
       `).all();
 
       const pollsWithOptions = polls.results.map((poll: any) => {
-        poll.options = JSON.parse(poll.options);
+        poll.options = JSON.parse(poll.options as string);
         return poll;
       });
 
@@ -223,7 +223,7 @@ export class Database {
       }
 
       // 既に投票済みかチェック
-      const voters = JSON.parse(option.voters);
+      const voters = JSON.parse(option.voters as string);
       if (voters.includes(data.voterId)) {
         return { success: false, error: 'Already voted' };
       }

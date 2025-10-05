@@ -142,7 +142,7 @@ export default function CreatePage() {
         throw new Error('多数決の作成に失敗しました');
       }
 
-      const result = await response.json();
+      const result = await response.json() as { poll?: { id: string } };
       console.log('投票作成レスポンス:', result);
 
       if (result.poll && result.poll.id) {
