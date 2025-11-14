@@ -5,12 +5,15 @@ import {
   Typography,
   Container,
   Link,
+  Divider,
   useTheme,
   useMediaQuery,
-  Divider,
 } from '@mui/material';
 import {
-  Announcement as AnnouncementIcon,
+  Store as StoreIcon,
+  LocalShipping as ShippingIcon,
+  AssignmentReturn as ReturnIcon,
+  Info as InfoIcon,
   Gavel as GavelIcon,
   PrivacyTip as PrivacyIcon,
   ContactMail as ContactIcon,
@@ -18,50 +21,43 @@ import {
 
 export default function Footer() {
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
-  const footerLinks = [
-    { label: 'お知らせ', href: '#', icon: <AnnouncementIcon fontSize="small" /> },
-    { label: '利用規約', href: '#', icon: <GavelIcon fontSize="small" /> },
-    { label: 'プライバシーポリシー', href: '#', icon: <PrivacyIcon fontSize="small" /> },
-    { label: 'お問い合わせ', href: '#', icon: <ContactIcon fontSize="small" /> },
+  const shopLinks = [
+    { label: '商品一覧', href: '/products', icon: <StoreIcon fontSize="small" /> },
+    { label: '配送方法', href: '/shipping', icon: <ShippingIcon fontSize="small" /> },
+    { label: '返品 / 交換', href: '/returns', icon: <ReturnIcon fontSize="small" /> },
+  ];
+
+  const aboutLinks = [
+    { label: '村松屋について', href: '/about', icon: <InfoIcon fontSize="small" /> },
+    { label: '利用規約', href: '/terms', icon: <GavelIcon fontSize="small" /> },
+    { label: 'プライバシーポリシー', href: '/privacy', icon: <PrivacyIcon fontSize="small" /> },
+    { label: 'お問い合わせ', href: '/contact', icon: <ContactIcon fontSize="small" /> },
   ];
 
   return (
     <Box
       component="footer"
       sx={{
-        background: 'linear-gradient(135deg, #2c3e50 0%, #34495e 100%)',
+        background: '#1f2937',
         color: 'white',
         mt: 'auto',
-        position: 'relative',
-        '&::before': {
-          content: '""',
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          right: 0,
-          height: '1px',
-          background: 'linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent)',
-        }
       }}
     >
-      <Container maxWidth={false} sx={{ maxWidth: '900px', pt: 4, pb: 2 }}>
-        {/* メインコンテンツ */}
+      <Container maxWidth={false} sx={{ maxWidth: 1000, pt: 6, pb: 3 }}>
         <Box
           display="flex"
-          flexDirection={isMobile ? 'column' : 'row'}
+          flexDirection={isMobile ? "column" : "row"}
           justifyContent="space-between"
-          alignItems={isMobile ? 'center' : 'flex-start'}
-          gap={4}
-          mb={4}
+          alignItems={isMobile ? "center" : "flex-start"}
         >
-          {/* ロゴと説明 */}
+          {/* タイトル */}
           <Box
-            textAlign={isMobile ? 'center' : 'left'}
             sx={{
-              maxWidth: isMobile ? '100%' : 400,
-              flex: isMobile ? 'none' : 1
+              flex: 1,
+              minWidth: 300,
+              textAlign: isMobile ? "center" : "left",
             }}
           >
             <Typography
@@ -73,32 +69,44 @@ export default function Footer() {
                 letterSpacing: '-0.02em',
               }}
             >
-              チョイスル
+              蜜芋の村松屋
+            </Typography>
+            <Typography
+              variant="body2"
+              sx={{
+                color: 'rgba(255, 255, 255, 0.7)',
+                fontSize: '0.85rem',
+                maxWidth: 400,
+                mx: isMobile ? 'auto' : 0,
+              }}
+            >
+              高品質な芋類をお手頃な価格でお届けします。
             </Typography>
           </Box>
 
           {/* リンクセクション */}
           <Box
             display="flex"
-            flexDirection={isMobile ? 'row' : 'column'}
-            gap={isMobile ? 4 : 2}
-            alignItems={isMobile ? 'center' : 'flex-start'}
-            sx={{ flex: isMobile ? 'none' : '0 0 auto' }}
+            flexDirection={isMobile ? "column" : "row"}
+            gap={6}
+            justifyContent={isMobile ? "center" : "flex-end"}
+            flexWrap="nowrap"
           >
-            <Box>
+            {/* SHOP */}
+            <Box textAlign={isMobile ? "center" : "left"}>
               <Typography
                 variant="subtitle1"
                 fontWeight="600"
                 sx={{
                   color: 'white',
                   mb: 2,
-                  fontSize: '0.95rem'
+                  fontSize: '1rem',
                 }}
               >
-                ABOUT US
+                SHOP
               </Typography>
               <Box display="flex" flexDirection="column" gap={1.5}>
-                {footerLinks.map((link) => (
+                {shopLinks.map((link) => (
                   <Link
                     key={link.label}
                     href={link.href}
@@ -111,10 +119,52 @@ export default function Footer() {
                       fontWeight: 500,
                       fontSize: '0.85rem',
                       transition: 'all 0.2s ease',
+                      justifyContent: isMobile ? "center" : "flex-start",
                       '&:hover': {
                         color: 'white',
                         transform: 'translateX(4px)',
-                      }
+                      },
+                    }}
+                  >
+                    {link.icon}
+                    {link.label}
+                  </Link>
+                ))}
+              </Box>
+            </Box>
+
+            {/* ABOUT */}
+            <Box textAlign={isMobile ? "center" : "left"}>
+              <Typography
+                variant="subtitle1"
+                fontWeight="600"
+                sx={{
+                  color: 'white',
+                  mb: 2,
+                  fontSize: '1rem',
+                }}
+              >
+                ABOUT
+              </Typography>
+              <Box display="flex" flexDirection="column" gap={1.5}>
+                {aboutLinks.map((link) => (
+                  <Link
+                    key={link.label}
+                    href={link.href}
+                    sx={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 1,
+                      color: 'rgba(255, 255, 255, 0.7)',
+                      textDecoration: 'none',
+                      fontWeight: 500,
+                      fontSize: '0.85rem',
+                      transition: 'all 0.2s ease',
+                      justifyContent: isMobile ? "center" : "flex-start",
+                      '&:hover': {
+                        color: 'white',
+                        transform: 'translateX(4px)',
+                      },
                     }}
                   >
                     {link.icon}
@@ -127,13 +177,7 @@ export default function Footer() {
         </Box>
 
         {/* 区切り線 */}
-        <Divider
-          sx={{
-            mt: 3,
-            mb: 2,
-            borderColor: 'rgba(255, 255, 255, 0.1)',
-          }}
-        />
+        <Divider sx={{ mt: 3, mb: 3, borderColor: '#374151' }} />
 
         {/* コピーライト */}
         <Typography
@@ -141,10 +185,11 @@ export default function Footer() {
           sx={{
             color: 'rgba(255, 255, 255, 0.6)',
             fontWeight: 400,
-            fontSize: '0.8rem'
+            fontSize: '0.8rem',
+            textAlign: 'center',
           }}
         >
-          © 2025 チョイスル. All rights reserved.
+          © 2025 蜜芋の村松屋. All rights reserved.
         </Typography>
       </Container>
     </Box>

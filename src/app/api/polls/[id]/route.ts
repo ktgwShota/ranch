@@ -1,22 +1,59 @@
-import { callWorkerAPI, createErrorResponse, createSuccessResponse } from '@/libs/api-helpers';
+import { getCloudflareContext } from '@opennextjs/cloudflare';
+import { getPoll } from '../../../../lib/db';
 
-export async function GET(
-  request: Request,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function GET(req: Request, context: { params: Promise<{ id: string }> }) {
   try {
-    const { id: pollId } = await params;
+    const params = await context.params;
 
-    // Worker API で投票を取得
-    const workerResult = await callWorkerAPI(`/worker/db/polls/${pollId}`);
-
-    if (!workerResult.success) {
-      return createErrorResponse(workerResult.error || '投票が見つかりません', 404);
+    // @opennextjs/cloudflareが提供するgetCloudflareContext()を使用
+    let env: { DB: D1Database };
+    try {
+      const cloudflareContext = getCloudflareContext();
+      env = cloudflareContext.env;
+      console.log('Environment retrieved for GET [id]:', !!env?.DB);
+    } catch (contextError) {
+      console.error('Error getting Cloudflare context:', contextError);
+      return new Response(JSON.stringify({
+        error: 'Failed to get Cloudflare context',
+        details: contextError instanceof Error ? contextError.message : 'Unknown error'
+      }), {
+        status: 500,
+        headers: { 'Content-Type': 'application/json' }
+      });
     }
 
-    return createSuccessResponse(workerResult.data);
+    if (!env || !env.DB) {
+      console.error('DB not found in context');
+      return new Response(JSON.stringify({
+        error: 'DB not found in context'
+      }), {
+        status: 500,
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }
+
+    const result = await getPoll(params.id, env);
+
+    if (!result.success) {
+      return new Response(JSON.stringify({
+        error: result.error || 'Poll not found'
+      }), {
+        status: result.error === 'Poll not found' ? 404 : 500,
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }
+
+    return new Response(JSON.stringify(result.data), {
+      headers: { 'Content-Type': 'application/json' }
+    });
+
   } catch (error) {
-    console.error('Error fetching poll:', error);
-    return createErrorResponse("Failed to fetch poll");
+    console.error('Error in GET /api/polls/[id]:', error);
+    return new Response(JSON.stringify({
+      error: error instanceof Error ? error.message : 'Unknown error'
+    }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' }
+    });
   }
 }

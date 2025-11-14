@@ -6,8 +6,8 @@
   // Worker 名称
   "name": "myapp",
   
-  // メインスクリプト（カスタムWorker）
-  "main": "main.ts",
+  // メインスクリプト（OpenNextが生成したWorker）
+  "main": ".open-next/worker.js",
   
   "compatibility_date": "2025-03-25",
   "compatibility_flags": [
@@ -15,7 +15,7 @@
   ],
   
   "assets": {
-    "directory": "../.open-next/assets",
+    "directory": ".open-next/assets",
     "binding": "ASSETS"
   },
   
@@ -42,14 +42,14 @@
         }
       ]
     },
-    "prod": {
+    "prd": {
       // 本番環境
-      // Cloudflare 上の myapp-prod DB に接続
-      // 使用例: npx wrangler deploy --env prod
+      // Cloudflare 上の myapp-prd DB に接続
+      // 使用例: npx wrangler deploy --env prd
       "d1_databases": [
         {
           "binding": "DB",
-          "database_name": "myapp-prod",  // 本番用 DB
+          "database_name": "myapp-prd",  // 本番用 DB
           "database_id": "c1f272b5-6479-479c-a6e3-61f3ecb94150"
         }
       ]

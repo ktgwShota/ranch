@@ -13,27 +13,26 @@ export interface Poll {
 
 export interface PollOption {
   id: number;
-  url: string;
+  url: string | undefined;
   title: string;
-  description: string;
+  description: string | undefined;
   image?: string;
   votes: number;
   voters: string[];
 }
 
 export interface CreatePollData {
-  id: string;
   title: string;
-  duration: number;
-  endDateTime: string | null;
+  duration?: number;
+  endDateTime?: string | null;
   createdBy: string;
-  createdAt: string;
-  isClosed: number;
-  options: Omit<PollOption, 'votes' | 'voters'>[];
+  options: Omit<PollOption, 'id' | 'votes' | 'voters'>[];
 }
 
 export interface UpdatePollData {
-  id: string;
+  title: string;
+  duration?: number;
+  endDateTime?: string | null;
   options: PollOption[];
 }
 

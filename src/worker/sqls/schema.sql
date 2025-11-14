@@ -26,22 +26,22 @@ CREATE TABLE IF NOT EXISTS polls (
 -- Poll Options テーブルの作成
 CREATE TABLE IF NOT EXISTS poll_options (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
-  poll_id TEXT NOT NULL,
-  option_id INTEGER NOT NULL,
+  pollId TEXT NOT NULL,
+  optionId INTEGER NOT NULL,
   url TEXT NOT NULL,
   title TEXT DEFAULT '店舗情報を取得中...',
   description TEXT DEFAULT '説明を取得中...',
   image TEXT,
   votes INTEGER DEFAULT 0,
   voters TEXT DEFAULT '[]',
-  FOREIGN KEY (poll_id) REFERENCES polls (id) ON DELETE CASCADE
+  FOREIGN KEY (pollId) REFERENCES polls (id) ON DELETE CASCADE
 );
 
 -- サンプル投票データの挿入
 INSERT OR IGNORE INTO polls (id, title, duration, endDateTime, createdBy, createdAt, isClosed) VALUES 
   ('sample-poll-1', '今日のランチはどこで食べますか？', 30, NULL, 'user1', '2025-10-05T07:00:00.000Z', 0);
 
-INSERT OR IGNORE INTO poll_options (poll_id, option_id, url, title, description, votes, voters) VALUES 
+INSERT OR IGNORE INTO poll_options (pollId, optionId, url, title, description, votes, voters) VALUES 
   ('sample-poll-1', 1, 'https://example.com/restaurant1', 'レストランA', '美味しいイタリアン', 3, '["user1", "user2", "user3"]'),
   ('sample-poll-1', 2, 'https://example.com/restaurant2', 'レストランB', '人気の和食', 2, '["user4", "user5"]'),
   ('sample-poll-1', 3, 'https://example.com/restaurant3', 'レストランC', '安い定食屋', 1, '["user6"]');

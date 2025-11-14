@@ -1,133 +1,175 @@
-import { callWorkerAPI, createErrorResponse, createSuccessResponse } from '@/libs/api-helpers';
+import { getCloudflareContext } from '@opennextjs/cloudflare';
+import { createPoll, getPolls } from '../../../lib/db';
 
-// 型定義
-interface CreatePollRequest {
-  title: string;
-  options: string[];
-  duration?: number;
-  endDate?: string | null;
-  endTime?: string | null;
-}
-
-interface EnrichedOption {
-  id: number;
-  url: string;
-  title: string;
-  description: string;
-  image?: string | null;
-}
-
-interface OGPData {
-  title?: string;
-  description?: string;
-  image?: string;
-}
-
-// 定数
-const NEXT_BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
-
-async function fetchOGPData(url: string): Promise<OGPData> {
+export async function POST(req: Request) {
   try {
-    const response = await fetch(`${NEXT_BASE_URL}/api/ogp?url=${encodeURIComponent(url)}`);
-    return await response.json();
+    console.log('POST /api/polls called');
+
+    // @opennextjs/cloudflareが提供するgetCloudflareContext()を使用
+    let env: { DB: D1Database };
+    try {
+      const context = getCloudflareContext();
+      env = context.env;
+      console.log('Environment retrieved:', !!env);
+      console.log('DB binding:', !!env?.DB);
+    } catch (contextError) {
+      console.error('Error getting Cloudflare context:', contextError);
+      return new Response(JSON.stringify({
+        error: 'Failed to get Cloudflare context',
+        details: contextError instanceof Error ? contextError.message : 'Unknown error'
+      }), {
+        status: 500,
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }
+
+    if (!env || !env.DB) {
+      console.error('DB not found in context');
+      return new Response(JSON.stringify({
+        error: 'DB not found in context'
+      }), {
+        status: 500,
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }
+
+    const body = await req.json() as {
+      title: string;
+      options: string[] | Array<{ url: string; title?: string; description?: string; image?: string }>;
+      duration?: number;
+      endDate?: string | null;
+      endTime?: string | null;
+      createdBy?: string;
+    };
+
+    if (!body.title || !body.options || body.options.length < 2) {
+      return new Response(JSON.stringify({
+        error: 'Title and at least 2 options are required'
+      }), {
+        status: 400,
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }
+
+    // optionsが文字列配列の場合とオブジェクト配列の場合の両方に対応
+    const options = body.options.map(opt => {
+      if (typeof opt === 'string') {
+        return {
+          url: opt,
+          title: '店舗情報を取得中...',
+          description: '説明を取得中...',
+          image: undefined
+        };
+      } else {
+        return {
+          url: opt.url,
+          title: opt.title || '店舗情報を取得中...',
+          description: opt.description || '説明を取得中...',
+          image: opt.image
+        };
+      }
+    });
+
+    // endDateとendTimeからendDateTimeを計算
+    let endDateTime: string | null = null;
+    if (body.endDate && body.endTime) {
+      endDateTime = new Date(`${body.endDate}T${body.endTime}`).toISOString();
+    }
+
+    const result = await createPoll({
+      title: body.title,
+      options,
+      duration: body.duration || 5,
+      endDateTime: endDateTime,
+      createdBy: body.createdBy || Date.now().toString()
+    }, env);
+
+    if (!result.success) {
+      return new Response(JSON.stringify({
+        error: result.error || 'Failed to create poll'
+      }), {
+        status: 500,
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }
+
+    // フロントエンドが期待する形式に合わせる
+    return new Response(JSON.stringify({
+      poll: {
+        id: result.data?.id
+      }
+    }), {
+      headers: { 'Content-Type': 'application/json' }
+    });
+
   } catch (error) {
-    console.error('Error fetching OGP for URL:', url, error);
-    return {};
+    console.error('Error in POST /api/polls:', error);
+    console.error('Error stack:', error instanceof Error ? error.stack : 'No stack');
+    console.error('Error name:', error instanceof Error ? error.name : 'Unknown');
+    return new Response(JSON.stringify({
+      error: error instanceof Error ? error.message : 'Unknown error',
+      stack: error instanceof Error ? error.stack : undefined,
+      name: error instanceof Error ? error.name : undefined
+    }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' }
+    });
   }
 }
 
-async function enrichOptions(options: string[]): Promise<EnrichedOption[]> {
-  return Promise.all(
-    options.map(async (url, index) => {
-      const ogpData = await fetchOGPData(url);
-      return {
-        id: index + 1,
-        url,
-        title: ogpData.title || '店舗情報を取得中...',
-        description: ogpData.description || '説明を取得中...',
-        image: ogpData.image || null,
-      };
-    })
-  );
-}
-
-function calculateEndDateTime(endDate?: string | null, endTime?: string | null): string | null {
-  if (!endDate || !endTime) return null;
-  return new Date(`${endDate}T${endTime}`).toISOString();
-}
-
-
-export async function POST(request: Request) {
+export async function GET(req: Request) {
   try {
-    const body: CreatePollRequest = await request.json();
-    const { title, options, duration = 5, endDate, endTime } = body;
+    console.log('GET /api/polls called');
 
-    // バリデーション
-    if (!title || !options || options.length < 2) {
-      return createErrorResponse('Title and at least 2 options are required', 400);
+    // @opennextjs/cloudflareが提供するgetCloudflareContext()を使用
+    let env: { DB: D1Database };
+    try {
+      const context = getCloudflareContext();
+      env = context.env;
+      console.log('Environment retrieved for GET:', !!env?.DB);
+    } catch (contextError) {
+      console.error('Error getting Cloudflare context:', contextError);
+      return new Response(JSON.stringify({
+        error: 'Failed to get Cloudflare context',
+        details: contextError instanceof Error ? contextError.message : 'Unknown error'
+      }), {
+        status: 500,
+        headers: { 'Content-Type': 'application/json' }
+      });
     }
 
-    // データ準備
-    const pollId = Date.now().toString();
-    const endDateTime = calculateEndDateTime(endDate, endTime);
-    const createdAt = new Date().toISOString();
-    const createdBy = Date.now().toString();
-    const enrichedOptions = await enrichOptions(options);
+    if (!env || !env.DB) {
+      console.error('DB not found in context');
+      return new Response(JSON.stringify({
+        error: 'DB not found in context'
+      }), {
+        status: 500,
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }
 
-    // Worker API で投票作成
-    const workerResult = await callWorkerAPI('/worker/db/polls', 'POST', {
-      id: pollId,
-      title,
-      duration,
-      endDateTime,
-      createdBy,
-      createdAt,
-      isClosed: 0,
-      options: enrichedOptions,
+    const result = await getPolls(env);
+
+    if (!result.success) {
+      return new Response(JSON.stringify({
+        error: result.error || 'Failed to fetch polls'
+      }), {
+        status: 500,
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }
+
+    return new Response(JSON.stringify(result.data), {
+      headers: { 'Content-Type': 'application/json' }
     });
 
-    if (!workerResult.success) {
-      console.error('Failed to create poll:', workerResult.error);
-      return createErrorResponse('投票の作成に失敗しました', 500);
-    }
-
-    return createSuccessResponse({
-      success: true,
-      message: '投票が正常に作成されました',
-      poll: workerResult.data
+  } catch (error) {
+    console.error('Error in GET /api/polls:', error);
+    return new Response(JSON.stringify({
+      error: error instanceof Error ? error.message : 'Unknown error'
+    }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' }
     });
-  } catch (error) {
-    console.error('Error creating poll:', error);
-    return createErrorResponse("Failed to create poll");
-  }
-}
-
-
-interface UpdatePollRequest {
-  id: string;
-  options: EnrichedOption[];
-}
-
-export async function PUT(request: Request) {
-  try {
-    const body: UpdatePollRequest = await request.json();
-    const { id, options } = body;
-
-    // バリデーション
-    if (!id || !options) {
-      return createErrorResponse('ID and options are required', 400);
-    }
-
-    // Worker API で投票更新
-    const workerResult = await callWorkerAPI(`/worker/db/polls/${id}`, 'PUT', { id, options });
-
-    if (!workerResult.success) {
-      return createErrorResponse(workerResult.error || '投票の更新に失敗しました', 500);
-    }
-
-    return createSuccessResponse(workerResult.data);
-  } catch (error) {
-    console.error('Error updating poll:', error);
-    return createErrorResponse("Failed to update poll");
   }
 }

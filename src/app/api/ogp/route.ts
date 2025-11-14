@@ -42,6 +42,7 @@ async function fetchOGPData(url: string) {
     headers: {
       'User-Agent': 'Mozilla/5.0 (compatible; OGP-Fetcher/1.0)',
     },
+    signal: AbortSignal.timeout(10000), // 10秒でタイムアウト
   });
 
   console.log('HTML response status:', response.status);
