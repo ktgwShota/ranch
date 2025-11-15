@@ -10,6 +10,7 @@ import {
   Container,
   FormControlLabel,
   IconButton,
+  InputAdornment,
   Paper,
   TextField,
   Typography,
@@ -36,29 +37,44 @@ export default function CreatePage() {
   const now = new Date();
   const currentTime = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
 
-  const validateUrl = (url: string): string | null => {
+  // URLからサービス名（食べログ/ぐるなび/その他）を判定
+  const getServiceLabel = (url: string): string | null => {
     if (!url.trim()) return null;
 
     try {
       const parsedUrl = new URL(url);
-      const allowedDomains = [
-        'tabelog.com',
-        'www.tabelog.com',
+      const hostname = parsedUrl.hostname.toLowerCase();
+
+      // 食べログのドメイン
+      const tabelogDomains = ['tabelog.com', 'www.tabelog.com'];
+      if (tabelogDomains.some((domain) => hostname === domain || hostname.endsWith('.' + domain))) {
+        return '食べログ';
+      }
+
+      // ぐるなびのドメイン
+      const gurunaviDomains = [
         'gurunavi.com',
-        'www.gurunabi.com',
+        'www.gurunavi.com',
         'r.gnavi.co.jp',
         'www.r.gnavi.co.jp',
       ];
-
-      const hostname = parsedUrl.hostname.toLowerCase();
-      const isAllowedDomain = allowedDomains.some(
-        (domain) => hostname === domain || hostname.endsWith('.' + domain)
-      );
-
-      if (!isAllowedDomain) {
-        return '食べログまたはぐるなびのURLを入力してください';
+      if (gurunaviDomains.some((domain) => hostname === domain || hostname.endsWith('.' + domain))) {
+        return 'ぐるなび';
       }
 
+      // その他の有効なURL
+      return 'その他';
+    } catch {
+      return null;
+    }
+  };
+
+  const validateUrl = (url: string): string | null => {
+    if (!url.trim()) return null;
+
+    try {
+      // 有効なURL形式かチェック（ドメイン制限なし）
+      new URL(url);
       return null;
     } catch {
       return '正しいURLを入力してください';
@@ -102,7 +118,7 @@ export default function CreatePage() {
     });
 
     if (hasUrlErrors) {
-      setError('正しい食べログまたはぐるなびのURLを入力してください。');
+      setError('正しいURLを入力してください。');
       return;
     }
 
@@ -207,10 +223,10 @@ export default function CreatePage() {
                 variant="subtitle1"
                 sx={{ fontWeight: 600, color: 'text.primary', mb: 1 }}
               >
-                お店のリスト <span style={{ color: '#f44336' } as React.CSSProperties}>*</span>
+                リスト <span style={{ color: '#f44336' } as React.CSSProperties}>*</span>
               </Typography>
               <Typography variant="body2" color="text.secondary">
-                食べログ または ぐるなび の URL を入力してください
+                候補となるお店の URL を入力してください。
               </Typography>
             </Box>
 
@@ -220,13 +236,13 @@ export default function CreatePage() {
                 sx={{
                   mb: 3,
                   p: 3,
-                  borderRadius: 1,
+                  borderRadius: 0.5,
                   border: '1px solid',
                   borderColor: urlErrors[option.id] ? '#f44336' : '#ddd',
                   backgroundColor: 'white',
                 }}
               >
-                <Box display="flex" gap={3} alignItems="flex-start">
+                <Box display="flex" gap={2.5} alignItems="center">
                   <Box
                     sx={{
                       width: 36,
@@ -258,18 +274,43 @@ export default function CreatePage() {
                       FormHelperTextProps={{
                         sx: { fontSize: '0.875rem', fontWeight: 500 },
                       }}
+                      slotProps={{
+                        input: {
+                          endAdornment: getServiceLabel(option.url) ? (
+                            <InputAdornment
+                              position="end"
+                              sx={{
+                                m: '0 !important',
+                                ml: '0 !important',
+                                maxHeight: 'none !important',
+                                height: 'auto !important',
+                                px: '10px !important',
+                                py: '4px !important',
+                                borderRadius: '12px !important',
+                                backgroundColor:
+                                  getServiceLabel(option.url) === '食べログ'
+                                    ? '#ff6b6b !important'
+                                    : getServiceLabel(option.url) === 'ぐるなび'
+                                      ? '#4ecdc4 !important'
+                                      : '#9e9e9e !important',
+                                color: 'white !important',
+                                fontSize: '0.7rem !important',
+                                fontWeight: '600 !important',
+                                letterSpacing: '0.5px !important',
+                                lineHeight: '1 !important',
+                              }}
+                            >
+                              {getServiceLabel(option.url)}
+                            </InputAdornment>
+                          ) : null,
+                        },
+                      }}
                       sx={{
                         '& .MuiOutlinedInput-root': {
+                          paddingRight: 0,
                           borderRadius: 0.5,
-                          backgroundColor: '#fafafa',
-                          '&:hover .MuiOutlinedInput-notchedOutline': {
-                            borderColor: urlErrors[option.id] ? '#f44336' : '#1976d2',
-                          },
-                          '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                            borderColor: urlErrors[option.id] ? '#f44336' : '#1976d2',
-                            borderWidth: 2,
-                          },
                         },
+                        backgroundColor: '#fafafa'
                       }}
                     />
                   </Box>
@@ -280,7 +321,14 @@ export default function CreatePage() {
                       sx={{
                         color: '#f44336',
                         backgroundColor: '#ffebee',
-                        borderRadius: 1,
+                        borderRadius: 0.5,
+                        width: 36,
+                        height: 36,
+                        '&:hover': {
+                          backgroundColor: '#ffcdd2',
+                          transform: 'scale(1.05)',
+                        },
+                        transition: 'all 0.2s ease-in-out',
                       }}
                     >
                       <DeleteIcon fontSize="small" />
@@ -291,28 +339,26 @@ export default function CreatePage() {
             ))}
 
             {options.length < 6 && (
-              <Box display="flex" justifyContent="center" mt={3}>
-                <Button
-                  onClick={addOption}
-                  startIcon={<AddIcon />}
-                  variant="outlined"
-                  sx={{
-                    borderRadius: 1,
-                    textTransform: 'none',
-                    fontWeight: 500,
-                    pl: 2,
-                    pr: 2.5,
-                    py: 1.5,
+              <Box
+                onClick={addOption}
+                sx={{
+                  mb: 3,
+                  borderRadius: 0.5,
+                  border: '1px solid',
+                  borderColor: '#ddd',
+                  backgroundColor: 'white',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  height: '90px',
+                  '&:hover': {
                     borderColor: '#1976d2',
-                    color: '#1976d2',
-                    '&:hover': {
-                      borderColor: '#1565c0',
-                      backgroundColor: '#e3f2fd',
-                    },
-                  }}
-                >
-                  選択肢を追加
-                </Button>
+                    backgroundColor: '#fafafa',
+                  },
+                }}
+              >
+                <AddIcon sx={{ color: '#1976d2', fontSize: '1.5rem' }} />
               </Box>
             )}
           </Box>
@@ -406,27 +452,6 @@ export default function CreatePage() {
                   }}
                 />
               </Box>
-              {endDate && endTime && (
-                <Box
-                  sx={{
-                    p: 2,
-                    backgroundColor: 'rgba(102, 126, 234, 0.1)',
-                    borderRadius: 2,
-                    border: '1px solid rgba(102, 126, 234, 0.2)',
-                  }}
-                >
-                  <Typography
-                    variant="body1"
-                    sx={{
-                      color: '#667eea',
-                      fontWeight: 600,
-                      textAlign: 'center',
-                    }}
-                  >
-                    締切日時: {new Date(`${endDate}T${endTime}`).toLocaleString('ja-JP')}
-                  </Typography>
-                </Box>
-              )}
               <Typography
                 variant="body2"
                 sx={{
@@ -435,7 +460,7 @@ export default function CreatePage() {
                   lineHeight: 1.6,
                 }}
               >
-                投票期限を設定すると指定時刻に投票の受付が終了します。
+                投票期限を設定すると指定時刻に投票結果が表示されます。
               </Typography>
             </Box>
           </Box>

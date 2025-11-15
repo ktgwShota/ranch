@@ -3,7 +3,8 @@
   "version": "0.1.0",
   "private": true,
 	"scripts": {
-		"dev": "opennextjs-cloudflare build && opennextjs-cloudflare preview --port 8788",
+		"dev": "next dev",
+		"dev:cf": "opennextjs-cloudflare build && opennextjs-cloudflare preview --port 8788",
 		"build": "next build",
 		"build:cf": "opennextjs-cloudflare build",
 		"preview": "opennextjs-cloudflare build && opennextjs-cloudflare preview",
