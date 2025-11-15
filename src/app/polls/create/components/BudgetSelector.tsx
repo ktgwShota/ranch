@@ -19,7 +19,7 @@ export function BudgetSelector({
 }) {
   const showCustomBudget = option.showCustomBudget || false;
   return (
-    <Box sx={{ position: 'relative' }}>
+    <Box sx={{ mb: 2.5 }}>
       <Box>
         <Typography
           variant="body2"

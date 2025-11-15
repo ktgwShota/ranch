@@ -23,6 +23,7 @@ export function TitleInput({
         onChange={(e) => onChange(e.target.value)}
         variant="outlined"
         sx={{
+          mb: 2.5,
           '& .MuiOutlinedInput-root': {
             borderRadius: 0.5,
             backgroundColor: '#fafafa',

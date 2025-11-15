@@ -8,7 +8,7 @@ export function DescriptionInput({
   onChange: (value: string) => void;
 }) {
   return (
-    <Box sx={{ position: 'relative', mt: 2 }}>
+    <Box>
       <Box>
         <Typography
           variant="body2"
@@ -24,7 +24,7 @@ export function DescriptionInput({
         <TextField
           fullWidth
           size="small"
-          placeholder="..."
+          placeholder="会社から徒歩10分 / 個室あり / 駐車場なし"
           value={value}
           onChange={(e) => onChange(e.target.value)}
           multiline

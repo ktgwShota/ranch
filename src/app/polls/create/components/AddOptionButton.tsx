@@ -1,5 +1,5 @@
 import { Add as AddIcon } from '@mui/icons-material';
-import { Box } from '@mui/material';
+import { Box, Typography } from '@mui/material';
 
 export function AddOptionButton({ onClick }: { onClick: () => void }) {
   return (
@@ -33,6 +33,7 @@ export function AddOptionButton({ onClick }: { onClick: () => void }) {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
+        gap: 1,
         height: '90px',
         position: 'relative',
         zIndex: 10,
@@ -48,6 +49,17 @@ export function AddOptionButton({ onClick }: { onClick: () => void }) {
       }}
     >
       <AddIcon sx={{ color: '#1976d2', fontSize: '1.5rem', pointerEvents: 'none' }} />
+      <Typography
+        variant="body2"
+        sx={{
+          color: '#1976d2',
+          fontSize: '0.95rem',
+          fontWeight: 500,
+          pointerEvents: 'none',
+        }}
+      >
+        お店の候補を追加
+      </Typography>
     </Box>
   );
 }

@@ -163,11 +163,11 @@ export default function Index() {
           backgroundColor: 'white',
         }}
       >
-        <Box component="form" onSubmit={(e) => e.preventDefault()} sx={{ '& > *': { mb: 4 } }}>
+        <Box component="form" onSubmit={(e) => e.preventDefault()} >
           <TitleInput title={pollTitle} onChange={setPollTitle} />
 
-          <Box mb={3} sx={{ position: 'relative' }}>
-            <Box mb={3}>
+          <Box sx={{ position: 'relative' }}>
+            <Box mb={2.5}>
               <Typography
                 variant="subtitle1"
                 sx={{ fontWeight: 600, color: 'text.primary', mb: 1 }}
@@ -175,7 +175,7 @@ export default function Index() {
                 リスト <span style={{ color: '#f44336' } as React.CSSProperties}>*</span>
               </Typography>
               <Typography variant="body2" color="text.secondary">
-                候補となるお店の URL を入力してください。
+                候補となるお店の情報を入力してください。
               </Typography>
             </Box>
 
@@ -194,8 +194,6 @@ export default function Index() {
             {pollOptions.length < MAX_OPTIONS && <AddOptionButton onClick={handleAddOption} />}
           </Box>
 
-
-
           <VotingDeadline
             endDate={deadlineDate}
             endTime={deadlineTime}
@@ -209,10 +207,6 @@ export default function Index() {
             }}
             onEndTimeChange={setDeadlineTime}
           />
-
-
-      {/* ここに投票を匿名にするかどうかのチェックボックスを追加 */}
-
 
           <Box
             sx={{
@@ -271,7 +265,6 @@ export default function Index() {
               mx: 2,
             }}
           />
-
 
           <CreatePollButton
             loading={isLoading}

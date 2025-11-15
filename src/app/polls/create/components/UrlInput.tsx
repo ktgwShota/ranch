@@ -30,24 +30,20 @@ export function UrlInput({
             <InputAdornment
               position="end"
               sx={{
-                m: '0 !important',
-                ml: '0 !important',
-                maxHeight: 'none !important',
-                height: 'auto !important',
-                px: '10px !important',
-                py: '4px !important',
-                borderRadius: '12px !important',
+                m: '6px',
+                px: '8px',
+                py: '4px',
+                borderRadius: '12px',
                 backgroundColor:
                   getServiceLabel(value) === '食べログ'
-                    ? '#ff6b6b !important'
+                    ? '#ff6b6b'
                     : getServiceLabel(value) === 'ぐるなび'
-                      ? '#4ecdc4 !important'
-                      : '#9e9e9e !important',
-                color: 'white !important',
-                fontSize: '0.7rem !important',
-                fontWeight: '600 !important',
-                letterSpacing: '0.5px !important',
-                lineHeight: '1 !important',
+                      ? '#4ecdc4'
+                      : '#9e9e9e',
+                '& p': {
+                  fontSize: '0.75rem',
+                  color: 'white',
+                },
               }}
             >
               {getServiceLabel(value)}

@@ -4,6 +4,7 @@ import { PollOption } from '../types';
 import { UrlInput } from './UrlInput';
 import { BudgetSelector } from './BudgetSelector';
 import { DescriptionInput } from './DescriptionInput';
+import { OGPPreview } from '../../../components/OGPPreview';
 
 export function OptionCard({
   option,
@@ -20,18 +21,19 @@ export function OptionCard({
   onOptionChange: (updates: Partial<PollOption>) => void;
   onRemove: () => void;
 }) {
+
   return (
     <Box
       sx={{
         mb: 3,
-        p: 3,
+        p: 2.5,
         borderRadius: 0.5,
         border: '1px solid',
         borderColor: urlError ? '#f44336' : '#ddd',
         backgroundColor: 'white',
       }}
     >
-      <Box display="flex" gap={3} alignItems="center">
+      <Box display="flex" gap={2.5} alignItems="center">
         <Box
           sx={{
             width: 36,
@@ -50,12 +52,13 @@ export function OptionCard({
         >
           {index + 1}
         </Box>
-        <Box sx={{ flex: 1 }}>
+        <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 2.5 }}>
           <UrlInput
             value={option.url}
             onChange={(value) => onOptionChange({ url: value })}
             error={urlError}
           />
+          <OGPPreview url={option.url} size="small" />
         </Box>
         {canRemove && (
           <IconButton
@@ -79,9 +82,10 @@ export function OptionCard({
         )}
       </Box>
 
-      <Divider sx={{ mt: 3, mb: 2 }} />
+      <Divider sx={{ my: 2.5, }} />
 
       <BudgetSelector option={option} onOptionChange={onOptionChange} />
+
       <DescriptionInput
         value={option.description || ''}
         onChange={(value) => onOptionChange({ description: value })}
