@@ -42,8 +42,8 @@ export async function POST(req: Request) {
     const body = (await req.json()) as {
       title: string;
       options:
-        | string[]
-        | Array<{ url: string; title?: string; description?: string; image?: string }>;
+      | string[]
+      | Array<{ url: string; title?: string; description?: string; image?: string }>;
       duration?: number;
       endDate?: string | null;
       endTime?: string | null;
