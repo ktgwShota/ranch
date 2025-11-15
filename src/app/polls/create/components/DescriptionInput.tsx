@@ -24,7 +24,7 @@ export function DescriptionInput({
         <TextField
           fullWidth
           size="small"
-          placeholder="飲酒する方は飲み放題代（2,000円）を多めにお支払いいただきます"
+          placeholder="..."
           value={value}
           onChange={(e) => onChange(e.target.value)}
           multiline

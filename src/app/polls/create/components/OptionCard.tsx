@@ -1,5 +1,5 @@
 import { Delete as DeleteIcon } from '@mui/icons-material';
-import { Box, IconButton } from '@mui/material';
+import { Box, Divider, IconButton } from '@mui/material';
 import { PollOption } from '../types';
 import { UrlInput } from './UrlInput';
 import { BudgetSelector } from './BudgetSelector';
@@ -79,21 +79,13 @@ export function OptionCard({
         )}
       </Box>
 
-      <Box
-        sx={{
-          mt: 2,
-          pt: 2,
-          borderTop: '1px solid #e0e0e0',
-          display: 'flex',
-          flexDirection: 'column',
-        }}
-      >
-        <BudgetSelector option={option} onOptionChange={onOptionChange} />
-        <DescriptionInput
-          value={option.description || ''}
-          onChange={(value) => onOptionChange({ description: value })}
-        />
-      </Box>
-    </Box>
+      <Divider sx={{ mt: 3, mb: 2 }} />
+
+      <BudgetSelector option={option} onOptionChange={onOptionChange} />
+      <DescriptionInput
+        value={option.description || ''}
+        onChange={(value) => onOptionChange({ description: value })}
+      />
+    </Box >
   );
 }

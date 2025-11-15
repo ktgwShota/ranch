@@ -172,7 +172,7 @@ export default function Index() {
                 variant="subtitle1"
                 sx={{ fontWeight: 600, color: 'text.primary', mb: 1 }}
               >
-                候補 <span style={{ color: '#f44336' } as React.CSSProperties}>*</span>
+                リスト <span style={{ color: '#f44336' } as React.CSSProperties}>*</span>
               </Typography>
               <Typography variant="body2" color="text.secondary">
                 候補となるお店の URL を入力してください。
@@ -194,15 +194,7 @@ export default function Index() {
             {pollOptions.length < MAX_OPTIONS && <AddOptionButton onClick={handleAddOption} />}
           </Box>
 
-          <Box
-            sx={{
-              height: '2px',
-              background:
-                'linear-gradient(90deg, transparent, rgba(102, 126, 234, 0.3), transparent)',
-              mb: 3,
-              mx: 2,
-            }}
-          />
+
 
           <VotingDeadline
             endDate={deadlineDate}
@@ -217,6 +209,21 @@ export default function Index() {
             }}
             onEndTimeChange={setDeadlineTime}
           />
+
+
+      {/* ここに投票を匿名にするかどうかのチェックボックスを追加 */}
+
+
+          <Box
+            sx={{
+              height: '1px',
+              background:
+                'linear-gradient(90deg, transparent, rgba(102, 126, 234, 0.3), transparent)',
+              mb: 3,
+              mx: 2,
+            }}
+          />
+
 
           <Box display="flex" justifyContent="center" my={4}>
             <FormControlLabel
@@ -254,6 +261,17 @@ export default function Index() {
               }
             />
           </Box>
+
+          <Box
+            sx={{
+              height: '1px',
+              background:
+                'linear-gradient(90deg, transparent, rgba(102, 126, 234, 0.3), transparent)',
+              mb: 3,
+              mx: 2,
+            }}
+          />
+
 
           <CreatePollButton
             loading={isLoading}

@@ -14,7 +14,7 @@ export function TitleInput({
         gutterBottom
         sx={{ fontWeight: 600, color: 'text.primary', mb: 2 }}
       >
-        目的 <span style={{ color: '#f44336' } as React.CSSProperties}>*</span>
+        タイトル <span style={{ color: '#f44336' } as React.CSSProperties}>*</span>
       </Typography>
       <TextField
         fullWidth
