@@ -13,47 +13,58 @@ export async function GET(req: Request, context: { params: Promise<{ id: string 
       console.log('Environment retrieved for GET [id]:', !!env?.DB);
     } catch (contextError) {
       console.error('Error getting Cloudflare context:', contextError);
-      return new Response(JSON.stringify({
-        error: 'Failed to get Cloudflare context',
-        details: contextError instanceof Error ? contextError.message : 'Unknown error'
-      }), {
-        status: 500,
-        headers: { 'Content-Type': 'application/json' }
-      });
+      return new Response(
+        JSON.stringify({
+          error: 'Failed to get Cloudflare context',
+          details: contextError instanceof Error ? contextError.message : 'Unknown error',
+        }),
+        {
+          status: 500,
+          headers: { 'Content-Type': 'application/json' },
+        }
+      );
     }
 
     if (!env || !env.DB) {
       console.error('DB not found in context');
-      return new Response(JSON.stringify({
-        error: 'DB not found in context'
-      }), {
-        status: 500,
-        headers: { 'Content-Type': 'application/json' }
-      });
+      return new Response(
+        JSON.stringify({
+          error: 'DB not found in context',
+        }),
+        {
+          status: 500,
+          headers: { 'Content-Type': 'application/json' },
+        }
+      );
     }
 
     const result = await getPoll(params.id, env);
 
     if (!result.success) {
-      return new Response(JSON.stringify({
-        error: result.error || 'Poll not found'
-      }), {
-        status: result.error === 'Poll not found' ? 404 : 500,
-        headers: { 'Content-Type': 'application/json' }
-      });
+      return new Response(
+        JSON.stringify({
+          error: result.error || 'Poll not found',
+        }),
+        {
+          status: result.error === 'Poll not found' ? 404 : 500,
+          headers: { 'Content-Type': 'application/json' },
+        }
+      );
     }
 
     return new Response(JSON.stringify(result.data), {
-      headers: { 'Content-Type': 'application/json' }
+      headers: { 'Content-Type': 'application/json' },
     });
-
   } catch (error) {
     console.error('Error in GET /api/polls/[id]:', error);
-    return new Response(JSON.stringify({
-      error: error instanceof Error ? error.message : 'Unknown error'
-    }), {
-      status: 500,
-      headers: { 'Content-Type': 'application/json' }
-    });
+    return new Response(
+      JSON.stringify({
+        error: error instanceof Error ? error.message : 'Unknown error',
+      }),
+      {
+        status: 500,
+        headers: { 'Content-Type': 'application/json' },
+      }
+    );
   }
 }

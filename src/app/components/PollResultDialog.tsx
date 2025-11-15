@@ -1,18 +1,19 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import { useParams } from 'next/navigation';
-import {
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  Typography,
-  Box,
-  Link,
-  Chip,
-  CardMedia,
-} from '@mui/material';
 import { OpenInNew as OpenInNewIcon } from '@mui/icons-material';
+import {
+  Box,
+  CardMedia,
+  Chip,
+  Dialog,
+  DialogContent,
+  DialogTitle,
+  Link,
+  Typography,
+} from '@mui/material';
+import { useParams } from 'next/navigation';
+import type React from 'react';
+import { useEffect, useState } from 'react';
 
 interface Poll {
   id: string;
@@ -38,7 +39,7 @@ const PollResultDialog: React.FC = () => {
       try {
         const response = await fetch(`/api/polls/${params.id}`);
         if (response.ok) {
-          const pollData = await response.json() as Poll;
+          const pollData = (await response.json()) as Poll;
           setPoll(pollData);
 
           // 投票が終了している場合のみダイアログを表示
@@ -60,9 +61,7 @@ const PollResultDialog: React.FC = () => {
 
   const getWinningOption = (poll: Poll) => {
     if (!poll.options || poll.options.length === 0) return null;
-    return poll.options.reduce((max, option) =>
-      option.votes > max.votes ? option : max
-    );
+    return poll.options.reduce((max, option) => (option.votes > max.votes ? option : max));
   };
 
   const getTotalVotes = (poll: Poll) => {
@@ -72,9 +71,8 @@ const PollResultDialog: React.FC = () => {
 
   const winningOption = poll ? getWinningOption(poll) : null;
   const totalVotes = poll ? getTotalVotes(poll) : 0;
-  const winningPercentage = winningOption && totalVotes > 0
-    ? Math.round((winningOption.votes / totalVotes) * 100)
-    : 0;
+  const winningPercentage =
+    winningOption && totalVotes > 0 ? Math.round((winningOption.votes / totalVotes) * 100) : 0;
 
   if (loading || !poll || !winningOption) {
     return null;
@@ -90,16 +88,18 @@ const PollResultDialog: React.FC = () => {
           borderRadius: 3,
           boxShadow: '0 8px 32px rgba(0,0,0,0.12)',
           overflow: 'hidden',
-        }
+        },
       }}
     >
-      <DialogTitle sx={{
-        textAlign: 'center',
-        pb: 3,
-        pt: 4,
-        background: 'linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%)',
-        borderBottom: '1px solid #e0e0e0'
-      }}>
+      <DialogTitle
+        sx={{
+          textAlign: 'center',
+          pb: 3,
+          pt: 4,
+          background: 'linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%)',
+          borderBottom: '1px solid #e0e0e0',
+        }}
+      >
         <Typography
           variant="h4"
           sx={{
@@ -107,36 +107,42 @@ const PollResultDialog: React.FC = () => {
             fontWeight: 700,
             fontSize: '2rem',
             mb: 1,
-            letterSpacing: '-0.02em'
+            letterSpacing: '-0.02em',
           }}
         >
           こちらのお店に決定しました
         </Typography>
-        <Box sx={{
-          width: '100%',
-          height: 4,
-          background: 'linear-gradient(90deg, #1976d2 0%, #42a5f5 100%)',
-          borderRadius: 2,
-          mt: 2.5,
-          mx: 'auto'
-        }} />
+        <Box
+          sx={{
+            width: '100%',
+            height: 4,
+            background: 'linear-gradient(90deg, #1976d2 0%, #42a5f5 100%)',
+            borderRadius: 2,
+            mt: 2.5,
+            mx: 'auto',
+          }}
+        />
       </DialogTitle>
 
-      <DialogContent sx={{
-        textAlign: 'center',
-        '&.MuiDialogContent-root': {
-          p: 0
-        }
-      }}>
-        <Box sx={{
-          m: 3,
-          p: 0,
-          border: '1px solid #e0e0e0',
-          borderRadius: 2,
-          backgroundColor: '#fafafa',
-          position: 'relative',
-          overflow: 'hidden'
-        }}>
+      <DialogContent
+        sx={{
+          textAlign: 'center',
+          '&.MuiDialogContent-root': {
+            p: 0,
+          },
+        }}
+      >
+        <Box
+          sx={{
+            m: 3,
+            p: 0,
+            border: '1px solid #e0e0e0',
+            borderRadius: 2,
+            backgroundColor: '#fafafa',
+            position: 'relative',
+            overflow: 'hidden',
+          }}
+        >
           {/* お店の画像とタイトルオーバーレイ */}
           {winningOption.image && (
             <Box sx={{ position: 'relative', height: 200 }}>
@@ -149,7 +155,7 @@ const PollResultDialog: React.FC = () => {
                   width: '100%',
                   height: '100%',
                   objectFit: 'cover',
-                  borderBottom: '1px solid #e0e0e0'
+                  borderBottom: '1px solid #e0e0e0',
                 }}
               />
               {/* タイトルオーバーレイ */}
@@ -162,7 +168,7 @@ const PollResultDialog: React.FC = () => {
                   background: 'linear-gradient(transparent, rgba(0,0,0,0.7))',
                   p: 3,
                   display: 'flex',
-                  alignItems: 'flex-end'
+                  alignItems: 'flex-end',
                 }}
               >
                 <Typography
@@ -173,7 +179,7 @@ const PollResultDialog: React.FC = () => {
                     fontSize: '1.8rem',
                     lineHeight: 1.3,
                     textShadow: '0 2px 4px rgba(0,0,0,0.5)',
-                    mb: 0
+                    mb: 0,
                   }}
                 >
                   {winningOption.title}
@@ -192,7 +198,7 @@ const PollResultDialog: React.FC = () => {
                   fontWeight: 600,
                   fontSize: '1.5rem',
                   mb: 3,
-                  lineHeight: 1.4
+                  lineHeight: 1.4,
                 }}
               >
                 {winningOption.title}
@@ -200,10 +206,12 @@ const PollResultDialog: React.FC = () => {
             )}
 
             {/* 投票結果表示 */}
-            <Box sx={{
-              mb: 3,
-              textAlign: 'center'
-            }}>
+            <Box
+              sx={{
+                mb: 3,
+                textAlign: 'center',
+              }}
+            >
               <Typography
                 variant="h4"
                 sx={{
@@ -211,7 +219,7 @@ const PollResultDialog: React.FC = () => {
                   fontWeight: 700,
                   fontSize: '2.2rem',
                   mb: 1,
-                  letterSpacing: '-0.01em'
+                  letterSpacing: '-0.01em',
                 }}
               >
                 {winningPercentage}%
@@ -222,17 +230,19 @@ const PollResultDialog: React.FC = () => {
                   color: '#666',
                   fontWeight: 500,
                   fontSize: '1rem',
-                  mb: 1
+                  mb: 1,
                 }}
               >
-                ({winningOption.votes}<span className="mx-0.5">/</span>{totalVotes})
+                ({winningOption.votes}
+                <span className="mx-0.5">/</span>
+                {totalVotes})
               </Typography>
               <Typography
                 variant="body2"
                 sx={{
                   color: '#888',
                   fontWeight: 400,
-                  fontSize: '0.9rem'
+                  fontSize: '0.9rem',
                 }}
               >
                 で決定しました
@@ -261,8 +271,8 @@ const PollResultDialog: React.FC = () => {
                   transform: 'translateY(-2px)',
                   boxShadow: '0 6px 20px rgba(25, 118, 210, 0.4)',
                   textDecoration: 'none',
-                  color: '#fff'
-                }
+                  color: '#fff',
+                },
               }}
             >
               お店の詳細
@@ -270,7 +280,6 @@ const PollResultDialog: React.FC = () => {
           </Box>
         </Box>
       </DialogContent>
-
     </Dialog>
   );
 };

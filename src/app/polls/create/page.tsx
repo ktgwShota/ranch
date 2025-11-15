@@ -1,29 +1,29 @@
-"use client";
+'use client';
 
-import { useState } from "react";
+import { Add as AddIcon, Delete as DeleteIcon } from '@mui/icons-material';
 import {
-  Container,
-  Paper,
-  Typography,
-  TextField,
-  Button,
-  Box,
-  IconButton,
   Alert,
-  CircularProgress,
-  FormControlLabel,
+  Box,
+  Button,
   Checkbox,
+  CircularProgress,
+  Container,
+  FormControlLabel,
+  IconButton,
+  Paper,
+  TextField,
+  Typography,
 } from '@mui/material';
-import {
-  Add as AddIcon,
-  Delete as DeleteIcon,
-} from '@mui/icons-material';
+import { useState } from 'react';
 
 export default function CreatePage() {
-  const [title, setTitle] = useState("");
-  const [options, setOptions] = useState([{ id: 1, url: "" }, { id: 2, url: "" }]);
+  const [title, setTitle] = useState('');
+  const [options, setOptions] = useState([
+    { id: 1, url: '' },
+    { id: 2, url: '' },
+  ]);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+  const [error, setError] = useState('');
   const [urlErrors, setUrlErrors] = useState<{ [key: number]: string }>({});
   const [agreedToTerms, setAgreedToTerms] = useState(true);
   const [duration, setDuration] = useState(5); // デフォルト5分
@@ -47,12 +47,12 @@ export default function CreatePage() {
         'gurunavi.com',
         'www.gurunabi.com',
         'r.gnavi.co.jp',
-        'www.r.gnavi.co.jp'
+        'www.r.gnavi.co.jp',
       ];
 
       const hostname = parsedUrl.hostname.toLowerCase();
-      const isAllowedDomain = allowedDomains.some(domain =>
-        hostname === domain || hostname.endsWith('.' + domain)
+      const isAllowedDomain = allowedDomains.some(
+        (domain) => hostname === domain || hostname.endsWith('.' + domain)
       );
 
       if (!isAllowedDomain) {
@@ -65,47 +65,44 @@ export default function CreatePage() {
     }
   };
 
-
   const addOption = () => {
     if (options.length < 6) {
-      setOptions([...options, { id: Date.now(), url: "" }]);
+      setOptions([...options, { id: Date.now(), url: '' }]);
     }
   };
 
   const updateOption = (id: number, url: string) => {
-    setOptions(options.map(option =>
-      option.id === id ? { ...option, url } : option
-    ));
+    setOptions(options.map((option) => (option.id === id ? { ...option, url } : option)));
 
     // URLバリデーション
     const error = validateUrl(url);
-    setUrlErrors(prev => ({
+    setUrlErrors((prev) => ({
       ...prev,
-      [id]: error || ''
+      [id]: error || '',
     }));
   };
 
   const removeOption = (id: number) => {
     if (options.length > 2) {
-      setOptions(options.filter(option => option.id !== id));
+      setOptions(options.filter((option) => option.id !== id));
     }
   };
 
   const createPoll = async () => {
-    const validOptions = options.filter(option => option.url.trim() !== "");
-    if (title.trim() === "" || validOptions.length < 2) {
-      setError("タイトルと最低2つの選択肢を入力してください。");
+    const validOptions = options.filter((option) => option.url.trim() !== '');
+    if (title.trim() === '' || validOptions.length < 2) {
+      setError('タイトルと最低2つの選択肢を入力してください。');
       return;
     }
 
     // URLバリデーションエラーをチェック
-    const hasUrlErrors = validOptions.some(option => {
+    const hasUrlErrors = validOptions.some((option) => {
       const error = validateUrl(option.url);
       return error !== null;
     });
 
     if (hasUrlErrors) {
-      setError("正しい食べログまたはぐるなびのURLを入力してください。");
+      setError('正しい食べログまたはぐるなびのURLを入力してください。');
       return;
     }
 
@@ -121,7 +118,7 @@ export default function CreatePage() {
     }
 
     setLoading(true);
-    setError("");
+    setError('');
 
     try {
       const response = await fetch('/api/polls', {
@@ -131,10 +128,10 @@ export default function CreatePage() {
         },
         body: JSON.stringify({
           title: title.trim(),
-          options: validOptions.map(option => option.url.trim()),
+          options: validOptions.map((option) => option.url.trim()),
           duration: duration, // 締め切り時間（分）を追加
           endDate: endDate || null, // 締切日
-          endTime: endTime || null // 締切時刻
+          endTime: endTime || null, // 締切時刻
         }),
       });
 
@@ -142,7 +139,7 @@ export default function CreatePage() {
         throw new Error('多数決の作成に失敗しました');
       }
 
-      const result = await response.json() as { poll?: { id: string } };
+      const result = (await response.json()) as { poll?: { id: string } };
       console.log('投票作成レスポンス:', result);
 
       if (result.poll && result.poll.id) {
@@ -174,7 +171,11 @@ export default function CreatePage() {
       >
         <Box component="form" sx={{ '& > *': { mb: 4 } }}>
           <Box>
-            <Typography variant="subtitle1" gutterBottom sx={{ fontWeight: 600, color: 'text.primary', mb: 2 }}>
+            <Typography
+              variant="subtitle1"
+              gutterBottom
+              sx={{ fontWeight: 600, color: 'text.primary', mb: 2 }}
+            >
               タイトル <span style={{ color: '#f44336' } as React.CSSProperties}>*</span>
             </Typography>
 
@@ -194,15 +195,18 @@ export default function CreatePage() {
                   '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
                     borderColor: '#1976d2',
                     borderWidth: 2,
-                  }
-                }
+                  },
+                },
               }}
             />
           </Box>
 
           <Box mb={3}>
             <Box mb={3}>
-              <Typography variant="subtitle1" sx={{ fontWeight: 600, color: 'text.primary', mb: 1 }}>
+              <Typography
+                variant="subtitle1"
+                sx={{ fontWeight: 600, color: 'text.primary', mb: 1 }}
+              >
                 お店のリスト <span style={{ color: '#f44336' } as React.CSSProperties}>*</span>
               </Typography>
               <Typography variant="body2" color="text.secondary">
@@ -219,7 +223,7 @@ export default function CreatePage() {
                   borderRadius: 1,
                   border: '1px solid',
                   borderColor: urlErrors[option.id] ? '#f44336' : '#ddd',
-                  backgroundColor: 'white'
+                  backgroundColor: 'white',
                 }}
               >
                 <Box display="flex" gap={3} alignItems="flex-start">
@@ -252,7 +256,7 @@ export default function CreatePage() {
                       error={!!urlErrors[option.id]}
                       helperText={urlErrors[option.id] || ''}
                       FormHelperTextProps={{
-                        sx: { fontSize: '0.875rem', fontWeight: 500 }
+                        sx: { fontSize: '0.875rem', fontWeight: 500 },
                       }}
                       sx={{
                         '& .MuiOutlinedInput-root': {
@@ -264,8 +268,8 @@ export default function CreatePage() {
                           '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
                             borderColor: urlErrors[option.id] ? '#f44336' : '#1976d2',
                             borderWidth: 2,
-                          }
-                        }
+                          },
+                        },
                       }}
                     />
                   </Box>
@@ -276,7 +280,7 @@ export default function CreatePage() {
                       sx={{
                         color: '#f44336',
                         backgroundColor: '#ffebee',
-                        borderRadius: 1
+                        borderRadius: 1,
                       }}
                     >
                       <DeleteIcon fontSize="small" />
@@ -304,7 +308,7 @@ export default function CreatePage() {
                     '&:hover': {
                       borderColor: '#1565c0',
                       backgroundColor: '#e3f2fd',
-                    }
+                    },
                   }}
                 >
                   選択肢を追加
@@ -315,27 +319,34 @@ export default function CreatePage() {
 
           <Box
             sx={{
-              height: "2px",
-              background: 'linear-gradient(90deg, transparent, rgba(102, 126, 234, 0.3), transparent)',
+              height: '2px',
+              background:
+                'linear-gradient(90deg, transparent, rgba(102, 126, 234, 0.3), transparent)',
               mb: 3,
-              mx: 2
+              mx: 2,
             }}
           />
 
           {/* 締め切り日時設定 */}
-          <Box sx={{
-            mb: 3,
-            p: 4,
-            background: 'linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%)',
-            borderRadius: 3,
-            border: '1px solid rgba(102, 126, 234, 0.1)',
-            backdropFilter: 'blur(10px)'
-          }}>
-            <Typography variant="subtitle1" sx={{
-              mb: 2,
-              color: 'text.primary',
-              fontWeight: 600
-            }}>
+          <Box
+            sx={{
+              mb: 3,
+              p: 4,
+              background:
+                'linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%)',
+              borderRadius: 3,
+              border: '1px solid rgba(102, 126, 234, 0.1)',
+              backdropFilter: 'blur(10px)',
+            }}
+          >
+            <Typography
+              variant="subtitle1"
+              sx={{
+                mb: 2,
+                color: 'text.primary',
+                fontWeight: 600,
+              }}
+            >
               投票期限
             </Typography>
             <Box display="flex" flexDirection="column" gap={3}>
@@ -362,8 +373,8 @@ export default function CreatePage() {
                       '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
                         borderColor: '#667eea',
                         borderWidth: 2,
-                      }
-                    }
+                      },
+                    },
                   }}
                   label="締切日"
                   InputLabelProps={{ shrink: true }}
@@ -385,37 +396,45 @@ export default function CreatePage() {
                       '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
                         borderColor: '#667eea',
                         borderWidth: 2,
-                      }
-                    }
+                      },
+                    },
                   }}
                   label="締切時刻"
                   InputLabelProps={{ shrink: true }}
                   inputProps={{
-                    min: endDate === today ? currentTime : '00:00'
+                    min: endDate === today ? currentTime : '00:00',
                   }}
                 />
               </Box>
               {endDate && endTime && (
-                <Box sx={{
-                  p: 2,
-                  backgroundColor: 'rgba(102, 126, 234, 0.1)',
-                  borderRadius: 2,
-                  border: '1px solid rgba(102, 126, 234, 0.2)'
-                }}>
-                  <Typography variant="body1" sx={{
-                    color: '#667eea',
-                    fontWeight: 600,
-                    textAlign: 'center'
-                  }}>
+                <Box
+                  sx={{
+                    p: 2,
+                    backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                    borderRadius: 2,
+                    border: '1px solid rgba(102, 126, 234, 0.2)',
+                  }}
+                >
+                  <Typography
+                    variant="body1"
+                    sx={{
+                      color: '#667eea',
+                      fontWeight: 600,
+                      textAlign: 'center',
+                    }}
+                  >
                     締切日時: {new Date(`${endDate}T${endTime}`).toLocaleString('ja-JP')}
                   </Typography>
                 </Box>
               )}
-              <Typography variant="body2" sx={{
-                color: '#6c757d',
-                fontSize: '0.95rem',
-                lineHeight: 1.6
-              }}>
+              <Typography
+                variant="body2"
+                sx={{
+                  color: '#6c757d',
+                  fontSize: '0.95rem',
+                  lineHeight: 1.6,
+                }}
+              >
                 投票期限を設定すると指定時刻に投票の受付が終了します。
               </Typography>
             </Box>
@@ -435,8 +454,24 @@ export default function CreatePage() {
                 />
               }
               label={
-                <Typography variant="body2" color="text.secondary" sx={{ fontWeight: 500, position: 'relative', top: '0.5px' }}>
-                  <a href="/terms" style={{ color: '#1976d2', textDecoration: 'none', paddingLeft: 4 } as React.CSSProperties}>利用規約</a>に同意する
+                <Typography
+                  variant="body2"
+                  color="text.secondary"
+                  sx={{ fontWeight: 500, position: 'relative', top: '0.5px' }}
+                >
+                  <a
+                    href="/terms"
+                    style={
+                      {
+                        color: '#1976d2',
+                        textDecoration: 'none',
+                        paddingLeft: 4,
+                      } as React.CSSProperties
+                    }
+                  >
+                    利用規約
+                  </a>
+                  に同意する
                 </Typography>
               }
             />
@@ -460,7 +495,7 @@ export default function CreatePage() {
                 backgroundColor: '#ddd',
                 color: '#9e9e9e',
                 boxShadow: 'none',
-              }
+              },
             }}
           >
             {loading ? (
@@ -484,8 +519,8 @@ export default function CreatePage() {
                 backgroundColor: '#ffebee',
                 '& .MuiAlert-message': {
                   fontSize: '0.875rem',
-                  fontWeight: 500
-                }
+                  fontWeight: 500,
+                },
               }}
             >
               {error}

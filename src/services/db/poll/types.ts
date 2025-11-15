@@ -42,7 +42,6 @@ export interface VoteData {
   voterId: string;
 }
 
-
 export interface DBResult<T = any> {
   success: boolean;
   data?: T;

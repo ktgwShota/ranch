@@ -1,17 +1,15 @@
-"use client";
+'use client';
 
+import { Add as AddIcon } from '@mui/icons-material';
 import {
   AppBar,
+  Button,
+  Container,
   Toolbar,
   Typography,
-  useTheme,
   useMediaQuery,
-  Container,
-  Button,
+  useTheme,
 } from '@mui/material';
-import {
-  Add as AddIcon,
-} from '@mui/icons-material';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
@@ -38,15 +36,20 @@ export default function Header() {
       }}
     >
       <Container maxWidth={false} sx={{ maxWidth: '900px' }}>
-        <Toolbar sx={{
-          justifyContent: 'space-between',
-          height: '70px',
-          px: 0.5,
-        }}>
+        <Toolbar
+          sx={{
+            justifyContent: 'space-between',
+            height: '70px',
+            px: 0.5,
+          }}
+        >
           {/* ロゴとタイトル */}
-          <Link href="/" style={{ textDecoration: 'none', color: 'inherit' } as React.CSSProperties}>
+          <Link
+            href="/"
+            style={{ textDecoration: 'none', color: 'inherit' } as React.CSSProperties}
+          >
             <Typography
-              variant={isMobile ? "h6" : "h5"}
+              variant={isMobile ? 'h6' : 'h5'}
               component="h1"
               fontWeight="700"
               sx={{

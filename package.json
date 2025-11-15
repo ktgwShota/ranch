@@ -1,40 +1,47 @@
 {
-	"name": "my-next-app",
-	"version": "0.1.0",
-	"private": true,
+  "name": "my-next-app",
+  "version": "0.1.0",
+  "private": true,
 	"scripts": {
-		"dev": "npm run build && opennextjs-cloudflare build && opennextjs-cloudflare preview --port 8788",
+		"dev": "opennextjs-cloudflare build && opennextjs-cloudflare preview --port 8788",
 		"build": "next build",
+		"build:cf": "opennextjs-cloudflare build",
 		"preview": "opennextjs-cloudflare build && opennextjs-cloudflare preview",
 		"deploy:stg": "opennextjs-cloudflare build && opennextjs-cloudflare deploy --env stg",
 		"deploy:prd": "opennextjs-cloudflare build && opennextjs-cloudflare deploy --env prd",
-		"cf-typegen": "wrangler types --env-interface CloudflareEnv ./src/types/cloudflare-env.d.ts",
-		"db:setup": "wrangler d1 execute myapp-local --local --file=./src/worker/sqls/schema.sql",
-		"db:setup:stg": "wrangler d1 execute myapp-stg --file=./src/worker/sqls/schema.sql -e stg",
-		"db:setup:prd": "wrangler d1 execute myapp-prd --file=./src/worker/sqls/schema.sql -e prd",
-		"db:query": "wrangler d1 execute myapp-local --local --command",
-		"db:reset": "rm -rf .wrangler/state/v3/d1/ && npm run db:setup"
-	},
-	"dependencies": {
-		"@emotion/react": "^11.14.0",
-		"@emotion/styled": "^11.14.1",
-		"@mui/icons-material": "^7.3.2",
-		"@mui/material": "^7.3.2",
-		"framer-motion": "^12.23.12",
-		"next": "15.4.6",
-		"react": "19.1.0",
-		"react-dom": "19.1.0"
-	},
-	"devDependencies": {
-		"@cloudflare/workers-types": "^4.20251004.0",
-		"@opennextjs/cloudflare": "^1.9.1",
-		"@tailwindcss/postcss": "^4",
-		"@types/node": "^20.19.14",
-		"@types/react": "^19",
-		"@types/react-dom": "^19",
-		"concurrently": "^9.2.1",
-		"tailwindcss": "^4",
-		"typescript": "^5",
-		"wrangler": "^4.36.0"
-	}
+    "cf-typegen": "wrangler types --env-interface CloudflareEnv ./src/types/cloudflare-env.d.ts",
+    "db:setup": "wrangler d1 execute myapp-local --local --file=./src/services/db/migrations/schema.sql",
+    "db:setup:stg": "wrangler d1 execute myapp-stg --file=./src/services/db/migrations/schema.sql -e stg",
+    "db:setup:prd": "wrangler d1 execute myapp-prd --file=./src/services/db/migrations/schema.sql -e prd",
+    "db:query": "wrangler d1 execute myapp-local --local --command",
+    "db:reset": "rm -rf .wrangler/state/v3/d1/ && npm run db:setup",
+    "lint": "biome lint .",
+    "lint:fix": "biome lint --write .",
+    "format": "biome format --write .",
+    "check": "biome check .",
+    "check:fix": "biome check --write ."
+  },
+  "dependencies": {
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.1",
+    "@mui/icons-material": "^7.3.2",
+    "@mui/material": "^7.3.2",
+    "framer-motion": "^12.23.12",
+    "next": "15.4.6",
+    "react": "19.1.0",
+    "react-dom": "19.1.0"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.3.5",
+    "@cloudflare/workers-types": "^4.20251004.0",
+    "@opennextjs/cloudflare": "^1.9.1",
+    "@tailwindcss/postcss": "^4",
+    "@types/node": "^20.19.14",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "concurrently": "^9.2.1",
+    "tailwindcss": "^4",
+    "typescript": "^5",
+    "wrangler": "^4.36.0"
+  }
 }

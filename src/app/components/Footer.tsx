@@ -1,23 +1,15 @@
-"use client";
+'use client';
 
 import {
-  Box,
-  Typography,
-  Container,
-  Link,
-  Divider,
-  useTheme,
-  useMediaQuery,
-} from '@mui/material';
-import {
-  Store as StoreIcon,
-  LocalShipping as ShippingIcon,
-  AssignmentReturn as ReturnIcon,
-  Info as InfoIcon,
-  Gavel as GavelIcon,
-  PrivacyTip as PrivacyIcon,
   ContactMail as ContactIcon,
+  Gavel as GavelIcon,
+  Info as InfoIcon,
+  PrivacyTip as PrivacyIcon,
+  AssignmentReturn as ReturnIcon,
+  LocalShipping as ShippingIcon,
+  Store as StoreIcon,
 } from '@mui/icons-material';
+import { Box, Container, Divider, Link, Typography, useMediaQuery, useTheme } from '@mui/material';
 
 export default function Footer() {
   const theme = useTheme();
@@ -48,16 +40,16 @@ export default function Footer() {
       <Container maxWidth={false} sx={{ maxWidth: 1000, pt: 6, pb: 3 }}>
         <Box
           display="flex"
-          flexDirection={isMobile ? "column" : "row"}
+          flexDirection={isMobile ? 'column' : 'row'}
           justifyContent="space-between"
-          alignItems={isMobile ? "center" : "flex-start"}
+          alignItems={isMobile ? 'center' : 'flex-start'}
         >
           {/* タイトル */}
           <Box
             sx={{
               flex: 1,
               minWidth: 300,
-              textAlign: isMobile ? "center" : "left",
+              textAlign: isMobile ? 'center' : 'left',
             }}
           >
             <Typography
@@ -87,13 +79,13 @@ export default function Footer() {
           {/* リンクセクション */}
           <Box
             display="flex"
-            flexDirection={isMobile ? "column" : "row"}
+            flexDirection={isMobile ? 'column' : 'row'}
             gap={6}
-            justifyContent={isMobile ? "center" : "flex-end"}
+            justifyContent={isMobile ? 'center' : 'flex-end'}
             flexWrap="nowrap"
           >
             {/* SHOP */}
-            <Box textAlign={isMobile ? "center" : "left"}>
+            <Box textAlign={isMobile ? 'center' : 'left'}>
               <Typography
                 variant="subtitle1"
                 fontWeight="600"
@@ -119,7 +111,7 @@ export default function Footer() {
                       fontWeight: 500,
                       fontSize: '0.85rem',
                       transition: 'all 0.2s ease',
-                      justifyContent: isMobile ? "center" : "flex-start",
+                      justifyContent: isMobile ? 'center' : 'flex-start',
                       '&:hover': {
                         color: 'white',
                         transform: 'translateX(4px)',
@@ -134,7 +126,7 @@ export default function Footer() {
             </Box>
 
             {/* ABOUT */}
-            <Box textAlign={isMobile ? "center" : "left"}>
+            <Box textAlign={isMobile ? 'center' : 'left'}>
               <Typography
                 variant="subtitle1"
                 fontWeight="600"
@@ -160,7 +152,7 @@ export default function Footer() {
                       fontWeight: 500,
                       fontSize: '0.85rem',
                       transition: 'all 0.2s ease',
-                      justifyContent: isMobile ? "center" : "flex-start",
+                      justifyContent: isMobile ? 'center' : 'flex-start',
                       '&:hover': {
                         color: 'white',
                         transform: 'translateX(4px)',

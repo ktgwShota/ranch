@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { type NextRequest, NextResponse } from 'next/server';
 
 // OGPデータを取得する共通関数
 async function fetchOGPData(url: string) {
@@ -19,21 +19,24 @@ async function fetchOGPData(url: string) {
     'gurunavi.com',
     'www.gurunabi.com',
     'r.gnavi.co.jp',
-    'www.r.gnavi.co.jp'
+    'www.r.gnavi.co.jp',
   ];
 
   const hostname = parsedUrl.hostname.toLowerCase();
-  const isAllowedDomain = allowedDomains.some(domain =>
-    hostname === domain || hostname.endsWith('.' + domain)
+  const isAllowedDomain = allowedDomains.some(
+    (domain) => hostname === domain || hostname.endsWith('.' + domain)
   );
 
   if (!isAllowedDomain) {
-    return NextResponse.json({
-      error: 'このURLは対応していません。食べログまたはぐるなびのURLを入力してください。',
-      title: '対応していないURLです',
-      rating: null,
-      image: null
-    }, { status: 400 });
+    return NextResponse.json(
+      {
+        error: 'このURLは対応していません。食べログまたはぐるなびのURLを入力してください。',
+        title: '対応していないURLです',
+        rating: null,
+        image: null,
+      },
+      { status: 400 }
+    );
   }
 
   // HTMLを取得
@@ -55,7 +58,10 @@ async function fetchOGPData(url: string) {
 
   // OGPタグを抽出する関数
   const extractMetaContent = (html: string, property: string): string | null => {
-    const regex = new RegExp(`<meta[^>]*(?:property|name)=["']${property}["'][^>]*content=["']([^"']*)["']`, 'i');
+    const regex = new RegExp(
+      `<meta[^>]*(?:property|name)=["']${property}["'][^>]*content=["']([^"']*)["']`,
+      'i'
+    );
     const match = html.match(regex);
     return match ? match[1] : null;
   };
@@ -72,9 +78,7 @@ async function fetchOGPData(url: string) {
   }
 
   // 画像を取得（OGP image → og:imageの順で試行）
-  let image =
-    extractMetaContent(html, 'og:image') ||
-    extractMetaContent(html, 'og:image:url');
+  let image = extractMetaContent(html, 'og:image') || extractMetaContent(html, 'og:image:url');
 
   // 相対URLを絶対URLに変換
   if (image && !image.startsWith('http')) {
@@ -103,7 +107,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   console.log('OGP API called');
   try {
-    const { url } = await request.json() as { url: string };
+    const { url } = (await request.json()) as { url: string };
     console.log('Request URL:', url);
 
     if (!url) {
@@ -112,14 +116,13 @@ export async function POST(request: NextRequest) {
     }
 
     return await fetchOGPData(url);
-
   } catch (error) {
     console.error('Error fetching OGP data:', error);
     return NextResponse.json(
       {
         error: 'Failed to fetch OGP data',
         title: '店舗情報を取得できませんでした',
-        image: null
+        image: null,
       },
       { status: 500 }
     );
