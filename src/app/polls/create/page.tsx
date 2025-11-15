@@ -6,6 +6,7 @@ import {
   Box,
   Button,
   Checkbox,
+  Chip,
   CircularProgress,
   Container,
   FormControlLabel,
@@ -19,7 +20,16 @@ import { useState } from 'react';
 
 export default function CreatePage() {
   const [title, setTitle] = useState('');
-  const [options, setOptions] = useState([
+  const [options, setOptions] = useState<
+    Array<{
+      id: number;
+      url: string;
+      budget?: string;
+      budgetMin?: string;
+      budgetMax?: string;
+      description?: string;
+    }>
+  >([
     { id: 1, url: '' },
     { id: 2, url: '' },
   ]);
@@ -30,6 +40,7 @@ export default function CreatePage() {
   const [duration, setDuration] = useState(5); // デフォルト5分
   const [endDate, setEndDate] = useState<string>('');
   const [endTime, setEndTime] = useState<string>('');
+  const [showCustomBudget, setShowCustomBudget] = useState<{ [key: number]: boolean }>({});
 
   // 今日の日付を取得（YYYY-MM-DD形式）
   const today = new Date().toISOString().split('T')[0];
@@ -83,7 +94,10 @@ export default function CreatePage() {
 
   const addOption = () => {
     if (options.length < 6) {
-      setOptions([...options, { id: Date.now(), url: '' }]);
+      setOptions([
+        ...options,
+        { id: Date.now(), url: '', budget: '', budgetMin: '', budgetMax: '', description: '' },
+      ]);
     }
   };
 
@@ -96,6 +110,69 @@ export default function CreatePage() {
       ...prev,
       [id]: error || '',
     }));
+  };
+
+  const updateOptionField = (
+    id: number,
+    field: 'budget' | 'budgetMin' | 'budgetMax' | 'description',
+    value: string
+  ) => {
+    setOptions(
+      options.map((option) => (option.id === id ? { ...option, [field]: value } : option))
+    );
+  };
+
+  // 数値をコンマ区切りにフォーマット
+  const formatNumber = (value: string): string => {
+    if (!value) return '';
+    const numericValue = value.replace(/[^0-9]/g, '');
+    if (!numericValue) return '';
+    return Number(numericValue).toLocaleString();
+  };
+
+  // コンマ区切りの数値を数値のみに変換
+  const parseNumber = (value: string): string => {
+    return value.replace(/[^0-9]/g, '');
+  };
+
+  // よく使われる予算帯
+  const commonBudgets = [
+    { label: '~ 2,000円', min: '1000', max: '2000' },
+    { label: '2,000 ~ 3,000円', min: '2000', max: '3000' },
+    { label: '3,000 ~ 4,000円', min: '3000', max: '4000' },
+    { label: '4,000 ~ 5,000円', min: '4000', max: '5000' },
+    { label: '5,000円 ~', min: '5000', max: '' },
+  ];
+
+  const handleBudgetQuickSelect = (id: number, min: string, max: string) => {
+    setOptions(
+      options.map((option) =>
+        option.id === id ? { ...option, budgetMin: min, budgetMax: max, budget: '' } : option
+      )
+    );
+    // クイック選択時はカスタム入力を非表示
+    setShowCustomBudget((prev) => ({ ...prev, [id]: false }));
+  };
+
+  const toggleCustomBudget = (id: number) => {
+    setShowCustomBudget((prev) => ({ ...prev, [id]: !prev[id] }));
+    // カスタム入力を表示する場合は、クイック選択をクリア
+    if (!showCustomBudget[id]) {
+      setOptions(
+        options.map((option) =>
+          option.id === id ? { ...option, budgetMin: '', budgetMax: '', budget: '' } : option
+        )
+      );
+    }
+  };
+
+
+  const formatBudgetDisplay = (min?: string, max?: string): string => {
+    if (!min && !max) return '';
+    if (min && max) return `${Number(min).toLocaleString()}〜${Number(max).toLocaleString()}円`;
+    if (min) return `${Number(min).toLocaleString()}円〜`;
+    if (max) return `〜${Number(max).toLocaleString()}円`;
+    return '';
   };
 
   const removeOption = (id: number) => {
@@ -242,7 +319,7 @@ export default function CreatePage() {
                   backgroundColor: 'white',
                 }}
               >
-                <Box display="flex" gap={2.5} alignItems="center">
+                <Box display="flex" gap={3} alignItems="center">
                   <Box
                     sx={{
                       width: 36,
@@ -256,6 +333,7 @@ export default function CreatePage() {
                       fontSize: '0.875rem',
                       fontWeight: 700,
                       flexShrink: 0,
+                      marginLeft: '4px',
                     }}
                   >
                     {index + 1}
@@ -322,8 +400,8 @@ export default function CreatePage() {
                         color: '#f44336',
                         backgroundColor: '#ffebee',
                         borderRadius: 0.5,
-                        width: 36,
-                        height: 36,
+                        width: 40,
+                        height: 40,
                         '&:hover': {
                           backgroundColor: '#ffcdd2',
                           transform: 'scale(1.05)',
@@ -334,6 +412,197 @@ export default function CreatePage() {
                       <DeleteIcon fontSize="small" />
                     </IconButton>
                   )}
+                </Box>
+
+                {/* 追加フィールド */}
+                <Box
+                  sx={{
+                    mt: 2,
+                    pt: 2,
+                    borderTop: '1px solid #e0e0e0',
+                    display: 'flex',
+                    flexDirection: 'column',
+                  }}
+                >
+                  <Box sx={{ position: 'relative' }}>
+
+                    <Box>
+                      {/* クイック選択 */}
+                      <Box sx={{ mb: 2 }}>
+                        <Typography
+                          variant="body2"
+                          sx={{
+                            fontSize: '0.85rem',
+                            color: 'text.secondary',
+                            mb: 1,
+                            fontWeight: 600,
+                          }}
+                        >
+                          予算
+                        </Typography>
+                        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, alignItems: 'center' }}>
+                          {commonBudgets.map((budget) => (
+                            <Chip
+                              key={budget.label}
+                              label={budget.label}
+                              size="small"
+                              onClick={() => handleBudgetQuickSelect(option.id, budget.min, budget.max)}
+                              sx={{
+                                height: 28,
+                                fontSize: '0.8rem',
+                                cursor: 'pointer',
+                                backgroundColor:
+                                  option.budgetMin === budget.min && option.budgetMax === budget.max && !showCustomBudget[option.id]
+                                    ? '#1976d2'
+                                    : '#f5f5f5',
+                                color:
+                                  option.budgetMin === budget.min && option.budgetMax === budget.max && !showCustomBudget[option.id]
+                                    ? 'white'
+                                    : 'text.primary',
+                                '&:hover': {
+                                  backgroundColor:
+                                    option.budgetMin === budget.min && option.budgetMax === budget.max && !showCustomBudget[option.id]
+                                      ? '#1565c0'
+                                      : '#e0e0e0',
+                                },
+                                transition: 'all 0.2s ease-in-out',
+                              }}
+                            />
+                          ))}
+                          <Chip
+                            label="カスタム入力"
+                            size="small"
+                            onClick={() => toggleCustomBudget(option.id)}
+                            sx={{
+                              height: 28,
+                              fontSize: '0.8rem',
+                              cursor: 'pointer',
+                              backgroundColor: showCustomBudget[option.id] ? '#1976d2' : '#f5f5f5',
+                              color: showCustomBudget[option.id] ? 'white' : 'text.primary',
+                              '&:hover': {
+                                backgroundColor: showCustomBudget[option.id] ? '#1565c0' : '#e0e0e0',
+                              },
+                              transition: 'all 0.2s ease-in-out',
+                            }}
+                          />
+                        </Box>
+                      </Box>
+
+                      {/* カスタム入力 */}
+                      {showCustomBudget[option.id] && (
+                        <Box sx={{ mt: 2.5 }}>
+                          <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
+                            <TextField
+                              size="small"
+                              placeholder="8,000"
+                              type="text"
+                              inputMode="numeric"
+                              value={option.budgetMin ? formatNumber(option.budgetMin) : ''}
+                              onChange={(e) => {
+                                const numericValue = parseNumber(e.target.value);
+                                updateOptionField(option.id, 'budgetMin', numericValue);
+                              }}
+                              onBlur={(e) => {
+                                const numericValue = parseNumber(e.target.value);
+                                if (numericValue) {
+                                  updateOptionField(option.id, 'budgetMin', numericValue);
+                                }
+                              }}
+                              onKeyDown={(e) => {
+                                // 数値、Backspace、Delete、Tab、Arrow keys のみ許可
+                                if (
+                                  !/[0-9]/.test(e.key) &&
+                                  !['Backspace', 'Delete', 'Tab', 'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(e.key) &&
+                                  !(e.ctrlKey || e.metaKey) // Ctrl/Cmd + A, C, V, X などを許可
+                                ) {
+                                  e.preventDefault();
+                                }
+                              }}
+                              sx={{
+                                flex: 1,
+                                '& .MuiOutlinedInput-root': {
+                                  borderRadius: 0.5,
+                                  backgroundColor: '#fafafa',
+                                },
+                              }}
+                            />
+                            <Typography variant="body2" sx={{ color: 'text.secondary', px: 0.5 }}>
+                              〜
+                            </Typography>
+                            <TextField
+                              size="small"
+                              placeholder="10,000"
+                              type="text"
+                              inputMode="numeric"
+                              value={option.budgetMax ? formatNumber(option.budgetMax) : ''}
+                              onChange={(e) => {
+                                const numericValue = parseNumber(e.target.value);
+                                updateOptionField(option.id, 'budgetMax', numericValue);
+                              }}
+                              onBlur={(e) => {
+                                const numericValue = parseNumber(e.target.value);
+                                if (numericValue) {
+                                  updateOptionField(option.id, 'budgetMax', numericValue);
+                                }
+                              }}
+                              onKeyDown={(e) => {
+                                // 数値、Backspace、Delete、Tab、Arrow keys のみ許可
+                                if (
+                                  !/[0-9]/.test(e.key) &&
+                                  !['Backspace', 'Delete', 'Tab', 'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(e.key) &&
+                                  !(e.ctrlKey || e.metaKey) // Ctrl/Cmd + A, C, V, X などを許可
+                                ) {
+                                  e.preventDefault();
+                                }
+                              }}
+                              sx={{
+                                flex: 1,
+                                '& .MuiOutlinedInput-root': {
+                                  borderRadius: 0.5,
+                                  backgroundColor: '#fafafa',
+                                },
+                              }}
+                            />
+                            <Typography variant="body2" sx={{ color: 'text.secondary', ml: 0.5 }}>
+                              円
+                            </Typography>
+                          </Box>
+                        </Box>
+                      )}
+                    </Box>
+                  </Box>
+
+                  {/* 備考 */}
+                  <Box sx={{ position: 'relative' }}>
+                    <Box>
+                      <Typography
+                        variant="body2"
+                        sx={{
+                          fontSize: '0.85rem',
+                          color: 'text.secondary',
+                          mb: 1,
+                          fontWeight: 600,
+                        }}
+                      >
+                        備考
+                      </Typography>
+                      <TextField
+                        fullWidth
+                        size="small"
+                        placeholder="飲酒する方は飲み放題代（2,000円）を多めにお支払いいただきます"
+                        value={option.description || ''}
+                        onChange={(e) => updateOptionField(option.id, 'description', e.target.value)}
+                        multiline
+                        rows={2}
+                        sx={{
+                          '& .MuiOutlinedInput-root': {
+                            borderRadius: 0.5,
+                            backgroundColor: '#fafafa',
+                          },
+                        }}
+                      />
+                    </Box>
+                  </Box>
                 </Box>
               </Box>
             ))}
@@ -380,7 +649,7 @@ export default function CreatePage() {
               p: 4,
               background:
                 'linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%)',
-              borderRadius: 3,
+              borderRadius: 0.5,
               border: '1px solid rgba(102, 126, 234, 0.1)',
               backdropFilter: 'blur(10px)',
             }}
@@ -410,7 +679,7 @@ export default function CreatePage() {
                   sx={{
                     minWidth: 180,
                     '& .MuiOutlinedInput-root': {
-                      borderRadius: 2,
+                      borderRadius: 0.5,
                       backgroundColor: 'rgba(255, 255, 255, 0.9)',
                       '&:hover .MuiOutlinedInput-notchedOutline': {
                         borderColor: '#667eea',
@@ -433,7 +702,7 @@ export default function CreatePage() {
                   sx={{
                     minWidth: 150,
                     '& .MuiOutlinedInput-root': {
-                      borderRadius: 2,
+                      borderRadius: 0.5,
                       backgroundColor: 'rgba(255, 255, 255, 0.9)',
                       '&:hover .MuiOutlinedInput-notchedOutline': {
                         borderColor: '#667eea',
@@ -460,7 +729,7 @@ export default function CreatePage() {
                   lineHeight: 1.6,
                 }}
               >
-                投票期限を設定すると指定時刻に投票結果が表示されます。
+                投票期限を設定すると指定時刻に投票結果が自動的に公開されます。
               </Typography>
             </Box>
           </Box>
