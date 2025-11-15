@@ -1,5 +1,5 @@
 import { getCloudflareContext } from '@opennextjs/cloudflare';
-import { createPoll, getPolls } from '../../../lib/db';
+import { createPoll, getPolls } from '../../../services/db/poll';
 
 export async function POST(req: Request) {
   try {

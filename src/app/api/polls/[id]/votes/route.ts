@@ -1,5 +1,5 @@
 import { getCloudflareContext } from '@opennextjs/cloudflare';
-import { votePoll } from '../../../../../lib/db';
+import { votePoll } from '../../../../../services/db/poll';
 
 export async function POST(req: Request, context: { params: Promise<{ id: string }> }) {
   try {

@@ -1,12 +1,5 @@
-import { Poll, PollOption, CreatePollData, UpdatePollData, VoteData } from '../types/worker';
-
-// D1データベースを取得する共通関数
-function getDB(env: { DB: D1Database }) {
-  if (!env || !env.DB) {
-    throw new Error('DB not found in environment');
-  }
-  return env.DB;
-}
+import { Poll, PollOption, CreatePollData, UpdatePollData, VoteData } from './types';
+import { getDB } from '../client';
 
 // ポール作成
 export async function createPoll(data: CreatePollData, env: { DB: D1Database }) {
@@ -162,3 +155,4 @@ export async function votePoll(data: VoteData, env: { DB: D1Database }) {
 
   return { success: true, data: { pollId: data.pollId, optionId: data.optionId }, error: undefined };
 }
+

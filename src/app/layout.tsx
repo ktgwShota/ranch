@@ -3,7 +3,7 @@ import { Roboto } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from '@mui/material/styles';
 import { CssBaseline, Box } from '@mui/material';
-import { theme } from '@/libs/mui/theme';
+import { theme } from '@/lib/mui/theme';
 import Header from './components/Header';
 import Footer from './components/Footer';
 
