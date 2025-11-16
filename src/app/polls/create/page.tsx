@@ -172,10 +172,13 @@ export default function Index() {
                 variant="subtitle1"
                 sx={{ fontWeight: 600, color: 'text.primary', mb: 1 }}
               >
-                リスト <span style={{ color: '#f44336' } as React.CSSProperties}>*</span>
+                店舗情報 <span style={{ color: '#f44336' } as React.CSSProperties}>*</span>
+              </Typography>
+              <Typography variant="body2" color="text.secondary" sx={{ mb: 0.5 }}>
+                候補となるお店の情報を入力してください。
               </Typography>
               <Typography variant="body2" color="text.secondary">
-                候補となるお店の情報を入力してください。
+                店舗情報自動取得のため <a href="https://tabelog.com/" target="_blank" rel="noopener noreferrer" style={{ color: '#1976d2', textDecoration: 'none' }}>食べログ</a> または <a href="https://www.gnavi.co.jp/" target="_blank" rel="noopener noreferrer" style={{ color: '#1976d2', textDecoration: 'none' }}>ぐるなび</a> で取得した URL の使用を推奨します。
               </Typography>
             </Box>
 

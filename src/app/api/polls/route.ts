@@ -1,5 +1,6 @@
 import { getCloudflareContext } from '@opennextjs/cloudflare';
 import { createPoll, getPolls } from '../../../services/db/poll';
+import { fetchOGPData } from '../../../lib/ogp';
 
 export async function POST(req: Request) {
   try {
@@ -63,23 +64,43 @@ export async function POST(req: Request) {
     }
 
     // optionsが文字列配列の場合とオブジェクト配列の場合の両方に対応
-    const options = body.options.map((opt) => {
-      if (typeof opt === 'string') {
-        return {
-          url: opt,
-          title: '店舗情報を取得中...',
-          description: '説明を取得中...',
-          image: undefined,
-        };
-      } else {
-        return {
-          url: opt.url,
-          title: opt.title || '店舗情報を取得中...',
-          description: opt.description || '説明を取得中...',
-          image: opt.image,
-        };
-      }
-    });
+    // OGPデータを取得してDBに保存
+    const options = await Promise.all(
+      body.options.map(async (opt) => {
+        const url = typeof opt === 'string' ? opt : opt.url;
+
+        // OGPデータを取得
+        try {
+          const ogpData = await fetchOGPData(url);
+
+          if (ogpData.error) {
+            // エラーの場合でも、URLをタイトルとして保存
+            return {
+              url,
+              title: ogpData.title || url,
+              description: ogpData.description || undefined,
+              image: undefined,
+            };
+          }
+
+          return {
+            url,
+            title: ogpData.title || url,
+            description: ogpData.description || undefined,
+            image: ogpData.image || undefined,
+          };
+        } catch (error) {
+          console.error('Error fetching OGP data for URL:', url, error);
+          // エラー時はURLをタイトルとして保存
+          return {
+            url,
+            title: url,
+            description: undefined,
+            image: undefined,
+          };
+        }
+      })
+    );
 
     // endDateとendTimeからendDateTimeを計算
     let endDateTime: string | null = null;

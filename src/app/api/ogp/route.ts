@@ -1,6 +1,7 @@
 import { type NextRequest, NextResponse } from 'next/server';
+import { fetchOGPData as fetchOGPDataCommon } from '../../../lib/ogp';
 
-// OGPデータを取得する共通関数
+// OGPデータを取得する共通関数（後方互換性のため残す）
 async function fetchOGPData(url: string) {
   console.log('Fetching OGP data for URL:', url);
 
