@@ -149,18 +149,18 @@ export function OptionCard({
           >
             予算:{' '}
             {(() => {
-              const min = option.budgetMin && option.budgetMin.trim() ? `¥${parseInt(option.budgetMin, 10).toLocaleString()}` : '';
-              const max = option.budgetMax && option.budgetMax.trim() ? `¥${parseInt(option.budgetMax, 10).toLocaleString()}` : '';
+              const min = option.budgetMin && option.budgetMin.trim() ? parseInt(option.budgetMin, 10).toLocaleString() : '';
+              const max = option.budgetMax && option.budgetMax.trim() ? parseInt(option.budgetMax, 10).toLocaleString() : '';
               if (min && max) {
                 // 最小値と最大値が同じ場合は1つだけ表示
                 if (option.budgetMin === option.budgetMax) {
-                  return min;
+                  return `${min} 円`;
                 }
-                return `${min} ~ ${max}`;
+                return `${min} ~ ${max} 円`;
               } else if (min) {
-                return `${min} ~`;
+                return `${min} ~ 円`;
               } else if (max) {
-                return `~ ${max}`;
+                return `~ ${max} 円`;
               }
               return '';
             })()}
@@ -178,7 +178,7 @@ export function OptionCard({
                 lineHeight: 1.5,
               }}
             >
-              備考: {option.description}
+              {option.description}
             </Typography>
           </Box>
         )}

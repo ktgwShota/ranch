@@ -4,6 +4,7 @@ export function VotingDeadline({
   endDate,
   endTime,
   todayDate,
+  maxDate,
   currentTimeString,
   onEndDateChange,
   onEndTimeChange,
@@ -11,6 +12,7 @@ export function VotingDeadline({
   endDate: string;
   endTime: string;
   todayDate: string;
+  maxDate: string;
   currentTimeString: string;
   onEndDateChange: (value: string) => void;
   onEndTimeChange: (value: string) => void;
@@ -65,7 +67,7 @@ export function VotingDeadline({
             }}
             label="締切日"
             InputLabelProps={{ shrink: true }}
-            inputProps={{ min: todayDate }}
+            inputProps={{ min: todayDate, max: maxDate }}
           />
           <TextField
             type="time"
@@ -101,7 +103,7 @@ export function VotingDeadline({
             lineHeight: 1.6,
           }}
         >
-          投票期限を設定すると指定時刻に投票結果が自動的に公開されます。
+          指定日時に投票結果が自動的に公開されます（指定日時に達する前に投票を締め切ることも可能です）
         </Typography>
       </Box>
     </Box>

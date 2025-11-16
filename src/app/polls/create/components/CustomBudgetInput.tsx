@@ -13,7 +13,7 @@ export function CustomBudgetInput({
   onBudgetMaxChange: (value: string) => void;
 }) {
   return (
-    <Box sx={{ mt: 2.5 }}>
+    <Box>
       <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
         <TextField
           size="small"

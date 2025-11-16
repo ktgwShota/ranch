@@ -30,8 +30,25 @@ export default function Index() {
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [hasAgreedToTerms, setHasAgreedToTerms] = useState(true);
-  const [deadlineDate, setDeadlineDate] = useState<string>('');
-  const [deadlineTime, setDeadlineTime] = useState<string>('');
+  // 今日の日付を取得（YYYY-MM-DD形式）
+  const todayDate = new Date().toISOString().split('T')[0];
+  // 現在時刻を取得（HH:MM形式）
+  const currentDateTime = new Date();
+  const currentTimeString = `${currentDateTime.getHours().toString().padStart(2, '0')}:${currentDateTime.getMinutes().toString().padStart(2, '0')}`;
+
+  // 1週間後の日付と時刻を計算（デフォルト値）
+  const oneWeekLater = new Date();
+  oneWeekLater.setDate(oneWeekLater.getDate() + 7);
+  const defaultEndDate = oneWeekLater.toISOString().split('T')[0];
+  const defaultEndTime = `${oneWeekLater.getHours().toString().padStart(2, '0')}:${oneWeekLater.getMinutes().toString().padStart(2, '0')}`;
+
+  // 1ヶ月後の日付を計算（最大値）
+  const oneMonthLater = new Date();
+  oneMonthLater.setMonth(oneMonthLater.getMonth() + 1);
+  const maxEndDate = oneMonthLater.toISOString().split('T')[0];
+
+  const [deadlineDate, setDeadlineDate] = useState<string>(defaultEndDate);
+  const [deadlineTime, setDeadlineTime] = useState<string>(defaultEndTime);
 
   // URLエラーは計算可能な値なので derived state に
   const optionUrlErrors = useMemo(() => {
@@ -46,12 +63,6 @@ export default function Index() {
     });
     return errors;
   }, [pollOptions]);
-
-  // 今日の日付を取得（YYYY-MM-DD形式）
-  const todayDate = new Date().toISOString().split('T')[0];
-  // 現在時刻を取得（HH:MM形式）
-  const currentDateTime = new Date();
-  const currentTimeString = `${currentDateTime.getHours().toString().padStart(2, '0')}:${currentDateTime.getMinutes().toString().padStart(2, '0')}`;
 
   const handleAddOption = () => {
     if (pollOptions.length < MAX_OPTIONS) {
@@ -206,6 +217,7 @@ export default function Index() {
             endDate={deadlineDate}
             endTime={deadlineTime}
             todayDate={todayDate}
+            maxDate={maxEndDate}
             currentTimeString={currentTimeString}
             onEndDateChange={(value) => {
               setDeadlineDate(value);

@@ -10,17 +10,34 @@ export function DescriptionInput({
   return (
     <Box>
       <Box>
-        <Typography
-          variant="body2"
+        <Box
           sx={{
-            fontSize: '0.85rem',
-            color: 'text.secondary',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
             mb: 1,
-            fontWeight: 600,
           }}
         >
-          備考
-        </Typography>
+          <Typography
+            variant="body2"
+            sx={{
+              fontSize: '0.85rem',
+              color: 'text.secondary',
+              fontWeight: 600,
+            }}
+          >
+            備考
+          </Typography>
+          <Typography
+            variant="caption"
+            sx={{
+              fontSize: '0.75rem',
+              color: 'text.secondary',
+            }}
+          >
+            {value.length}/50
+          </Typography>
+        </Box>
         <TextField
           fullWidth
           size="small"
@@ -35,7 +52,6 @@ export function DescriptionInput({
           inputProps={{
             maxLength: 50,
           }}
-          helperText={`${value.length}/50`}
           sx={{
             '& .MuiOutlinedInput-root': {
               borderRadius: 0.5,
