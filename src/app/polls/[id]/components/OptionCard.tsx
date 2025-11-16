@@ -3,7 +3,8 @@ import { Restaurant as RestaurantIcon } from '@mui/icons-material';
 import type { DBPollOption as Option } from '@/services/db/poll/types';
 import { ResultDisplay } from './ResultDisplay';
 import { VoterList } from './VoterList';
-import { VoteButton } from './VoteButton';
+import { CustomButton } from '@/app/components/CustomButton';
+import { Check as CheckIcon, ThumbUp as ThumbUpIcon } from '@mui/icons-material';
 
 interface OptionCardProps {
   option: Option;
@@ -11,7 +12,6 @@ interface OptionCardProps {
   isVoted: boolean;
   isVoting: boolean;
   isDisabled: boolean;
-  isPollClosed: boolean;
   onVote: () => void;
 }
 
@@ -21,7 +21,6 @@ export function OptionCard({
   isVoted,
   isVoting,
   isDisabled,
-  isPollClosed,
   onVote,
 }: OptionCardProps) {
   const votePercentage = totalVotes > 0 ? (option.votes / totalVotes) * 100 : 0;
@@ -36,9 +35,7 @@ export function OptionCard({
         flexDirection: 'column',
         borderRadius: 0.5,
         boxShadow: '0 0 5px 1px rgba(0,0,0,0.1)',
-        background: isDisabled
-          ? 'linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%)'
-          : 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
+        background: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
         flex: '0 0 calc(100%)',
         [`@media (min-width: 600px)`]: {
           flex: '0 0 calc(50% - 12px)',
@@ -48,10 +45,6 @@ export function OptionCard({
         },
         // boxShadow: 'none',
         position: 'relative',
-        ...(isDisabled && {
-          opacity: 0.5,
-          filter: 'grayscale(0.4)',
-        }),
       }}
     >
       <CardMedia
@@ -149,10 +142,46 @@ export function OptionCard({
         )}
 
         <ResultDisplay votes={option.votes} percentage={votePercentage} />
+
         <VoterList voters={option.voters} />
-        {!isPollClosed && (
-          <VoteButton isVoted={isVoted} isVoting={isVoting} isDisabled={isDisabled} onClick={onVote} />
-        )}
+
+        <CustomButton
+          onClick={onVote}
+          disabled={isDisabled}
+          loading={isVoting}
+          loadingText={isVoted ? '投票取消中...' : '投票中...'}
+          variant={isVoted ? 'outlined' : 'contained'}
+          startIcon={isVoted ? <CheckIcon sx={{ fontSize: '1.2rem' }} /> : <ThumbUpIcon sx={{ fontSize: '1.2rem' }} />}
+          fullWidth
+          size="large"
+          sx={{
+            borderRadius: 2,
+            textTransform: 'none',
+            fontWeight: 600,
+            fontSize: '0.875rem',
+            py: 1.5,
+            ...(isVoted && {
+              color: '#0369a1',
+              borderColor: '#bfdbfe',
+              borderWidth: 1,
+              background: '#f8fafc',
+              '&:hover': {
+                background: '#e0e7ff',
+                borderColor: '#60a5fa',
+              },
+            }),
+            ...(!isVoted && {
+              background: '#f3f4f6',
+              color: '#374151',
+              border: '1px solid #d1d5db',
+              '&:hover': {
+                background: '#e5e7eb',
+              },
+            }),
+          }}
+        >
+          {isVoted ? '投票済み' : '投票する'}
+        </CustomButton>
       </CardContent>
     </Card>
   );

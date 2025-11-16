@@ -13,13 +13,15 @@ interface PageProps {
 
 export default async function Page({ params }: PageProps) {
   const { id } = await params;
-  if (!id) return null;
+  if (!id) {
+    redirect('/404');
+  }
 
   try {
     const context = getCloudflareContext();
     const result = await getPoll(id, context.env);
     if (!result.success || !result.data) {
-      return null;
+      redirect('/404');
     }
 
     const pollData = result.data;

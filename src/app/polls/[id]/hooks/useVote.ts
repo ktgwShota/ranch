@@ -24,6 +24,9 @@ export function useVote(
 
     setVoting(optionId);
 
+    // デザインのために1秒待ってから処理を開始
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+
     // まず、他の選択肢から投票を削除（一人一票制）
     let updatedOptions = poll.options.map((option) => {
       if (option.id !== optionId && option.voters.some((voter) => voter.id === userId)) {

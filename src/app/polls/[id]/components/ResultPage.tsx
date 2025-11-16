@@ -1,4 +1,4 @@
-import { Box, Paper, Typography, LinearProgress, Avatar, Divider } from '@mui/material';
+import { Box, Paper, Typography, LinearProgress, Avatar, Divider, Button } from '@mui/material';
 import { BarChart as BarChartIcon, EmojiEvents as TrophyIcon } from '@mui/icons-material';
 import type { DBPoll as Poll, DBPollOption as Option } from '@/services/db/poll/types';
 import { ResultPageClient } from './ResultPageClient';

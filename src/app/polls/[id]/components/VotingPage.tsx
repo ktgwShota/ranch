@@ -1,6 +1,6 @@
 'use client';
 
-import { Box, Snackbar } from '@mui/material';
+import { Box } from '@mui/material';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useVoter } from '../hooks/useVoter';
@@ -8,9 +8,8 @@ import { usePollTimer } from '../hooks/usePollTimer';
 import { useVote } from '../hooks/useVote';
 import { Header } from './Header';
 import { OptionCard } from './OptionCard';
-import { VoterNameDialog } from './VoterNameDialog';
+import { TextInputDialog } from '@/app/components/TextInputDialog';
 import { useTutorialContext } from '@/app/contexts/TutorialContext';
-import PollResultDialog from '@/app/components/PollResultDialog';
 import type { DBPoll as Poll } from '@/services/db/poll/types';
 
 interface VotingPageProps {
@@ -34,9 +33,6 @@ export default function VotingPage({ pollId, initialPoll }: VotingPageProps) {
   } = useVoter(pollId);
   const { isPollClosed, timeRemaining, formatTime } = usePollTimer(poll);
   const { vote, voting, isVotedByUser } = useVote(poll, setPoll, userId, userName, checkAndOpenDialog);
-  const [snackbarOpen, setSnackbarOpen] = useState(false);
-  const [snackbarMessage, setSnackbarMessage] = useState('');
-  const [isEndingPoll, setIsEndingPoll] = useState(false);
 
   // チュートリアルを開始
   useEffect(() => {
@@ -65,7 +61,6 @@ export default function VotingPage({ pollId, initialPoll }: VotingPageProps) {
   const endPoll = async () => {
     if (!poll) return;
 
-    setIsEndingPoll(true);
     try {
       const response = await fetch(`/api/polls/${poll.id}/close`, {
         method: 'POST',
@@ -78,16 +73,9 @@ export default function VotingPage({ pollId, initialPoll }: VotingPageProps) {
       if (response.ok) {
         // サーバー側で再評価させるため、ページをリロード
         router.refresh();
-      } else {
-        setSnackbarMessage('投票の終了に失敗しました');
-        setSnackbarOpen(true);
       }
     } catch (error) {
       console.error('投票終了エラー:', error);
-      setSnackbarMessage('投票の終了に失敗しました');
-      setSnackbarOpen(true);
-    } finally {
-      setIsEndingPoll(false);
     }
   };
 
@@ -99,10 +87,8 @@ export default function VotingPage({ pollId, initialPoll }: VotingPageProps) {
         <Header
           poll={poll}
           loading={false}
-          isPollClosed={isPollClosed}
           timeRemaining={timeRemaining}
           formatTime={formatTime}
-          isEndingPoll={isEndingPoll}
           onEndPoll={endPoll}
         />
         <Box
@@ -118,7 +104,7 @@ export default function VotingPage({ pollId, initialPoll }: VotingPageProps) {
           {poll?.options.map((option) => {
             const isVoted = isVotedByUser(option);
             const isVoting = voting === option.id;
-            const isDisabled = isPollClosed;
+            const isAnyVoting = voting !== null; // 他の選択肢が投票中かどうか
 
             return (
               <OptionCard
@@ -127,8 +113,7 @@ export default function VotingPage({ pollId, initialPoll }: VotingPageProps) {
                 totalVotes={totalVotes}
                 isVoted={isVoted}
                 isVoting={isVoting}
-                isDisabled={isDisabled}
-                isPollClosed={isPollClosed}
+                isDisabled={isAnyVoting && !isVoting} // 他の選択肢が投票中なら無効化
                 onVote={() => vote(option.id)}
               />
             );
@@ -153,18 +138,14 @@ export default function VotingPage({ pollId, initialPoll }: VotingPageProps) {
         </Box>
       </Box>
 
-      <PollResultDialog />
-      <VoterNameDialog
+      <TextInputDialog
         open={nameDialogOpen}
-        name={tempName}
-        onNameChange={setTempName}
+        value={tempName}
+        onValueChange={setTempName}
         onSubmit={handleNameSubmit}
-      />
-      <Snackbar
-        open={snackbarOpen}
-        autoHideDuration={3000}
-        onClose={() => setSnackbarOpen(false)}
-        message={snackbarMessage}
+        title="投票者名を入力してください"
+        label="お名前"
+        submitLabel="決定"
       />
     </>
   );

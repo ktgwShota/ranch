@@ -6,20 +6,16 @@ import type { DBPoll as Poll } from '@/services/db/poll/types';
 interface HeaderProps {
   poll: Poll | null;
   loading: boolean;
-  isPollClosed: boolean;
   timeRemaining: number | null;
   formatTime: (seconds: number) => string;
-  isEndingPoll: boolean;
   onEndPoll: () => void;
 }
 
 export function Header({
   poll,
   loading,
-  isPollClosed,
   timeRemaining,
   formatTime,
-  isEndingPoll,
   onEndPoll,
 }: HeaderProps) {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
@@ -81,32 +77,19 @@ export function Header({
                   gap: 1,
                   px: 2.5,
                   py: 1.5,
-                  backgroundColor:
-                    isPollClosed || poll?.isClosed
-                      ? '#ffebee'
-                      : poll?.endDateTime
-                        ? '#e3f2fd'
-                        : '#e8f5e8',
+                  backgroundColor: poll?.endDateTime ? '#e3f2fd' : '#e8f5e8',
                   borderRadius: 3,
-                  border: `1px solid ${isPollClosed || poll?.isClosed === 1 ? '#f44336' : poll?.endDateTime ? '#2196f3' : '#4caf50'}`,
+                  border: `1px solid ${poll?.endDateTime ? '#2196f3' : '#4caf50'}`,
                   minWidth: 'fit-content',
-                  boxShadow:
-                    isPollClosed || poll?.isClosed === 1
-                      ? '0 2px 8px rgba(244, 67, 54, 0.2)'
-                      : poll?.endDateTime
-                        ? '0 2px 8px rgba(33, 150, 243, 0.2)'
-                        : '0 2px 8px rgba(76, 175, 80, 0.2)',
+                  boxShadow: poll?.endDateTime
+                    ? '0 2px 8px rgba(33, 150, 243, 0.2)'
+                    : '0 2px 8px rgba(76, 175, 80, 0.2)',
                 }}
               >
                 <Typography
                   variant="caption"
                   sx={{
-                    color:
-                      isPollClosed || poll?.isClosed === 1
-                        ? '#d32f2f'
-                        : poll?.endDateTime
-                          ? '#1976d2'
-                          : '#4caf50',
+                    color: poll?.endDateTime ? '#1976d2' : '#4caf50',
                     fontWeight: 600,
                     fontSize: '0.8rem',
                     whiteSpace: 'nowrap',
@@ -114,19 +97,7 @@ export function Header({
                 >
                   投票受付:
                 </Typography>
-                {isPollClosed || poll?.isClosed === 1 ? (
-                  <Typography
-                    variant="body2"
-                    sx={{
-                      color: '#d32f2f',
-                      fontWeight: 700,
-                      fontSize: '14px',
-                      whiteSpace: 'nowrap',
-                    }}
-                  >
-                    終了
-                  </Typography>
-                ) : poll?.endDateTime ? (
+                {poll?.endDateTime ? (
                   <Typography
                     variant="body2"
                     sx={{
@@ -154,7 +125,7 @@ export function Header({
               </Box>
             )}
 
-            {poll && !isPollClosed && (
+            {poll && (
               <>
                 <IconButton
                   id="poll-settings-button"
@@ -182,12 +153,12 @@ export function Header({
                     horizontal: 'right',
                   }}
                 >
-                  <MenuItem onClick={handleEndPoll} disabled={isEndingPoll}>
+                  <MenuItem onClick={handleEndPoll}>
                     <ListItemIcon>
                       <StopIcon fontSize="small" sx={{ color: '#f44336' }} />
                     </ListItemIcon>
                     <ListItemText>
-                      {isEndingPoll ? '終了中...' : '投票を終了'}
+                      投票を終了
                     </ListItemText>
                   </MenuItem>
                 </Menu>
