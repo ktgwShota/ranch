@@ -26,9 +26,16 @@ export function DescriptionInput({
           size="small"
           placeholder="会社から徒歩10分 / 個室あり / 駐車場なし"
           value={value}
-          onChange={(e) => onChange(e.target.value)}
-          multiline
-          rows={2}
+          onChange={(e) => {
+            const newValue = e.target.value;
+            if (newValue.length <= 50) {
+              onChange(newValue);
+            }
+          }}
+          inputProps={{
+            maxLength: 50,
+          }}
+          helperText={`${value.length}/50`}
           sx={{
             '& .MuiOutlinedInput-root': {
               borderRadius: 0.5,

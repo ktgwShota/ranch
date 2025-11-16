@@ -44,7 +44,14 @@ export async function POST(req: Request) {
       title: string;
       options:
       | string[]
-      | Array<{ url: string; title?: string; description?: string; image?: string }>;
+      | Array<{
+        url: string;
+        title?: string;
+        description?: string;
+        image?: string;
+        budgetMin?: string;
+        budgetMax?: string;
+      }>;
       duration?: number;
       endDate?: string | null;
       endTime?: string | null;
@@ -68,26 +75,37 @@ export async function POST(req: Request) {
     const options = await Promise.all(
       body.options.map(async (opt) => {
         const url = typeof opt === 'string' ? opt : opt.url;
+        const manualBudgetMin = typeof opt === 'string' ? undefined : opt.budgetMin;
+        const manualBudgetMax = typeof opt === 'string' ? undefined : opt.budgetMax;
+        const customDescription = typeof opt === 'string' ? undefined : opt.description;
 
         // OGPデータを取得
         try {
           const ogpData = await fetchOGPData(url);
+
+          // 予算情報: 手動設定を優先、なければOGPから取得したものを使用
+          const budgetMin = manualBudgetMin || ogpData.budgetMin;
+          const budgetMax = manualBudgetMax || ogpData.budgetMax;
 
           if (ogpData.error) {
             // エラーの場合でも、URLをタイトルとして保存
             return {
               url,
               title: ogpData.title || url,
-              description: ogpData.description || undefined,
+              description: customDescription || ogpData.description || undefined,
               image: undefined,
+              budgetMin,
+              budgetMax,
             };
           }
 
           return {
             url,
             title: ogpData.title || url,
-            description: ogpData.description || undefined,
+            description: customDescription || ogpData.description || undefined,
             image: ogpData.image || undefined,
+            budgetMin,
+            budgetMax,
           };
         } catch (error) {
           console.error('Error fetching OGP data for URL:', url, error);
@@ -95,8 +113,10 @@ export async function POST(req: Request) {
           return {
             url,
             title: url,
-            description: undefined,
+            description: customDescription || undefined,
             image: undefined,
+            budgetMin: manualBudgetMin,
+            budgetMax: manualBudgetMax,
           };
         }
       })

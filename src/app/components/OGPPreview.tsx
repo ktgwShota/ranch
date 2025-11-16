@@ -2,13 +2,16 @@
 
 import { Restaurant as RestaurantIcon } from '@mui/icons-material';
 import { Box, Skeleton, Typography } from '@mui/material';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { validateUrl } from '../../utils/url';
 
 interface OGPData {
   title: string;
   image: string | null;
   description?: string | null;
+  budgetMin?: string;
+  budgetMax?: string;
+  budgetOptions?: Array<{ label: string; min: string; max: string }>;
   url?: string | null;
   type?: string | null;
   siteName?: string | null;
@@ -28,6 +31,12 @@ interface OGPPreviewProps {
 export function OGPPreview({ url, size = 'small', onDataLoaded }: OGPPreviewProps) {
   const [ogpData, setOgpData] = useState<OGPData | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const onDataLoadedRef = useRef(onDataLoaded);
+
+  // onDataLoadedの最新の参照を保持
+  useEffect(() => {
+    onDataLoadedRef.current = onDataLoaded;
+  }, [onDataLoaded]);
 
   const sizeConfig = {
     small: { imageSize: 60, padding: 2 },
@@ -41,7 +50,7 @@ export function OGPPreview({ url, size = 'small', onDataLoaded }: OGPPreviewProp
     // URLが空、またはバリデーションエラーがある場合は取得しない
     if (!url.trim() || validateUrl(url) !== null) {
       setOgpData(null);
-      onDataLoaded?.(null);
+      onDataLoadedRef.current?.(null);
       return;
     }
 
@@ -65,7 +74,7 @@ export function OGPPreview({ url, size = 'small', onDataLoaded }: OGPPreviewProp
         const data = responseData as OGPData;
         console.log('🔍 OGP Preview - Full data received:', JSON.stringify(data, null, 2));
         setOgpData(data);
-        onDataLoaded?.(data);
+        onDataLoadedRef.current?.(data);
       } catch (error) {
         console.error('Error fetching OGP:', error);
         // エラー時でもカードを表示
@@ -75,14 +84,14 @@ export function OGPPreview({ url, size = 'small', onDataLoaded }: OGPPreviewProp
           error: error instanceof Error ? error.message : 'Unknown error',
         };
         setOgpData(errorData);
-        onDataLoaded?.(errorData);
+        onDataLoadedRef.current?.(errorData);
       } finally {
         setIsLoading(false);
       }
     }, 800);
 
     return () => clearTimeout(timer);
-  }, [url, onDataLoaded]);
+  }, [url]);
 
   // ローディング中
   if (isLoading) {

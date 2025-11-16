@@ -125,7 +125,12 @@ export default function Index() {
         },
         body: JSON.stringify({
           title: pollTitle.trim(),
-          options: validOptions.map((option) => option.url.trim()),
+          options: validOptions.map((option) => ({
+            url: option.url.trim(),
+            budgetMin: option.budgetMin || undefined,
+            budgetMax: option.budgetMax || undefined,
+            description: option.description || undefined,
+          })),
           endDate: deadlineDate || null,
           endTime: deadlineTime || null,
         }),
@@ -178,7 +183,7 @@ export default function Index() {
                 候補となるお店の情報を入力してください。
               </Typography>
               <Typography variant="body2" color="text.secondary">
-                店舗情報自動取得のため <a href="https://tabelog.com/" target="_blank" rel="noopener noreferrer" style={{ color: '#1976d2', textDecoration: 'none' }}>食べログ</a> または <a href="https://www.gnavi.co.jp/" target="_blank" rel="noopener noreferrer" style={{ color: '#1976d2', textDecoration: 'none' }}>ぐるなび</a> で取得した URL の使用を推奨します。
+                <a href="https://tabelog.com/" target="_blank" rel="noopener noreferrer" style={{ color: '#1976d2', textDecoration: 'none' }}>食べログ</a> または <a href="https://www.gnavi.co.jp/" target="_blank" rel="noopener noreferrer" style={{ color: '#1976d2', textDecoration: 'none' }}>ぐるなび</a> で取得した URL の使用をすると予算が自動入力されます。
               </Typography>
             </Box>
 

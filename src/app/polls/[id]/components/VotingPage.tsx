@@ -134,12 +134,14 @@ export default function VotingPage({ pollId, initialPoll }: VotingPageProps) {
         />
         <Box
           sx={{
-            display: 'flex',
-            flexWrap: 'wrap',
+            display: 'grid',
+            gridTemplateColumns: {
+              xs: '1fr',
+              sm: 'repeat(2, 1fr)',
+            },
             gap: { xs: 2, sm: 2.5 },
             my: { xs: 2, sm: 2.5 },
             justifyContent: 'center',
-            alignItems: 'stretch',
           }}
         >
           {poll?.options.map((option) => {

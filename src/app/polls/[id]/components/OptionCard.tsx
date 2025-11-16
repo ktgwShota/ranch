@@ -1,3 +1,5 @@
+'use client';
+
 import { Box, Card, CardContent, CardMedia, Skeleton, Typography } from '@mui/material';
 import { Restaurant as RestaurantIcon } from '@mui/icons-material';
 import type { DBPollOption as Option } from '@/services/db/poll/types';
@@ -36,13 +38,6 @@ export function OptionCard({
         borderRadius: 0.5,
         boxShadow: '0 0 5px 1px rgba(0,0,0,0.1)',
         background: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
-        flex: '0 0 calc(100%)',
-        [`@media (min-width: 600px)`]: {
-          flex: '0 0 calc(50% - 12px)',
-        },
-        [`@media (min-width: 900px)`]: {
-          flex: '0 0 calc(50% - 10px)',
-        },
         // boxShadow: 'none',
         position: 'relative',
       }}
@@ -107,6 +102,7 @@ export function OptionCard({
           background: 'transparent',
           backdropFilter: 'none',
           borderRadius: '0 0 4px 4px',
+          minHeight: 0, // flexboxの子要素が縮小できるようにする
         }}
       >
         {option.title ? (
@@ -121,11 +117,11 @@ export function OptionCard({
               color: '#111827',
               fontSize: '18px',
               lineHeight: 1.4,
-              mb: 2,
+              mb: 1.5,
               overflow: 'hidden',
               textOverflow: 'ellipsis',
               display: '-webkit-box',
-              WebkitLineClamp: 2,
+              WebkitLineClamp: 1,
               WebkitBoxOrient: 'vertical',
               textDecoration: 'none',
               cursor: 'pointer',
@@ -138,50 +134,105 @@ export function OptionCard({
             {option.title}
           </Typography>
         ) : (
-          <Skeleton variant="text" height={28} sx={{ mb: 2 }} />
+          <Skeleton variant="text" height={25.2} sx={{ mb: 1.5 }} />
         )}
 
-        <ResultDisplay votes={option.votes} percentage={votePercentage} />
+        {/* 予算の表示 */}
+        {option.budgetMin || option.budgetMax ? (
+          <Typography
+            variant="body2"
+            sx={{
+              color: '#6b7280',
+              fontSize: '14px',
+              mb: 1.5,
+            }}
+          >
+            予算:{' '}
+            {(() => {
+              const min = option.budgetMin && option.budgetMin.trim() ? `¥${parseInt(option.budgetMin, 10).toLocaleString()}` : '';
+              const max = option.budgetMax && option.budgetMax.trim() ? `¥${parseInt(option.budgetMax, 10).toLocaleString()}` : '';
+              if (min && max) {
+                // 最小値と最大値が同じ場合は1つだけ表示
+                if (option.budgetMin === option.budgetMax) {
+                  return min;
+                }
+                return `${min} ~ ${max}`;
+              } else if (min) {
+                return `${min} ~`;
+              } else if (max) {
+                return `~ ${max}`;
+              }
+              return '';
+            })()}
+          </Typography>
+        ) : null}
 
-        <VoterList voters={option.voters} />
+        {/* 備考の表示 */}
+        {option.description && (
+          <Box sx={{ mb: 1.5 }}>
+            <Typography
+              variant="body2"
+              sx={{
+                color: '#6b7280',
+                fontSize: '14px',
+                lineHeight: 1.5,
+              }}
+            >
+              備考: {option.description}
+            </Typography>
+          </Box>
+        )}
 
-        <CustomButton
-          onClick={onVote}
-          disabled={isDisabled}
-          loading={isVoting}
-          loadingText={isVoted ? '投票取消中...' : '投票中...'}
-          variant={isVoted ? 'outlined' : 'contained'}
-          startIcon={isVoted ? <CheckIcon sx={{ fontSize: '19px' }} /> : <ThumbUpIcon sx={{ fontSize: '19px' }} />}
-          fullWidth
-          size="large"
+        {/* 備考より下を一番下に固定するためのコンテナ */}
+        <Box
           sx={{
-            borderRadius: 2,
-            textTransform: 'none',
-            fontWeight: 600,
-            fontSize: '14px',
-            py: 1.5,
-            ...(isVoted && {
-              color: '#0369a1',
-              borderColor: '#bfdbfe',
-              borderWidth: 1,
-              background: '#f8fafc',
-              '&:hover': {
-                background: '#e0e7ff',
-                borderColor: '#60a5fa',
-              },
-            }),
-            ...(!isVoted && {
-              background: '#f3f4f6',
-              color: '#374151',
-              border: '1px solid #d1d5db',
-              '&:hover': {
-                background: '#e5e7eb',
-              },
-            }),
+            mt: 'auto', // 上にマージンを自動で設定して、一番下に配置
+            display: 'flex',
+            flexDirection: 'column',
           }}
         >
-          {isVoted ? '投票済み' : '投票する'}
-        </CustomButton>
+          <ResultDisplay votes={option.votes} percentage={votePercentage} />
+
+          <VoterList voters={option.voters} />
+
+          <CustomButton
+            onClick={onVote}
+            disabled={isDisabled}
+            loading={isVoting}
+            loadingText={isVoted ? '投票取消中...' : '投票中...'}
+            variant={isVoted ? 'outlined' : 'contained'}
+            startIcon={isVoted ? <CheckIcon sx={{ fontSize: '19px' }} /> : <ThumbUpIcon sx={{ fontSize: '19px' }} />}
+            fullWidth
+            size="large"
+            sx={{
+              borderRadius: 2,
+              textTransform: 'none',
+              fontWeight: 600,
+              fontSize: '14px',
+              py: 1.5,
+              ...(isVoted && {
+                color: '#0369a1',
+                borderColor: '#bfdbfe',
+                borderWidth: 1,
+                background: '#f8fafc',
+                '&:hover': {
+                  background: '#e0e7ff',
+                  borderColor: '#60a5fa',
+                },
+              }),
+              ...(!isVoted && {
+                background: '#f3f4f6',
+                color: '#374151',
+                border: '1px solid #d1d5db',
+                '&:hover': {
+                  background: '#e5e7eb',
+                },
+              }),
+            }}
+          >
+            {isVoted ? '投票済み' : '投票する'}
+          </CustomButton>
+        </Box>
       </CardContent>
     </Card>
   );

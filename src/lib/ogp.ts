@@ -1,17 +1,17 @@
-async function fetchOGPData(url: string): Promise<{ title: string; image: string | null; description?: string | null; error?: string }> {
+async function fetchOGPData(url: string): Promise<{ title: string; image: string | null; description?: string | null; budgetMin?: string; budgetMax?: string; budgetOptions?: Array<{ label: string; min: string; max: string }>; error?: string }> {
   try {
     // URLのバリデーション
     let parsedUrl: URL;
     try {
       parsedUrl = new URL(url);
     } catch {
-      return { title: 'お店の情報を取得できませんでした', image: null, description: null, error: 'Invalid URL' };
+      return { title: 'お店の情報を取得できませんでした', image: null, description: null, budgetMin: undefined, budgetMax: undefined, budgetOptions: undefined, error: 'Invalid URL' };
     }
 
     // セキュリティ: 許可されていないプロトコルをブロック
     const allowedProtocols = ['http:', 'https:'];
     if (!allowedProtocols.includes(parsedUrl.protocol)) {
-      return { title: 'お店の情報を取得できませんでした', image: null, description: null, error: 'HTTPまたはHTTPSのURLのみ対応しています。' };
+      return { title: 'お店の情報を取得できませんでした', image: null, description: null, budgetMin: undefined, budgetMax: undefined, budgetOptions: undefined, error: 'HTTPまたはHTTPSのURLのみ対応しています。' };
     }
 
     // セキュリティ: ローカルホストやプライベートIPをブロック（SSRF攻撃を防ぐ）
@@ -25,13 +25,13 @@ async function fetchOGPData(url: string): Promise<{ title: string; image: string
     ];
 
     if (blockedHosts.includes(hostname)) {
-      return { title: 'お店の情報を取得できませんでした', image: null, description: null, error: 'ローカルホストのURLは取得できません。' };
+      return { title: 'お店の情報を取得できませんでした', image: null, description: null, budgetMin: undefined, budgetMax: undefined, budgetOptions: undefined, error: 'ローカルホストのURLは取得できません。' };
     }
 
     // プライベートIPアドレスをチェック
     const privateIpRegex = /^(10\.|172\.(1[6-9]|2[0-9]|3[01])\.|192\.168\.)/;
     if (privateIpRegex.test(hostname)) {
-      return { title: 'お店の情報を取得できませんでした', image: null, description: null, error: 'プライベートIPアドレスのURLは取得できません。' };
+      return { title: 'お店の情報を取得できませんでした', image: null, description: null, budgetMin: undefined, budgetMax: undefined, budgetOptions: undefined, error: 'プライベートIPアドレスのURLは取得できません。' };
     }
 
     // HTMLを取得
@@ -45,16 +45,16 @@ async function fetchOGPData(url: string): Promise<{ title: string; image: string
       });
 
       if (!response.ok) {
-        return { title: 'お店の情報を取得できませんでした', image: null, description: null, error: `HTTP error! status: ${response.status}` };
+        return { title: 'お店の情報を取得できませんでした', image: null, description: null, budgetMin: undefined, budgetMax: undefined, budgetOptions: undefined, error: `HTTP error! status: ${response.status}` };
       }
 
       html = await response.text();
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
       if (errorMessage.includes('timeout') || errorMessage.includes('AbortError')) {
-        return { title: 'お店の情報を取得できませんでした', image: null, description: null, error: 'timeout' };
+        return { title: 'お店の情報を取得できませんでした', image: null, description: null, budgetMin: undefined, budgetMax: undefined, budgetOptions: undefined, error: 'timeout' };
       }
-      return { title: 'お店の情報を取得できませんでした', image: null, description: null, error: errorMessage };
+      return { title: 'お店の情報を取得できませんでした', image: null, description: null, budgetMin: undefined, budgetMax: undefined, budgetOptions: undefined, error: errorMessage };
     }
 
     // OGPタグを抽出する関数
@@ -101,21 +101,163 @@ async function fetchOGPData(url: string): Promise<{ title: string; image: string
     }
 
     // 説明を取得
-    const description =
+    let description =
       extractMetaContent(html, 'og:description') ||
       extractMetaContent(html, 'twitter:description') ||
       extractMetaContent(html, 'description') ||
       null;
 
-    if (!hasOGPData) {
-      return { title: 'お店の情報を取得できませんでした', image: null, description: null, error: 'サイトが OGP に対応していない or 入力された URL が不正です。' };
+    // 定型文を除外
+    if (description) {
+      // ぐるなびの定型文を除外
+      if (parsedUrl.hostname.includes('gurunavi.com') || parsedUrl.hostname.includes('gnavi.co.jp')) {
+        // 【】で囲まれた部分を削除
+        description = description.replace(/【[^】]*】/g, '').trim();
+        // 「（店名）の店舗情報をご紹介。お店のウリキーワード：...など。楽天ぐるなびなら店舗の詳細なメニューの情報やクーポン情報など、「（店名）」の情報が満載です。」を削除
+        description = description.replace(/.+の店舗情報をご紹介[\s\S]*?お店のウリキーワード[\s\S]*?など。楽天ぐるなびなら店舗の詳細なメニューの情報やクーポン情報など[\s\S]*?の情報が満載です[。.]*/g, '').trim();
+      }
+
+      // 食べログの定型文を除外
+      if (parsedUrl.hostname.includes('tabelog.com') || parsedUrl.hostname.includes('tabelog.jp')) {
+        // ★★★☆☆3.30 ■ のような評価と記号を削除
+        description = description.replace(/^[★☆\s]*[\d.]+\s*■\s*/, '');
+        // ■予算(夜):￥4,000～￥4,999 のような予算情報を削除
+        description = description.replace(/■予算[^■]*/g, '');
+        // 先頭の■を削除
+        description = description.replace(/^■\s*/, '').trim();
+      }
+
+      // 空になった場合はnullに
+      if (!description || description.length === 0) {
+        description = null;
+      }
     }
 
-    return { title: title.trim(), image: image || null, description, error: undefined };
+    // 予算情報を抽出
+    let budgetMin: string | undefined = undefined;
+    let budgetMax: string | undefined = undefined;
+    let budgetOptions: Array<{ label: string; min: string; max: string }> | undefined = undefined;
+
+    // 食べログの予算情報を抽出（HTMLから昼予算と夜予算を取得）
+    if (parsedUrl.hostname.includes('tabelog.com') || parsedUrl.hostname.includes('tabelog.jp')) {
+      const budgetOptionsList: Array<{ label: string; min: string; max: string }> = [];
+
+      // 夜予算を抽出（dinner）
+      // パターン: c-rating-v3__time--dinner の後に ￥([0-9,]+)～￥([0-9,]+)
+      const dinnerPattern = /c-rating-v3__time--dinner[^>]*>[\s\S]*?￥([0-9,]+)～￥([0-9,]+)/;
+      const dinnerMatch = html.match(dinnerPattern);
+
+      if (dinnerMatch && dinnerMatch[1] && dinnerMatch[2]) {
+        const dinnerMin = dinnerMatch[1].replace(/,/g, '');
+        const dinnerMax = dinnerMatch[2].replace(/,/g, '');
+        budgetOptionsList.push({
+          label: `￥${parseInt(dinnerMin, 10).toLocaleString()}～￥${parseInt(dinnerMax, 10).toLocaleString()}（夜）`,
+          min: dinnerMin,
+          max: dinnerMax,
+        });
+      }
+
+      // 昼予算を抽出（lunch）
+      // パターン: c-rating-v3__time--lunch の後に ￥([0-9,]+)～￥([0-9,]+)
+      const lunchPattern = /c-rating-v3__time--lunch[^>]*>[\s\S]*?￥([0-9,]+)～￥([0-9,]+)/;
+      const lunchMatch = html.match(lunchPattern);
+
+      if (lunchMatch && lunchMatch[1] && lunchMatch[2]) {
+        const lunchMin = lunchMatch[1].replace(/,/g, '');
+        const lunchMax = lunchMatch[2].replace(/,/g, '');
+        budgetOptionsList.push({
+          label: `￥${parseInt(lunchMin, 10).toLocaleString()}～￥${parseInt(lunchMax, 10).toLocaleString()}（昼）`,
+          min: lunchMin,
+          max: lunchMax,
+        });
+      }
+
+      if (budgetOptionsList.length > 0) {
+        budgetOptions = budgetOptionsList;
+        // デフォルトで夜予算を選択（夜予算がない場合は昼予算）
+        const dinnerBudget = budgetOptionsList.find(opt => opt.label.includes('夜'));
+        const defaultBudget = dinnerBudget || budgetOptionsList[0];
+        if (defaultBudget) {
+          budgetMin = defaultBudget.min;
+          budgetMax = defaultBudget.max;
+        }
+      }
+    }
+
+    // ぐるなびの予算情報を抽出（3つのオプションを取得）
+    if (parsedUrl.hostname.includes('gurunavi.com') || parsedUrl.hostname.includes('gnavi.co.jp')) {
+      const budgetOptionsList: Array<{ label: string; min: string; max: string }> = [];
+
+      // 通常平均、宴会平均、ランチ平均を順に抽出
+      const patterns = [
+        { type: '通常平均', label: '通常平均' },
+        { type: '宴会平均', label: '宴会平均' },
+        { type: 'ランチ平均', label: 'ランチ平均' },
+      ];
+
+      for (const pattern of patterns) {
+        // パターン1: pricerangeクラスがある場合（通常平均）
+        let budgetPattern = new RegExp(`<span[^>]*pricerange[^>]*>([0-9,]+)<\/span>円（${pattern.type}）`);
+        let budgetMatch = html.match(budgetPattern);
+
+        // パターン2: pricerangeクラスがない場合（宴会平均、ランチ平均）
+        if (!budgetMatch) {
+          budgetPattern = new RegExp(`<li>[\\s\\S]*?([0-9,]+)円（${pattern.type}）`);
+          budgetMatch = html.match(budgetPattern);
+        }
+
+        // パターン3: 複数行や空白に対応（pricerangeクラスあり）
+        if (!budgetMatch) {
+          budgetPattern = new RegExp(`<span[^>]*pricerange[^>]*>[\\s\\S]*?([0-9,]+)[\\s\\S]*?<\/span>[\\s\\S]*?円[\\s\\S]*?（${pattern.type}）`);
+          budgetMatch = html.match(budgetPattern);
+        }
+
+        if (budgetMatch && budgetMatch[1]) {
+          const budgetValue = budgetMatch[1].replace(/,/g, '');
+          budgetOptionsList.push({
+            label: `${parseInt(budgetValue, 10).toLocaleString()}円（${pattern.label}）`,
+            min: budgetValue,
+            max: budgetValue,
+          });
+        }
+      }
+
+      if (budgetOptionsList.length > 0) {
+        budgetOptions = budgetOptionsList;
+        // デフォルトで通常平均を選択
+        const normalAverage = budgetOptionsList.find(opt => opt.label.includes('通常平均'));
+        if (normalAverage) {
+          budgetMin = normalAverage.min;
+          budgetMax = normalAverage.max;
+        }
+      }
+    }
+
+    if (!hasOGPData) {
+      return {
+        title: 'お店の情報を取得できませんでした',
+        image: null,
+        description: null,
+        budgetMin: undefined,
+        budgetMax: undefined,
+        budgetOptions: undefined,
+        error: 'サイトが OGP に対応していない or 入力された URL が不正です。'
+      };
+    }
+
+    return {
+      title: title.trim(),
+      image: image || null,
+      description,
+      budgetMin,
+      budgetMax,
+      budgetOptions,
+      error: undefined
+    };
   } catch (error) {
     console.error('Error fetching OGP data:', error);
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-    return { title: 'お店の情報を取得できませんでした', image: null, description: null, error: errorMessage };
+    return { title: 'お店の情報を取得できませんでした', image: null, description: null, budgetMin: undefined, budgetMax: undefined, budgetOptions: undefined, error: errorMessage };
   }
 }
 

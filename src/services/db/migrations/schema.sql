@@ -32,6 +32,8 @@ CREATE TABLE IF NOT EXISTS poll_options (
   title TEXT DEFAULT '店舗情報を取得中...',
   description TEXT DEFAULT '説明を取得中...',
   image TEXT,
+  budgetMin TEXT,
+  budgetMax TEXT,
   votes INTEGER DEFAULT 0,
   voters TEXT DEFAULT '[]',
   FOREIGN KEY (pollId) REFERENCES polls (id) ON DELETE CASCADE

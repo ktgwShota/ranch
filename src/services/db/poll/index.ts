@@ -57,12 +57,14 @@ export async function createPoll(data: CreatePollData, env: { DB: D1Database }) 
       // D1はundefinedをサポートしていないので、nullに変換
       const image = option.image ?? null;
       const description = option.description ?? null;
+      const budgetMin = option.budgetMin ?? null;
+      const budgetMax = option.budgetMax ?? null;
       await db
         .prepare(`
-        INSERT INTO poll_options (pollId, optionId, url, title, description, image, votes, voters)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        INSERT INTO poll_options (pollId, optionId, url, title, description, image, budgetMin, budgetMax, votes, voters)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       `)
-        .bind(pollId, optionId, option.url, option.title, description, image, 0, JSON.stringify([]))
+        .bind(pollId, optionId, option.url, option.title, description, image, budgetMin, budgetMax, 0, JSON.stringify([]))
         .run();
     }
 
@@ -100,6 +102,8 @@ export async function getPoll(pollId: string, env: { DB: D1Database }): Promise<
       title: option.title,
       description: option.description,
       image: option.image,
+      budgetMin: option.budgetMin ?? undefined,
+      budgetMax: option.budgetMax ?? undefined,
       votes: option.votes,
       voters: JSON.parse(option.voters as string),
     })),
@@ -128,6 +132,8 @@ export async function getPolls(env: { DB: D1Database }) {
         title: option.title,
         description: option.description,
         image: option.image,
+        budgetMin: option.budgetMin ?? undefined,
+        budgetMax: option.budgetMax ?? undefined,
         votes: option.votes,
         voters: JSON.parse(option.voters as string),
       })),
@@ -225,10 +231,10 @@ export async function votePoll(data: VoteData, env: { DB: D1Database }) {
     voters.push({ id: data.voterId, name: data.voterName });
     await db
       .prepare(`
-      UPDATE poll_options 
-      SET votes = ?, voters = ?
-      WHERE pollId = ? AND optionId = ?
-    `)
+    UPDATE poll_options 
+    SET votes = ?, voters = ?
+    WHERE pollId = ? AND optionId = ?
+  `)
       .bind((option.votes as number) + 1, JSON.stringify(voters), data.pollId, data.optionId)
       .run();
   }

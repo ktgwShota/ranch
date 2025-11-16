@@ -1,10 +1,13 @@
+'use client';
+
+import { useEffect, useRef } from 'react';
 import { Delete as DeleteIcon } from '@mui/icons-material';
 import { Box, Divider, IconButton } from '@mui/material';
 import { PollOption } from '../types';
 import { UrlInput } from './UrlInput';
 import { BudgetSelector } from './BudgetSelector';
 import { DescriptionInput } from './DescriptionInput';
-import { OGPPreview } from '../../../components/OGPPreview';
+import { validateUrl } from '@/utils/url';
 
 export function OptionCard({
   option,
@@ -21,6 +24,102 @@ export function OptionCard({
   onOptionChange: (updates: Partial<PollOption>) => void;
   onRemove: () => void;
 }) {
+  const onOptionChangeRef = useRef(onOptionChange);
+  const optionRef = useRef(option);
+
+  // onOptionChangeとoptionの最新の参照を保持
+  useEffect(() => {
+    onOptionChangeRef.current = onOptionChange;
+    optionRef.current = option;
+  }, [onOptionChange, option]);
+
+  // OGPデータを取得（プレビューは表示しない）
+  useEffect(() => {
+    // URLが空、またはバリデーションエラーがある場合は取得しない
+    if (!option.url.trim() || validateUrl(option.url) !== null) {
+      const updates: Partial<PollOption> = {};
+      // URLが空になった場合は、budgetOptionsをクリア
+      if (optionRef.current.budgetOptions) {
+        updates.budgetOptions = undefined;
+        // ぐるなびのオプションから選択した予算もクリア
+        const wasGurunaviBudget = optionRef.current.budgetOptions.some(
+          opt => opt.min === optionRef.current.budgetMin && opt.max === optionRef.current.budgetMax
+        );
+        if (wasGurunaviBudget) {
+          updates.budgetMin = undefined;
+          updates.budgetMax = undefined;
+        }
+      }
+      // 更新がある場合のみonOptionChangeを呼ぶ
+      if (Object.keys(updates).length > 0) {
+        onOptionChangeRef.current(updates);
+      }
+      return;
+    }
+
+    // debounce処理
+    const timer = setTimeout(async () => {
+      try {
+        const response = await fetch('/api/ogp', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ url: option.url }),
+        });
+
+        const responseData = await response.json().catch(() => null);
+        if (!responseData) return;
+
+        const data = responseData as {
+          title?: string;
+          description?: string | null;
+          budgetMin?: string;
+          budgetMax?: string;
+          budgetOptions?: Array<{ label: string; min: string; max: string }>;
+        };
+
+        const updates: Partial<PollOption> = {};
+
+        // budgetOptionsを更新（値が実際に変更された場合のみ）
+        const budgetOptionsChanged = JSON.stringify(optionRef.current.budgetOptions) !== JSON.stringify(data.budgetOptions);
+        if (budgetOptionsChanged) {
+          updates.budgetOptions = data.budgetOptions || undefined;
+        }
+
+        // 予算情報が自動取得された場合、既に手動で設定されていない場合のみ自動設定
+        if (data.budgetMin && data.budgetMax) {
+          // 既に予算が設定されていない場合のみ自動設定
+          if (!optionRef.current.budgetMin && !optionRef.current.budgetMax) {
+            updates.budgetMin = data.budgetMin;
+            updates.budgetMax = data.budgetMax;
+            updates.showCustomBudget = true;
+          }
+        } else {
+          // 予算情報がない場合で、ぐるなびから別のURLに変更した場合のみ予算をクリア
+          // （budgetOptionsがあったが、新しいデータにはない場合）
+          if (optionRef.current.budgetOptions && !data.budgetOptions) {
+            // ただし、手動で入力された予算は保持する
+            // （ぐるなびのオプションから選択した予算のみクリア）
+            const wasGurunaviBudget = optionRef.current.budgetOptions.some(
+              opt => opt.min === optionRef.current.budgetMin && opt.max === optionRef.current.budgetMax
+            );
+            if (wasGurunaviBudget) {
+              updates.budgetMin = undefined;
+              updates.budgetMax = undefined;
+            }
+          }
+        }
+
+        // 更新がある場合のみonOptionChangeを呼ぶ
+        if (Object.keys(updates).length > 0) {
+          onOptionChangeRef.current(updates);
+        }
+      } catch (error) {
+        console.error('Error fetching OGP:', error);
+      }
+    }, 800);
+
+    return () => clearTimeout(timer);
+  }, [option.url]);
 
   return (
     <Box
@@ -58,7 +157,6 @@ export function OptionCard({
             onChange={(value) => onOptionChange({ url: value })}
             error={urlError}
           />
-          <OGPPreview url={option.url} size="small" />
         </Box>
         {canRemove && (
           <IconButton

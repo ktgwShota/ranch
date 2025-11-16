@@ -18,6 +18,8 @@ export interface DBPollOption {
   title: string;
   description: string | undefined;
   image?: string;
+  budgetMin?: string;
+  budgetMax?: string;
   votes: number;
   voters: Array<{ id: string; name: string }>; // JSON.parseでVoter[]に変換される
 }

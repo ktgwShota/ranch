@@ -181,15 +181,147 @@ async function fetchOGPData(url: string) {
     image = `${baseUrl.protocol}//${baseUrl.host}${image.startsWith('/') ? '' : '/'}${image}`;
   }
 
+  // 説明を取得
+  let description =
+    extractMetaContent(html, 'og:description') ||
+    extractMetaContent(html, 'twitter:description') ||
+    extractMetaContent(html, 'description') ||
+    null;
+
+  // 定型文を除外
+  if (description) {
+    // ぐるなびの定型文を除外
+    if (parsedUrl.hostname.includes('gurunavi.com') || parsedUrl.hostname.includes('gnavi.co.jp')) {
+      // 【】で囲まれた部分を削除
+      description = description.replace(/【[^】]*】/g, '').trim();
+      // 「（店名）の店舗情報をご紹介。お店のウリキーワード：...など。楽天ぐるなびなら店舗の詳細なメニューの情報やクーポン情報など、「（店名）」の情報が満載です。」を削除
+      description = description.replace(/.+の店舗情報をご紹介[\s\S]*?お店のウリキーワード[\s\S]*?など。楽天ぐるなびなら店舗の詳細なメニューの情報やクーポン情報など[\s\S]*?の情報が満載です[。.]*/g, '').trim();
+    }
+
+    // 食べログの定型文を除外
+    if (parsedUrl.hostname.includes('tabelog.com') || parsedUrl.hostname.includes('tabelog.jp')) {
+      // ★★★☆☆3.30 ■ のような評価と記号を削除
+      description = description.replace(/^[★☆\s]*[\d.]+\s*■\s*/, '');
+      // ■予算(夜):￥4,000～￥4,999 のような予算情報を削除
+      description = description.replace(/■予算[^■]*/g, '');
+      // 先頭の■を削除
+      description = description.replace(/^■\s*/, '').trim();
+    }
+
+    // 空になった場合はnullに
+    if (!description || description.length === 0) {
+      description = null;
+    }
+  }
+
+  // 予算情報を抽出
+  let budgetMin: string | undefined = undefined;
+  let budgetMax: string | undefined = undefined;
+  let budgetOptions: Array<{ label: string; min: string; max: string }> | undefined = undefined;
+
+  // 食べログの予算情報を抽出（HTMLから昼予算と夜予算を取得）
+  if (parsedUrl.hostname.includes('tabelog.com') || parsedUrl.hostname.includes('tabelog.jp')) {
+    const budgetOptionsList: Array<{ label: string; min: string; max: string }> = [];
+
+    // 夜予算を抽出（dinner）
+    // パターン: c-rating-v3__time--dinner の後に ￥([0-9,]+)～￥([0-9,]+)
+    const dinnerPattern = /c-rating-v3__time--dinner[^>]*>[\s\S]*?￥([0-9,]+)～￥([0-9,]+)/;
+    const dinnerMatch = html.match(dinnerPattern);
+
+    if (dinnerMatch && dinnerMatch[1] && dinnerMatch[2]) {
+      const dinnerMin = dinnerMatch[1].replace(/,/g, '');
+      const dinnerMax = dinnerMatch[2].replace(/,/g, '');
+      budgetOptionsList.push({
+        label: `￥${parseInt(dinnerMin, 10).toLocaleString()}～￥${parseInt(dinnerMax, 10).toLocaleString()}（夜）`,
+        min: dinnerMin,
+        max: dinnerMax,
+      });
+    }
+
+    // 昼予算を抽出（lunch）
+    // パターン: c-rating-v3__time--lunch の後に ￥([0-9,]+)～￥([0-9,]+)
+    const lunchPattern = /c-rating-v3__time--lunch[^>]*>[\s\S]*?￥([0-9,]+)～￥([0-9,]+)/;
+    const lunchMatch = html.match(lunchPattern);
+
+    if (lunchMatch && lunchMatch[1] && lunchMatch[2]) {
+      const lunchMin = lunchMatch[1].replace(/,/g, '');
+      const lunchMax = lunchMatch[2].replace(/,/g, '');
+      budgetOptionsList.push({
+        label: `￥${parseInt(lunchMin, 10).toLocaleString()}～￥${parseInt(lunchMax, 10).toLocaleString()}（昼）`,
+        min: lunchMin,
+        max: lunchMax,
+      });
+    }
+
+    if (budgetOptionsList.length > 0) {
+      budgetOptions = budgetOptionsList;
+      // デフォルトで夜予算を選択（夜予算がない場合は昼予算）
+      const dinnerBudget = budgetOptionsList.find(opt => opt.label.includes('夜'));
+      const defaultBudget = dinnerBudget || budgetOptionsList[0];
+      if (defaultBudget) {
+        budgetMin = defaultBudget.min;
+        budgetMax = defaultBudget.max;
+      }
+    }
+  }
+
+  // ぐるなびの予算情報を抽出（3つのオプションを取得）
+  if (parsedUrl.hostname.includes('gurunavi.com') || parsedUrl.hostname.includes('gnavi.co.jp')) {
+    const budgetOptionsList: Array<{ label: string; min: string; max: string }> = [];
+
+    // 通常平均、宴会平均、ランチ平均を順に抽出
+    const patterns = [
+      { type: '通常平均', label: '通常平均' },
+      { type: '宴会平均', label: '宴会平均' },
+      { type: 'ランチ平均', label: 'ランチ平均' },
+    ];
+
+    for (const pattern of patterns) {
+      // パターン1: pricerangeクラスがある場合（通常平均）
+      let budgetPattern = new RegExp(`<span[^>]*pricerange[^>]*>([0-9,]+)<\/span>円（${pattern.type}）`);
+      let budgetMatch = html.match(budgetPattern);
+
+      // パターン2: pricerangeクラスがない場合（宴会平均、ランチ平均）
+      if (!budgetMatch) {
+        budgetPattern = new RegExp(`<li>[\\s\\S]*?([0-9,]+)円（${pattern.type}）`);
+        budgetMatch = html.match(budgetPattern);
+      }
+
+      // パターン3: 複数行や空白に対応（pricerangeクラスあり）
+      if (!budgetMatch) {
+        budgetPattern = new RegExp(`<span[^>]*pricerange[^>]*>[\\s\\S]*?([0-9,]+)[\\s\\S]*?<\/span>[\\s\\S]*?円[\\s\\S]*?（${pattern.type}）`);
+        budgetMatch = html.match(budgetPattern);
+      }
+
+      if (budgetMatch && budgetMatch[1]) {
+        const budgetValue = budgetMatch[1].replace(/,/g, '');
+        budgetOptionsList.push({
+          label: `${parseInt(budgetValue, 10).toLocaleString()}円（${pattern.label}）`,
+          min: budgetValue,
+          max: budgetValue,
+        });
+      }
+    }
+
+    if (budgetOptionsList.length > 0) {
+      budgetOptions = budgetOptionsList;
+      // デフォルトで通常平均を選択
+      const normalAverage = budgetOptionsList.find(opt => opt.label.includes('通常平均'));
+      if (normalAverage) {
+        budgetMin = normalAverage.min;
+        budgetMax = normalAverage.max;
+      }
+    }
+  }
+
   // その他のOGP情報を取得（標準OGP + Twitter Card + その他）
   const ogpData = {
     title: title.trim(),
     image: image || null,
-    description:
-      extractMetaContent(html, 'og:description') ||
-      extractMetaContent(html, 'twitter:description') ||
-      extractMetaContent(html, 'description') ||
-      null,
+    description,
+    budgetMin,
+    budgetMax,
+    budgetOptions,
     url: extractMetaContent(html, 'og:url') || url,
     type: extractMetaContent(html, 'og:type') || null,
     siteName: extractMetaContent(html, 'og:site_name') || null,
