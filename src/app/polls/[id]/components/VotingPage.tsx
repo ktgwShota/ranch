@@ -2,25 +2,26 @@
 
 import { Box, Snackbar } from '@mui/material';
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { useVoter } from '../hooks/useVoter';
 import { usePollTimer } from '../hooks/usePollTimer';
 import { useVote } from '../hooks/useVote';
 import { Header } from './Header';
 import { OptionCard } from './OptionCard';
-import { ResultPage } from './ResultPage';
 import { VoterNameDialog } from './VoterNameDialog';
 import { useTutorialContext } from '@/app/contexts/TutorialContext';
 import PollResultDialog from '@/app/components/PollResultDialog';
 import type { DBPoll as Poll } from '@/services/db/poll/types';
 
-interface PageClientProps {
-  initialPoll: Poll;
+interface VotingPageProps {
   pollId: string;
+  initialPoll: Poll;
 }
 
-export default function PageClient({ initialPoll, pollId }: PageClientProps) {
+export default function VotingPage({ pollId, initialPoll }: VotingPageProps) {
   const [poll, setPoll] = useState<Poll | null>(initialPoll);
   const { setupTutorial } = useTutorialContext();
+  const router = useRouter();
 
   const {
     userName,
@@ -28,7 +29,6 @@ export default function PageClient({ initialPoll, pollId }: PageClientProps) {
     nameDialogOpen,
     tempName,
     setTempName,
-    setNameDialogOpen,
     handleNameSubmit,
     checkAndOpenDialog,
   } = useVoter(pollId);
@@ -40,25 +40,27 @@ export default function PageClient({ initialPoll, pollId }: PageClientProps) {
 
   // チュートリアルを開始
   useEffect(() => {
-    if (!isPollClosed) {
-      setupTutorial(
-        [
-          {
-            elementId: 'poll-settings-button',
-            title: 'メニュー',
-            description: `このアイコンをクリックすると各種設定を操作できるメニューが表示されます。`,
-            position: 'bottom',
-          }
-        ],
-        'tutorial-poll-settings-button'
-      );
-    }
-  }, [poll, isPollClosed, setupTutorial]);
+    setupTutorial(
+      [
+        {
+          elementId: 'poll-settings-button',
+          title: 'メニュー',
+          description: `このアイコンをクリックすると各種設定を操作できるメニューが表示されます。`,
+          position: 'bottom',
+        }
+      ],
+      'tutorial-poll-settings-button'
+    );
+  }, [poll, setupTutorial]);
 
-  const getWinningOption = () => {
-    if (!poll || poll.options.length === 0) return null;
-    return poll.options.reduce((max, option) => (option.votes > max.votes ? option : max));
-  };
+  // タイマーで自動的に投票が終了した場合、サーバー側で再評価させる
+  useEffect(() => {
+    if (isPollClosed && poll && poll.isClosed === 0) {
+      // クライアント側でタイマーが終了したが、サーバー側ではまだ終了していない場合
+      // サーバー側で再評価させる
+      router.refresh();
+    }
+  }, [isPollClosed, poll, router]);
 
   const endPoll = async () => {
     if (!poll) return;
@@ -74,12 +76,8 @@ export default function PageClient({ initialPoll, pollId }: PageClientProps) {
       });
 
       if (response.ok) {
-        const updatedPollData = (await fetch(`/api/polls/${poll.id}`).then((res) =>
-          res.json()
-        )) as Poll;
-        setPoll(updatedPollData);
-        setSnackbarMessage('投票を終了しました');
-        setSnackbarOpen(true);
+        // サーバー側で再評価させるため、ページをリロード
+        router.refresh();
       } else {
         setSnackbarMessage('投票の終了に失敗しました');
         setSnackbarOpen(true);
@@ -94,19 +92,9 @@ export default function PageClient({ initialPoll, pollId }: PageClientProps) {
   };
 
   const totalVotes = poll?.options.reduce((sum, option) => sum + option.votes, 0) || 0;
-  const winningOption = getWinningOption();
-
-  // 投票が終了している場合は結果ページを表示
-  if (poll && isPollClosed) {
-    return (
-      <Box sx={{ maxWidth: '900px', mx: 'auto', py: { xs: 2.5, sm: 3, md: 4 }, px: { xs: 2, sm: 3 }, boxSizing: 'border-box' }}>
-        <ResultPage poll={poll} totalVotes={totalVotes} winningOption={winningOption} />
-      </Box>
-    );
-  }
 
   return (
-    <Box sx={{ maxWidth: '900px', mx: 'auto', py: { xs: 2.5, sm: 3, md: 4 }, px: { xs: 2, sm: 3 }, boxSizing: 'border-box' }}>
+    <>
       <Box>
         <Header
           poll={poll}
@@ -130,8 +118,7 @@ export default function PageClient({ initialPoll, pollId }: PageClientProps) {
           {poll?.options.map((option) => {
             const isVoted = isVotedByUser(option);
             const isVoting = voting === option.id;
-            const isDecided = !!(isPollClosed && winningOption && option.id === winningOption.id);
-            const isDisabled = !!(isPollClosed && !isDecided);
+            const isDisabled = isPollClosed;
 
             return (
               <OptionCard
@@ -141,7 +128,6 @@ export default function PageClient({ initialPoll, pollId }: PageClientProps) {
                 isVoted={isVoted}
                 isVoting={isVoting}
                 isDisabled={isDisabled}
-                isDecided={isDecided}
                 isPollClosed={isPollClosed}
                 onVote={() => vote(option.id)}
               />
@@ -180,7 +166,7 @@ export default function PageClient({ initialPoll, pollId }: PageClientProps) {
         onClose={() => setSnackbarOpen(false)}
         message={snackbarMessage}
       />
-    </Box>
+    </>
   );
 }
 

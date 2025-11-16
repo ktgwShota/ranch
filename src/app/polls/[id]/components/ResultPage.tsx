@@ -1,6 +1,7 @@
-import { Box, Button, Card, Paper, Typography, LinearProgress, Avatar, Divider } from '@mui/material';
-import { BarChart as BarChartIcon, Share as ShareIcon, EmojiEvents as TrophyIcon, Restaurant as RestaurantIcon } from '@mui/icons-material';
+import { Box, Paper, Typography, LinearProgress, Avatar, Divider } from '@mui/material';
+import { BarChart as BarChartIcon, EmojiEvents as TrophyIcon } from '@mui/icons-material';
 import type { DBPoll as Poll, DBPollOption as Option } from '@/services/db/poll/types';
+import { ResultPageClient } from './ResultPageClient';
 
 interface ResultPageProps {
   poll: Poll;
@@ -13,19 +14,6 @@ export function ResultPage({ poll, totalVotes, winningOption }: ResultPageProps)
   const allVoters = poll.options.flatMap((option) =>
     option.voters.map((voter) => ({ ...voter, votedFor: option.title || option.url }))
   );
-
-  const handleShare = () => {
-    if (navigator.share) {
-      navigator.share({
-        title: poll.title,
-        text: `投票結果: ${poll.title}`,
-        url: window.location.href,
-      });
-    } else {
-      navigator.clipboard.writeText(window.location.href);
-      alert('URLをクリップボードにコピーしました');
-    }
-  };
 
   return (
     <Box sx={{ display: 'flex', gap: 1.5, flexDirection: { xs: 'column', md: 'row' }, width: '100%', boxSizing: 'border-box' }}>
@@ -48,22 +36,7 @@ export function ResultPage({ poll, totalVotes, winningOption }: ResultPageProps)
                 投票結果
               </Typography>
             </Box>
-            <Button
-              variant="contained"
-              startIcon={<ShareIcon />}
-              onClick={handleShare}
-              sx={{
-                backgroundColor: '#3b82f6',
-                textTransform: 'none',
-                borderRadius: 0.5,
-                px: 2,
-                '&:hover': {
-                  backgroundColor: '#2563eb',
-                },
-              }}
-            >
-              結果を共有する
-            </Button>
+            <ResultPageClient poll={poll} />
           </Box>
 
           <Typography variant="body1" sx={{ color: '#111827', mb: 1 }}>
