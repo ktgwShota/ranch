@@ -1,7 +1,17 @@
-import { Box, Button, Typography, Skeleton, IconButton, Menu, MenuItem, ListItemIcon, ListItemText } from '@mui/material';
-import { Stop as StopIcon, Settings as SettingsIcon } from '@mui/icons-material';
+import {
+  Box,
+  Typography,
+  Skeleton,
+  IconButton,
+  Menu,
+  MenuItem,
+  ListItemIcon,
+  ListItemText,
+} from '@mui/material';
+import { Stop as StopIcon, Settings as SettingsIcon, Edit as EditIcon } from '@mui/icons-material';
 import { useState } from 'react';
 import type { DBPoll as Poll } from '@/services/db/poll/types';
+import { CustomDialog } from '@/app/components/CustomDialog';
 
 interface HeaderProps {
   poll: Poll | null;
@@ -9,6 +19,8 @@ interface HeaderProps {
   timeRemaining: number | null;
   formatTime: (seconds: number) => string;
   onEndPoll: () => void;
+  onChangeVoterName: () => void;
+  hasVoterName: boolean;
 }
 
 export function Header({
@@ -17,8 +29,11 @@ export function Header({
   timeRemaining,
   formatTime,
   onEndPoll,
+  onChangeVoterName,
+  hasVoterName,
 }: HeaderProps) {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
   const open = Boolean(anchorEl);
 
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
@@ -29,8 +44,22 @@ export function Header({
     setAnchorEl(null);
   };
 
-  const handleEndPoll = () => {
+  const handleEndPollClick = () => {
+    setConfirmDialogOpen(true);
+    handleClose();
+  };
+
+  const handleConfirmEndPoll = () => {
+    setConfirmDialogOpen(false);
     onEndPoll();
+  };
+
+  const handleCancelEndPoll = () => {
+    setConfirmDialogOpen(false);
+  };
+
+  const handleChangeVoterName = () => {
+    onChangeVoterName();
     handleClose();
   };
 
@@ -152,14 +181,74 @@ export function Header({
                     vertical: 'top',
                     horizontal: 'right',
                   }}
+                  PaperProps={{
+                    elevation: 8,
+                    sx: {
+                      mt: 1.5,
+                      minWidth: 200,
+                      borderRadius: 2,
+                      border: '1px solid #e5e7eb',
+                      boxShadow: '0 4px 16px rgba(0, 0, 0, 0.1)',
+                      overflow: 'hidden',
+                    },
+                  }}
+                  MenuListProps={{
+                    sx: {
+                      py: 0.5,
+                    },
+                  }}
                 >
-                  <MenuItem onClick={handleEndPoll}>
-                    <ListItemIcon>
-                      <StopIcon fontSize="small" sx={{ color: '#f44336' }} />
+                  {hasVoterName && (
+                    <MenuItem
+                      onClick={handleChangeVoterName}
+                      sx={{
+                        py: 1.5,
+                        px: 2,
+                        '&:hover': {
+                          backgroundColor: '#f3f4f6',
+                        },
+                        '&:active': {
+                          backgroundColor: '#e5e7eb',
+                        },
+                      }}
+                    >
+                      <ListItemIcon sx={{ minWidth: 40 }}>
+                        <EditIcon fontSize="small" sx={{ color: '#3b82f6' }} />
+                      </ListItemIcon>
+                      <ListItemText
+                        primary="投票者名を変更する"
+                        primaryTypographyProps={{
+                          fontSize: '0.875rem',
+                          fontWeight: 500,
+                          color: '#374151',
+                        }}
+                      />
+                    </MenuItem>
+                  )}
+                  <MenuItem
+                    onClick={handleEndPollClick}
+                    sx={{
+                      py: 1.5,
+                      px: 2,
+                      '&:hover': {
+                        backgroundColor: '#fef2f2',
+                      },
+                      '&:active': {
+                        backgroundColor: '#fee2e2',
+                      },
+                    }}
+                  >
+                    <ListItemIcon sx={{ minWidth: 40 }}>
+                      <StopIcon fontSize="small" sx={{ color: '#ef4444' }} />
                     </ListItemIcon>
-                    <ListItemText>
-                      投票を終了
-                    </ListItemText>
+                    <ListItemText
+                      primary="投票を終了"
+                      primaryTypographyProps={{
+                        fontSize: '0.875rem',
+                        fontWeight: 500,
+                        color: '#dc2626',
+                      }}
+                    />
                   </MenuItem>
                 </Menu>
               </>
@@ -167,6 +256,19 @@ export function Header({
           </Box>
         </Box>
       )}
+
+      <CustomDialog
+        open={confirmDialogOpen}
+        onClose={handleCancelEndPoll}
+        title="投票を終了しますか？"
+        description="投票を終了すると結果が全員に表示され、以降は新しい投票を受け付けなくなります。この操作は取り消せません。"
+        confirmLabel="投票を終了"
+        onConfirm={handleConfirmEndPoll}
+        confirmButtonColor="error"
+        confirmButtonProps={{
+          startIcon: <StopIcon />,
+        }}
+      />
     </Box>
   );
 }

@@ -37,7 +37,7 @@ export default async function Page({ params }: PageProps) {
           dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
         />
 
-        <Box sx={{ maxWidth: '900px', mx: 'auto', py: { xs: 2.5, sm: 3, md: 4 }, px: { xs: 2, sm: 3 }, boxSizing: 'border-box' }}>
+        <Box sx={{ maxWidth: '900px', mx: 'auto', py: { xs: 2, sm: 2.5 }, px: { xs: 2, sm: 2.5 }, boxSizing: 'border-box' }}>
           {isClosed ? (
             <ResultPage poll={pollData} totalVotes={totalVotes} winningOption={winningOption} />
           ) : (

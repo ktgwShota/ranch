@@ -44,6 +44,13 @@ export interface VoteData {
   pollId: string;
   optionId: number;
   voterId: string;
+  voterName: string;
+}
+
+export interface UpdateVoterNameData {
+  pollId: string;
+  voterId: string;
+  voterName: string;
 }
 
 export interface DBResult<T = any> {

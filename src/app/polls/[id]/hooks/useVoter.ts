@@ -24,12 +24,14 @@ export function useVoter(pollId: string) {
     // 初期表示時にはダイアログを開かない
   }, [pollId]);
 
-  const handleNameSubmit = () => {
+  const handleNameSubmit = async () => {
     if (tempName.trim()) {
-      const newUserId = `voter_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      const newName = tempName.trim();
+      // userIdがない場合は新しく生成
+      const newUserId = userId || `voter_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
       const userInfo = {
         id: newUserId,
-        name: tempName.trim(),
+        name: newName,
       };
 
       setUserName(userInfo.name);
@@ -38,6 +40,24 @@ export function useVoter(pollId: string) {
       // ローカルストレージに保存
       const storageKey = `voterInfo_${pollId}`;
       localStorage.setItem(storageKey, JSON.stringify(userInfo));
+
+      // データベースの投票者名も更新（投票済みの場合のみ、userIdが既に存在する場合）
+      if (userId) {
+        try {
+          await fetch(`/api/polls/${pollId}/voter-name`, {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              voterId: userId,
+              voterName: newName,
+            }),
+          });
+        } catch (error) {
+          console.error('Error updating voter name:', error);
+        }
+      }
 
       setNameDialogOpen(false);
     }

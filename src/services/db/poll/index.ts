@@ -5,6 +5,7 @@ import {
   type DBPollOption,
   type DBResult,
   type UpdatePollData,
+  type UpdateVoterNameData,
   type VoteData,
 } from './types';
 
@@ -169,7 +170,32 @@ export async function closePoll(pollId: string, env: { DB: D1Database }) {
 export async function votePoll(data: VoteData, env: { DB: D1Database }) {
   const db = getDB(env);
 
-  // オプションを取得
+  // まず、他の選択肢から投票を削除（一人一票制）
+  const allOptions = await db
+    .prepare('SELECT * FROM poll_options WHERE pollId = ?')
+    .bind(data.pollId)
+    .all();
+
+  for (const opt of allOptions.results as any[]) {
+    if (opt.optionId !== data.optionId) {
+      const voters = JSON.parse(opt.voters as string) as Array<{ id: string; name: string }>;
+      const voterIndex = voters.findIndex((v) => v.id === data.voterId);
+      if (voterIndex !== -1) {
+        // 他の選択肢から投票を削除
+        voters.splice(voterIndex, 1);
+        await db
+          .prepare(`
+          UPDATE poll_options 
+          SET votes = ?, voters = ?
+          WHERE pollId = ? AND optionId = ?
+        `)
+          .bind((opt.votes as number) - 1, JSON.stringify(voters), data.pollId, opt.optionId)
+          .run();
+      }
+    }
+  }
+
+  // 対象のオプションを取得
   const option = await db
     .prepare('SELECT * FROM poll_options WHERE pollId = ? AND optionId = ?')
     .bind(data.pollId, data.optionId)
@@ -178,26 +204,73 @@ export async function votePoll(data: VoteData, env: { DB: D1Database }) {
     return { success: false, error: 'Option not found' };
   }
 
-  // 既に投票済みかチェック
-  const voters = JSON.parse(option.voters as string);
-  if (voters.includes(data.voterId)) {
-    return { success: false, error: 'Already voted' };
-  }
+  // 既存の投票者リストを取得
+  const voters = JSON.parse(option.voters as string) as Array<{ id: string; name: string }>;
 
-  // 投票を追加
-  voters.push(data.voterId);
-  await db
-    .prepare(`
-    UPDATE poll_options 
-    SET votes = ?, voters = ?
-    WHERE pollId = ? AND optionId = ?
-  `)
-    .bind((option.votes as number) + 1, JSON.stringify(voters), data.pollId, data.optionId)
-    .run();
+  // 既に投票済みかチェック（IDで判定）
+  const existingVoterIndex = voters.findIndex((v) => v.id === data.voterId);
+  if (existingVoterIndex !== -1) {
+    // 既に投票済みの場合は投票を取り消し
+    voters.splice(existingVoterIndex, 1);
+    await db
+      .prepare(`
+      UPDATE poll_options 
+      SET votes = ?, voters = ?
+      WHERE pollId = ? AND optionId = ?
+    `)
+      .bind((option.votes as number) - 1, JSON.stringify(voters), data.pollId, data.optionId)
+      .run();
+  } else {
+    // 新しい投票を追加（IDと名前の両方を保存）
+    voters.push({ id: data.voterId, name: data.voterName });
+    await db
+      .prepare(`
+      UPDATE poll_options 
+      SET votes = ?, voters = ?
+      WHERE pollId = ? AND optionId = ?
+    `)
+      .bind((option.votes as number) + 1, JSON.stringify(voters), data.pollId, data.optionId)
+      .run();
+  }
 
   return {
     success: true,
     data: { pollId: data.pollId, optionId: data.optionId },
+    error: undefined,
+  };
+}
+
+// 投票者名を更新
+export async function updateVoterName(data: UpdateVoterNameData, env: { DB: D1Database }) {
+  const db = getDB(env);
+
+  // すべての選択肢を取得
+  const allOptions = await db
+    .prepare('SELECT * FROM poll_options WHERE pollId = ?')
+    .bind(data.pollId)
+    .all();
+
+  // すべての選択肢で投票者名を更新
+  for (const opt of allOptions.results as any[]) {
+    const voters = JSON.parse(opt.voters as string) as Array<{ id: string; name: string }>;
+    const voterIndex = voters.findIndex((v) => v.id === data.voterId);
+    if (voterIndex !== -1) {
+      // 投票者名を更新
+      voters[voterIndex] = { id: data.voterId, name: data.voterName };
+      await db
+        .prepare(`
+        UPDATE poll_options 
+        SET voters = ?
+        WHERE pollId = ? AND optionId = ?
+      `)
+        .bind(JSON.stringify(voters), data.pollId, opt.optionId)
+        .run();
+    }
+  }
+
+  return {
+    success: true,
+    data: { pollId: data.pollId, voterId: data.voterId },
     error: undefined,
   };
 }

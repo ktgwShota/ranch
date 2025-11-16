@@ -1,6 +1,6 @@
 'use client';
 
-import { Box } from '@mui/material';
+import { Box, TextField } from '@mui/material';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useVoter } from '../hooks/useVoter';
@@ -8,7 +8,7 @@ import { usePollTimer } from '../hooks/usePollTimer';
 import { useVote } from '../hooks/useVote';
 import { Header } from './Header';
 import { OptionCard } from './OptionCard';
-import { TextInputDialog } from '@/app/components/TextInputDialog';
+import { CustomDialog } from '@/app/components/CustomDialog';
 import { useTutorialContext } from '@/app/contexts/TutorialContext';
 import type { DBPoll as Poll } from '@/services/db/poll/types';
 
@@ -19,6 +19,7 @@ interface VotingPageProps {
 
 export default function VotingPage({ pollId, initialPoll }: VotingPageProps) {
   const [poll, setPoll] = useState<Poll | null>(initialPoll);
+  const [nameError, setNameError] = useState<string | null>(null);
   const { setupTutorial } = useTutorialContext();
   const router = useRouter();
 
@@ -28,11 +29,46 @@ export default function VotingPage({ pollId, initialPoll }: VotingPageProps) {
     nameDialogOpen,
     tempName,
     setTempName,
+    setNameDialogOpen,
     handleNameSubmit,
     checkAndOpenDialog,
   } = useVoter(pollId);
   const { isPollClosed, timeRemaining, formatTime } = usePollTimer(poll);
   const { vote, voting, isVotedByUser } = useVote(poll, setPoll, userId, userName, checkAndOpenDialog);
+
+  // 名前入力ダイアログが開くときにエラーをリセット
+  useEffect(() => {
+    if (nameDialogOpen) {
+      setNameError(null);
+    }
+  }, [nameDialogOpen]);
+
+  // 名前変更時に投票データも更新
+  const handleNameSubmitWithPollUpdate = async () => {
+    // バリデーション
+    if (!tempName.trim()) {
+      setNameError('入力は必須です');
+      return;
+    }
+
+    setNameError(null);
+    await handleNameSubmit();
+    // 投票データの名前も更新
+    if (poll && userId) {
+      const updatedOptions = poll.options.map((option) => {
+        const updatedVoters = option.voters.map((voter) =>
+          voter.id === userId ? { ...voter, name: tempName.trim() } : voter
+        );
+        return { ...option, voters: updatedVoters };
+      });
+      setPoll({ ...poll, options: updatedOptions });
+    }
+  };
+
+  const handleNameDialogClose = () => {
+    setNameDialogOpen(false);
+    setNameError(null);
+  };
 
   // チュートリアルを開始
   useEffect(() => {
@@ -90,6 +126,11 @@ export default function VotingPage({ pollId, initialPoll }: VotingPageProps) {
           timeRemaining={timeRemaining}
           formatTime={formatTime}
           onEndPoll={endPoll}
+          onChangeVoterName={() => {
+            setTempName(userName);
+            setNameDialogOpen(true);
+          }}
+          hasVoterName={!!userName && !!userId}
         />
         <Box
           sx={{
@@ -138,15 +179,34 @@ export default function VotingPage({ pollId, initialPoll }: VotingPageProps) {
         </Box>
       </Box>
 
-      <TextInputDialog
+      <CustomDialog
         open={nameDialogOpen}
-        value={tempName}
-        onValueChange={setTempName}
-        onSubmit={handleNameSubmit}
+        onClose={handleNameDialogClose}
         title="投票者名を入力してください"
-        label="お名前"
-        submitLabel="決定"
-      />
+        confirmLabel="決定"
+        onConfirm={handleNameSubmitWithPollUpdate}
+        confirmButtonProps={{
+          disabled: !!nameError || tempName.trim() === '',
+        }}
+      >
+        <TextField
+          autoFocus
+          margin="dense"
+          label="お名前"
+          fullWidth
+          variant="outlined"
+          value={tempName}
+          onChange={(e) => setTempName(e.target.value)}
+          onKeyPress={(e) => {
+            if (e.key === 'Enter' && !nameError && tempName.trim()) {
+              handleNameSubmitWithPollUpdate();
+            }
+          }}
+          error={!!nameError}
+          helperText={nameError}
+          sx={{ mt: 2 }}
+        />
+      </CustomDialog>
     </>
   );
 }

@@ -1,7 +1,7 @@
 import { getCloudflareContext } from '@opennextjs/cloudflare';
-import { votePoll } from '../../../../../services/db/poll';
+import { updateVoterName } from '../../../../../services/db/poll';
 
-export async function POST(req: Request, context: { params: Promise<{ id: string }> }) {
+export async function PUT(req: Request, context: { params: Promise<{ id: string }> }) {
   try {
     const params = await context.params;
 
@@ -10,7 +10,7 @@ export async function POST(req: Request, context: { params: Promise<{ id: string
     try {
       const cloudflareContext = getCloudflareContext();
       env = cloudflareContext.env;
-      console.log('Environment retrieved for POST votes:', !!env?.DB);
+      console.log('Environment retrieved for PUT voter-name:', !!env?.DB);
     } catch (contextError) {
       console.error('Error getting Cloudflare context:', contextError);
       return new Response(
@@ -38,13 +38,13 @@ export async function POST(req: Request, context: { params: Promise<{ id: string
       );
     }
 
-    const body = (await req.json()) as { optionId: number; voterId: string; voterName: string };
-    const { optionId, voterId, voterName } = body;
+    const body = (await req.json()) as { voterId: string; voterName: string };
+    const { voterId, voterName } = body;
 
-    if (!optionId || !voterId || !voterName) {
+    if (!voterId || !voterName) {
       return new Response(
         JSON.stringify({
-          error: 'optionId, voterId, and voterName are required',
+          error: 'voterId and voterName are required',
         }),
         {
           status: 400,
@@ -53,10 +53,9 @@ export async function POST(req: Request, context: { params: Promise<{ id: string
       );
     }
 
-    const result = await votePoll(
+    const result = await updateVoterName(
       {
         pollId: params.id,
-        optionId,
         voterId,
         voterName,
       },
@@ -66,10 +65,10 @@ export async function POST(req: Request, context: { params: Promise<{ id: string
     if (!result.success) {
       return new Response(
         JSON.stringify({
-          error: result.error || 'Failed to vote',
+          error: result.error || 'Failed to update voter name',
         }),
         {
-          status: result.error === 'Option not found' ? 404 : 400,
+          status: 400,
           headers: { 'Content-Type': 'application/json' },
         }
       );
@@ -85,7 +84,7 @@ export async function POST(req: Request, context: { params: Promise<{ id: string
       }
     );
   } catch (error) {
-    console.error('Error in POST /api/polls/[id]/votes:', error);
+    console.error('Error in PUT /api/polls/[id]/voter-name:', error);
     return new Response(
       JSON.stringify({
         error: error instanceof Error ? error.message : 'Unknown error',
@@ -97,3 +96,4 @@ export async function POST(req: Request, context: { params: Promise<{ id: string
     );
   }
 }
+
