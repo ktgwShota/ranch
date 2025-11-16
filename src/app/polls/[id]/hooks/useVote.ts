@@ -6,13 +6,21 @@ export function useVote(
   poll: Poll | null,
   setPoll: Dispatch<SetStateAction<Poll | null>>,
   userId: string,
-  userName: string
+  userName: string,
+  checkAndOpenDialog?: () => boolean
 ) {
   const [voting, setVoting] = useState<number | null>(null);
   const [votedOptions, setVotedOptions] = useState<Set<number>>(new Set());
 
   const vote = async (optionId: number) => {
-    if (!poll || voting || !userId) return;
+    if (!poll || voting) return;
+
+    // 投票者名が存在しない場合はダイアログを開いて投票を中断
+    if (checkAndOpenDialog && !checkAndOpenDialog()) {
+      return;
+    }
+
+    if (!userId || !userName) return;
 
     setVoting(optionId);
 

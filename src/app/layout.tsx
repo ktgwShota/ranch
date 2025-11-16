@@ -6,6 +6,7 @@ import { ThemeProvider } from '@mui/material/styles';
 import { theme } from '@/lib/mui/theme';
 import Footer from './components/Footer';
 import Header from './components/Header';
+import { TutorialProvider } from './contexts/TutorialContext';
 
 const roboto = Roboto({
   weight: ['300', '400', '500', '700'],
@@ -37,9 +38,11 @@ export default function RootLayout({
             }}
           >
             <Header />
-            <Box component="main" sx={{ flexGrow: 1 }}>
-              {children}
-            </Box>
+            <TutorialProvider>
+              <Box component="main" sx={{ flexGrow: 1 }}>
+                {children}
+              </Box>
+            </TutorialProvider>
             <Footer />
           </Box>
         </ThemeProvider>

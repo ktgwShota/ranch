@@ -7,23 +7,21 @@ export function useVoter(pollId: string) {
   const [tempName, setTempName] = useState<string>('');
 
   useEffect(() => {
-    const cookieName = `voterInfo_${pollId}`;
-    const cookies = document.cookie.split(';');
-    const voterCookie = cookies.find((cookie) => cookie.trim().startsWith(`${cookieName}=`));
+    // ローカルストレージから投票者情報を取得
+    const storageKey = `voterInfo_${pollId}`;
+    const storedInfo = localStorage.getItem(storageKey);
 
-    if (voterCookie) {
+    if (storedInfo) {
       try {
-        const cookieValue = decodeURIComponent(voterCookie.split('=')[1]);
-        const userInfo = JSON.parse(cookieValue);
+        const userInfo = JSON.parse(storedInfo);
         setUserName(userInfo.name);
         setUserId(userInfo.id);
       } catch (error) {
         console.error('Error parsing stored user info:', error);
-        setNameDialogOpen(true);
+        localStorage.removeItem(storageKey);
       }
-    } else {
-      setNameDialogOpen(true);
     }
+    // 初期表示時にはダイアログを開かない
   }, [pollId]);
 
   const handleNameSubmit = () => {
@@ -37,15 +35,20 @@ export function useVoter(pollId: string) {
       setUserName(userInfo.name);
       setUserId(userInfo.id);
 
-      // クッキーに保存（7日間有効）
-      const cookieName = `voterInfo_${pollId}`;
-      const cookieValue = encodeURIComponent(JSON.stringify(userInfo));
-      const expires = new Date();
-      expires.setDate(expires.getDate() + 7);
-      document.cookie = `${cookieName}=${cookieValue}; expires=${expires.toUTCString()}; path=/`;
+      // ローカルストレージに保存
+      const storageKey = `voterInfo_${pollId}`;
+      localStorage.setItem(storageKey, JSON.stringify(userInfo));
 
       setNameDialogOpen(false);
     }
+  };
+
+  const checkAndOpenDialog = () => {
+    if (!userId || !userName) {
+      setNameDialogOpen(true);
+      return false;
+    }
+    return true;
   };
 
   return {
@@ -56,6 +59,7 @@ export function useVoter(pollId: string) {
     setTempName,
     setNameDialogOpen,
     handleNameSubmit,
+    checkAndOpenDialog,
   };
 }
 

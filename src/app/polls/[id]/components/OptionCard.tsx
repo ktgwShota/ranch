@@ -37,7 +37,7 @@ export function OptionCard({
         display: 'flex',
         flexDirection: 'column',
         borderRadius: 0.5,
-        border: isDecided ? '3px solid transparent' : '2px solid #e2e8f0',
+        boxShadow: '0 0 5px 1px rgba(0,0,0,0.1)',
         background: isDisabled
           ? 'linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%)'
           : 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
@@ -48,7 +48,7 @@ export function OptionCard({
         [`@media (min-width: 900px)`]: {
           flex: '0 0 calc(50% - 16px)',
         },
-        boxShadow: 'none',
+        // boxShadow: 'none',
         position: 'relative',
         ...(isDisabled && {
           opacity: 0.5,

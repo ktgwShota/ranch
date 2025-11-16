@@ -90,6 +90,19 @@ src/
     └── sqls/            # SQL Files
 ```
 
+### コンポーネント分類ルール
+
+#### ✅ `app/components/` に配置する
+- 複数のページで使用されるコンポーネント
+- 他のコンポーネントや Context に依存しない独立したコンポーネント
+- 例: `Header`, `Footer`, `OGPPreview`, `PollResultDialog`
+
+#### ❌ `app/components/` に配置しない
+- **特定の Context に依存しているコンポーネント** → `app/contexts/` に配置
+  - 例: `app/contexts/TutorialContext.tsx` 内の `Tutorial` コンポーネント
+- **特定のページでのみ使用するコンポーネント** → 該当するページのディレクトリに配置
+  - 例: `app/polls/[id]/components/` 内のコンポーネント
+
 ## 📋 前提条件
 
 - Node.js 20.x 以上

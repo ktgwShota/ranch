@@ -28,20 +28,20 @@ export function PollResultPage({ poll, totalVotes, winningOption }: PollResultPa
   };
 
   return (
-    <Box sx={{ display: 'flex', gap: 1.5, flexDirection: { xs: 'column', lg: 'row' }, width: '100%', boxSizing: 'border-box' }}>
+    <Box sx={{ display: 'flex', gap: 1.5, flexDirection: { xs: 'column', md: 'row' }, width: '100%', boxSizing: 'border-box' }}>
       {/* 左側: 投票結果 */}
       <Box sx={{ flex: 1, minWidth: 0, boxSizing: 'border-box' }}>
         <Paper
           elevation={0}
           sx={{
-            p: { xs: 2, sm: 3, md: 4 },
+            p: { xs: 2, sm: 2, md: 2.5 },
             borderRadius: 0.5,
             border: '1px solid #e5e7eb',
             backgroundColor: 'white',
             boxSizing: 'border-box',
           }}
         >
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 3 }}>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
               <BarChartIcon sx={{ color: '#3b82f6', fontSize: '1.5rem' }} />
               <Typography variant="h5" fontWeight={700} sx={{ color: '#111827' }}>
@@ -66,11 +66,8 @@ export function PollResultPage({ poll, totalVotes, winningOption }: PollResultPa
             </Button>
           </Box>
 
-          <Typography variant="h4" fontWeight={700} sx={{ color: '#111827', mb: 1 }}>
+          <Typography variant="body1" sx={{ color: '#111827', mb: 1 }}>
             {poll.title}
-          </Typography>
-          <Typography variant="body1" sx={{ color: '#6b7280', mb: 4 }}>
-            投票は締め切られました。ご参加ありがとうございました!
           </Typography>
 
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
@@ -96,30 +93,30 @@ export function PollResultPage({ poll, totalVotes, winningOption }: PollResultPa
                     cursor: 'pointer',
                     '&::before': option.image
                       ? {
-                          content: '""',
-                          position: 'absolute',
-                          top: 0,
-                          left: 0,
-                          right: 0,
-                          bottom: 0,
-                          backgroundImage: `url(${option.image})`,
-                          backgroundSize: 'cover',
-                          backgroundPosition: 'center',
-                          opacity: 0.12,
-                          zIndex: 0,
-                        }
+                        content: '""',
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        backgroundImage: `url(${option.image})`,
+                        backgroundSize: 'cover',
+                        backgroundPosition: 'center',
+                        opacity: 0.12,
+                        zIndex: 0,
+                      }
                       : undefined,
                     '&::after': option.image
                       ? {
-                          content: '""',
-                          position: 'absolute',
-                          top: 0,
-                          left: 0,
-                          right: 0,
-                          bottom: 0,
-                          backgroundColor: isWinner ? 'rgba(254, 243, 199, 0.7)' : 'rgba(255, 255, 255, 0.85)',
-                          zIndex: 0,
-                        }
+                        content: '""',
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        backgroundColor: isWinner ? 'rgba(254, 243, 199, 0.7)' : 'rgba(255, 255, 255, 0.85)',
+                        zIndex: 0,
+                      }
                       : undefined,
                     '&:hover': {
                       boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
@@ -162,48 +159,48 @@ export function PollResultPage({ poll, totalVotes, winningOption }: PollResultPa
                       {option.title || option.url}
                     </Typography>
 
-                  <Box sx={{ display: 'flex', alignItems: 'baseline', gap: 1, mb: 2 }}>
-                    <Typography
-                      variant="h4"
-                      sx={{
-                        color: '#111827',
-                        fontWeight: 700,
-                        fontSize: '1.75rem',
-                      }}
-                    >
-                      {option.votes.toLocaleString()}
-                    </Typography>
-                    <Typography variant="body2" sx={{ color: '#6b7280', fontSize: '0.875rem' }}>
-                      票
-                    </Typography>
-                    <Typography
-                      variant="h6"
-                      sx={{
-                        color: '#111827',
-                        fontWeight: 600,
-                        fontSize: '1.25rem',
-                        ml: 'auto',
-                      }}
-                    >
-                      {percentage.toFixed(1)}%
-                    </Typography>
-                  </Box>
+                    <Box sx={{ display: 'flex', alignItems: 'baseline', gap: 1, mb: 2 }}>
+                      <Typography
+                        variant="h4"
+                        sx={{
+                          color: '#111827',
+                          fontWeight: 700,
+                          fontSize: '1.75rem',
+                        }}
+                      >
+                        {option.votes.toLocaleString()}
+                      </Typography>
+                      <Typography variant="body2" sx={{ color: '#6b7280', fontSize: '0.875rem' }}>
+                        票
+                      </Typography>
+                      <Typography
+                        variant="h6"
+                        sx={{
+                          color: '#111827',
+                          fontWeight: 600,
+                          fontSize: '1.25rem',
+                          ml: 'auto',
+                        }}
+                      >
+                        {percentage.toFixed(1)}%
+                      </Typography>
+                    </Box>
 
-                  <LinearProgress
-                    variant="determinate"
-                    value={percentage}
-                    sx={{
-                      height: 12,
-                      borderRadius: 0.5,
-                      backgroundColor: '#e5e7eb',
-                      '& .MuiLinearProgress-bar': {
+                    <LinearProgress
+                      variant="determinate"
+                      value={percentage}
+                      sx={{
+                        height: 12,
                         borderRadius: 0.5,
-                        background: isWinner
-                          ? 'linear-gradient(90deg, #10b981 0%, #059669 100%)'
-                          : 'linear-gradient(90deg, #3b82f6 0%, #2563eb 100%)',
-                      },
-                    }}
-                  />
+                        backgroundColor: '#e5e7eb',
+                        '& .MuiLinearProgress-bar': {
+                          borderRadius: 0.5,
+                          background: isWinner
+                            ? 'linear-gradient(90deg, #10b981 0%, #059669 100%)'
+                            : 'linear-gradient(90deg, #3b82f6 0%, #2563eb 100%)',
+                        },
+                      }}
+                    />
                   </Box>
                 </Box>
               );
@@ -213,7 +210,7 @@ export function PollResultPage({ poll, totalVotes, winningOption }: PollResultPa
       </Box>
 
       {/* 右側: 統計と投票者 */}
-      <Box sx={{ width: { xs: '100%', lg: 260 }, flexShrink: 0, boxSizing: 'border-box' }}>
+      <Box sx={{ width: { xs: '100%', md: 260 }, flexShrink: 0, boxSizing: 'border-box' }}>
         <Paper
           elevation={0}
           sx={{
@@ -225,12 +222,24 @@ export function PollResultPage({ poll, totalVotes, winningOption }: PollResultPa
             boxSizing: 'border-box',
           }}
         >
-          <Typography variant="h6" fontWeight={700} sx={{ color: '#111827', mb: 2 }}>
-            統計
+          <Typography variant="h6" fontWeight={700} sx={{ color: '#111827', mb: 1 }}>
+            総投票数
           </Typography>
-          <Typography variant="body1" sx={{ color: '#6b7280' }}>
-            総投票数: <strong>{totalVotes.toLocaleString()}票</strong>
-          </Typography>
+          <Box sx={{ display: 'flex', alignItems: 'baseline', gap: 0.5 }}>
+            <Typography
+              variant="h4"
+              sx={{
+                color: '#111827',
+                fontWeight: 700,
+                fontSize: '1.75rem',
+              }}
+            >
+              {totalVotes.toLocaleString()}
+            </Typography>
+            <Typography variant="body2" sx={{ color: '#6b7280', fontSize: '0.75rem' }}>
+              票
+            </Typography>
+          </Box>
         </Paper>
 
         <Paper

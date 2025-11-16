@@ -74,6 +74,9 @@ export function VoterList({ voters }: VoterListProps) {
         <Typography
           variant="body2"
           sx={{
+            height: 32,
+            display: 'flex',
+            alignItems: 'center',
             color: '#9ca3af',
             fontSize: '0.875rem',
             fontStyle: 'italic',
