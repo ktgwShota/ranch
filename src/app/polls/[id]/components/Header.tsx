@@ -104,8 +104,8 @@ export function Header({
                   display: 'flex',
                   alignItems: 'center',
                   gap: 1,
-                  px: 2.5,
-                  py: 1.5,
+                  px: '18px',
+                  py: '9px',
                   backgroundColor: poll?.endDateTime ? '#e3f2fd' : '#e8f5e8',
                   borderRadius: 3,
                   border: `1px solid ${poll?.endDateTime ? '#2196f3' : '#4caf50'}`,
@@ -120,7 +120,7 @@ export function Header({
                   sx={{
                     color: poll?.endDateTime ? '#1976d2' : '#4caf50',
                     fontWeight: 600,
-                    fontSize: '0.8rem',
+                    fontSize: '14px',
                     whiteSpace: 'nowrap',
                   }}
                 >
@@ -218,7 +218,7 @@ export function Header({
                       <ListItemText
                         primary="投票者名を変更する"
                         primaryTypographyProps={{
-                          fontSize: '0.875rem',
+                          fontSize: '14px',
                           fontWeight: 500,
                           color: '#374151',
                         }}
@@ -244,7 +244,7 @@ export function Header({
                     <ListItemText
                       primary="投票を終了"
                       primaryTypographyProps={{
-                        fontSize: '0.875rem',
+                        fontSize: '14px',
                         fontWeight: 500,
                         color: '#dc2626',
                       }}

@@ -11,21 +11,21 @@ export function ResultDisplay({ votes, percentage }: ResultDisplayProps) {
       <Box display="flex" justifyContent="space-between" alignItems="baseline" mb={1.5}>
         <Box display="flex" alignItems="baseline" gap={0.5}>
           <Typography
-            variant="h4"
+            variant="h6"
             sx={{
               color: '#111827',
               fontWeight: 700,
-              fontSize: '1.75rem',
+              fontSize: '20px',
               lineHeight: 1.2,
             }}
           >
             {votes}
           </Typography>
           <Typography
-            variant="caption"
+            variant="body2"
             sx={{
               color: '#6b7280',
-              fontSize: '0.75rem',
+              fontSize: '14px',
               fontWeight: 500,
             }}
           >
@@ -33,11 +33,11 @@ export function ResultDisplay({ votes, percentage }: ResultDisplayProps) {
           </Typography>
         </Box>
         <Typography
-          variant="h5"
+          variant="body1"
           sx={{
             color: '#111827',
             fontWeight: 600,
-            fontSize: '1.5rem',
+            fontSize: '18px',
           }}
         >
           {percentage.toFixed(1)}%

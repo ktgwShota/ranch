@@ -12,7 +12,7 @@ export function VoterList({ voters }: VoterListProps) {
         variant="caption"
         sx={{
           color: '#6b7280',
-          fontSize: '0.75rem',
+          fontSize: '14px',
           mb: 1,
           display: 'block',
         }}
@@ -40,7 +40,7 @@ export function VoterList({ voters }: VoterListProps) {
                 alignItems: 'center',
                 justifyContent: 'center',
                 color: 'white',
-                fontSize: '0.75rem',
+                fontSize: '14px',
                 fontWeight: 600,
                 border: '2px solid white',
                 boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
@@ -60,7 +60,7 @@ export function VoterList({ voters }: VoterListProps) {
                 alignItems: 'center',
                 justifyContent: 'center',
                 color: '#6b7280',
-                fontSize: '0.65rem',
+                fontSize: '14px',
                 fontWeight: 600,
                 border: '2px solid white',
                 boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
@@ -78,7 +78,7 @@ export function VoterList({ voters }: VoterListProps) {
             display: 'flex',
             alignItems: 'center',
             color: '#9ca3af',
-            fontSize: '0.875rem',
+            fontSize: '14px',
             fontStyle: 'italic',
           }}
         >

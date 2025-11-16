@@ -136,8 +136,8 @@ export default function VotingPage({ pollId, initialPoll }: VotingPageProps) {
           sx={{
             display: 'flex',
             flexWrap: 'wrap',
-            gap: { xs: 2.5, sm: 3, md: 4 },
-            my: { xs: 2.5, sm: 3, md: 4 },
+            gap: { xs: 2, sm: 2.5 },
+            my: { xs: 2, sm: 2.5 },
             justifyContent: 'center',
             alignItems: 'stretch',
           }}
@@ -172,7 +172,7 @@ export default function VotingPage({ pollId, initialPoll }: VotingPageProps) {
             alignItems: 'center',
             justifyContent: 'center',
             color: '#6b7280',
-            fontSize: '0.875rem',
+            fontSize: '14px',
           }}
         >
           バナー広告

@@ -29,7 +29,7 @@ export function VotersList({ poll }: VotersListProps) {
                 width: 36,
                 height: 36,
                 bgcolor: '#667eea',
-                fontSize: '0.875rem',
+                fontSize: '14px',
               }}
             >
               {(voter.name && voter.name.length > 0 ? voter.name.charAt(0) : '?').toUpperCase()}
@@ -42,7 +42,7 @@ export function VotersList({ poll }: VotersListProps) {
                 variant="caption"
                 sx={{
                   color: '#6b7280',
-                  fontSize: '0.75rem',
+                  fontSize: '14px',
                   display: 'block',
                   overflow: 'hidden',
                   textOverflow: 'ellipsis',

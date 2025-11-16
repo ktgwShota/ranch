@@ -27,9 +27,9 @@ export function ResultPage({ poll, totalVotes, winningOption }: ResultPageProps)
               boxSizing: 'border-box',
             }}
           >
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2.5 }}>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                <BarChartIcon sx={{ color: '#3b82f6', fontSize: '1.5rem' }} />
+                <BarChartIcon sx={{ color: '#3b82f6', fontSize: '24px' }} />
                 <Typography variant="h6" component="h2" fontWeight={700} sx={{ color: '#111827' }}>
                   投票結果
                 </Typography>
@@ -37,7 +37,7 @@ export function ResultPage({ poll, totalVotes, winningOption }: ResultPageProps)
               {/* <ResultPageClient poll={poll} /> */}
             </Box>
 
-            <Typography variant="body1" sx={{ color: '#111827', mb: 2 }}>
+            <Typography variant="body1" sx={{ color: '#111827', mb: 2.5, fontSize: '16px' }}>
               {poll.title}
             </Typography>
 
@@ -101,11 +101,11 @@ export function ResultPage({ poll, totalVotes, winningOption }: ResultPageProps)
                     <Box sx={{ p: 3, position: 'relative', zIndex: 1 }}>
                       <Typography
                         className="option-title"
-                        variant="h6"
+                        variant="body1"
                         fontWeight={700}
                         sx={{
                           color: '#111827',
-                          fontSize: '1.25rem',
+                          fontSize: '18px',
                           display: 'block',
                           mb: 2,
                           transition: 'color 0.2s ease',
@@ -116,24 +116,24 @@ export function ResultPage({ poll, totalVotes, winningOption }: ResultPageProps)
 
                       <Box sx={{ display: 'flex', alignItems: 'baseline', gap: 1, mb: 2 }}>
                         <Typography
-                          variant="h4"
+                          variant="h6"
                           sx={{
                             color: '#111827',
                             fontWeight: 700,
-                            fontSize: '1.75rem',
+                            fontSize: '20px',
                           }}
                         >
                           {option.votes.toLocaleString()}
                         </Typography>
-                        <Typography variant="body2" sx={{ color: '#6b7280', fontSize: '0.875rem' }}>
+                        <Typography variant="body2" sx={{ color: '#6b7280', fontSize: '14px' }}>
                           票
                         </Typography>
                         <Typography
-                          variant="h6"
+                          variant="body1"
                           sx={{
                             color: '#111827',
                             fontWeight: 600,
-                            fontSize: '1.25rem',
+                            fontSize: '18px',
                             ml: 'auto',
                           }}
                         >
@@ -177,24 +177,24 @@ export function ResultPage({ poll, totalVotes, winningOption }: ResultPageProps)
               boxSizing: 'border-box',
             }}
           >
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
-              <HowToVoteIcon sx={{ color: '#3b82f6', fontSize: '1.5rem' }} />
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1.5 }}>
+              <HowToVoteIcon sx={{ color: '#3b82f6', fontSize: '24px' }} />
               <Typography variant="h6" fontWeight={700} sx={{ color: '#111827' }}>
                 総投票数
               </Typography>
             </Box>
             <Box sx={{ display: 'flex', alignItems: 'baseline', gap: 0.5 }}>
               <Typography
-                variant="h4"
+                variant="h6"
                 sx={{
                   color: '#111827',
                   fontWeight: 700,
-                  fontSize: '1.75rem',
+                  fontSize: '20px',
                 }}
               >
                 {totalVotes.toLocaleString()}
               </Typography>
-              <Typography variant="body2" sx={{ color: '#6b7280', fontSize: '0.75rem' }}>
+              <Typography variant="body2" sx={{ color: '#6b7280', fontSize: '14px' }}>
                 票
               </Typography>
             </Box>
@@ -211,7 +211,7 @@ export function ResultPage({ poll, totalVotes, winningOption }: ResultPageProps)
             }}
           >
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
-              <PeopleIcon sx={{ color: '#3b82f6', fontSize: '1.5rem' }} />
+              <PeopleIcon sx={{ color: '#3b82f6', fontSize: '24px' }} />
               <Typography variant="h6" fontWeight={700} sx={{ color: '#111827' }}>
                 投票者
               </Typography>
@@ -233,7 +233,7 @@ export function ResultPage({ poll, totalVotes, winningOption }: ResultPageProps)
           alignItems: 'center',
           justifyContent: 'center',
           color: '#6b7280',
-          fontSize: '0.875rem',
+          fontSize: '14px',
         }}
       >
         バナー広告

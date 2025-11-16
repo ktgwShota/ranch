@@ -41,7 +41,7 @@ export function OptionCard({
           flex: '0 0 calc(50% - 12px)',
         },
         [`@media (min-width: 900px)`]: {
-          flex: '0 0 calc(50% - 16px)',
+          flex: '0 0 calc(50% - 10px)',
         },
         // boxShadow: 'none',
         position: 'relative',
@@ -115,11 +115,11 @@ export function OptionCard({
             href={option.url}
             target="_blank"
             rel="noopener noreferrer"
-            variant="h6"
+            variant="body1"
             fontWeight="700"
             sx={{
               color: '#111827',
-              fontSize: '1.125rem',
+              fontSize: '18px',
               lineHeight: 1.4,
               mb: 2,
               overflow: 'hidden',
@@ -151,14 +151,14 @@ export function OptionCard({
           loading={isVoting}
           loadingText={isVoted ? '投票取消中...' : '投票中...'}
           variant={isVoted ? 'outlined' : 'contained'}
-          startIcon={isVoted ? <CheckIcon sx={{ fontSize: '1.2rem' }} /> : <ThumbUpIcon sx={{ fontSize: '1.2rem' }} />}
+          startIcon={isVoted ? <CheckIcon sx={{ fontSize: '19px' }} /> : <ThumbUpIcon sx={{ fontSize: '19px' }} />}
           fullWidth
           size="large"
           sx={{
             borderRadius: 2,
             textTransform: 'none',
             fontWeight: 600,
-            fontSize: '0.875rem',
+            fontSize: '14px',
             py: 1.5,
             ...(isVoted && {
               color: '#0369a1',
