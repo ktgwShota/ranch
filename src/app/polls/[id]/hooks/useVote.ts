@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import type { Dispatch, SetStateAction } from 'react';
-import type { Poll, Option } from '../types';
+import type { DBPoll as Poll, DBPollOption as Option } from '@/services/db/poll/types';
 
 export function useVote(
   poll: Poll | null,

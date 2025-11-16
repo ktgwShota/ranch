@@ -1,252 +1,26 @@
-'use client';
+import { getCloudflareContext } from '@opennextjs/cloudflare';
+import { getPoll } from '@/services/db/poll';
+import { redirect } from 'next/navigation';
+import PageClient from './components/PageClient';
 
-import { Box, Snackbar } from '@mui/material';
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { useVoter } from './hooks/useVoter';
-import { usePollTimer } from './hooks/usePollTimer';
-import { useVote } from './hooks/useVote';
-import { PollHeader } from './components/PollHeader';
-import { OptionCard } from './components/OptionCard';
-import { PollResultPage } from './components/PollResultPage';
-import { VoterNameDialog } from './components/VoterNameDialog';
-import { useTutorialContext } from '@/app/contexts/TutorialContext';
-import PollResultDialog from '@/app/components/PollResultDialog';
-import type { Poll } from './types';
-
-interface PollPageProps {
+interface PageProps {
   params: Promise<{ id: string }>;
 }
 
-export default function Index({ params }: PollPageProps) {
-  const [pollId, setPollId] = useState<string | null>(null);
-  const [poll, setPoll] = useState<Poll | null>(null);
-  const [loading, setLoading] = useState(true);
-  const router = useRouter();
-  const { setupTutorial } = useTutorialContext();
+export default async function Page({ params }: PageProps) {
+  const { id } = await params;
+  if (!id) return null;
 
-  // paramsを解決
-  useEffect(() => {
-    params.then((resolvedParams) => {
-      setPollId(resolvedParams.id);
-    });
-  }, [params]);
-
-  // ポールデータを取得
-  useEffect(() => {
-    if (!pollId) return;
-
-    const fetchPoll = async () => {
-      try {
-        const response = await fetch(`/api/polls/${pollId}`);
-        if (response.ok) {
-          const pollData = (await response.json()) as any;
-          // APIレスポンスをPoll型に変換
-          const poll: Poll = {
-            id: pollData.id,
-            title: pollData.title,
-            duration: pollData.duration,
-            endDateTime: pollData.endDateTime,
-            createdAt: pollData.createdAt,
-            createdBy: pollData.createdBy,
-            isClosed: pollData.isClosed === 1 || pollData.isClosed === true,
-            options: pollData.options || [],
-          };
-          setPoll(poll);
-        } else if (response.status === 404) {
-          router.push('/404');
-        }
-      } catch (error) {
-        console.error('Error fetching poll:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchPoll();
-  }, [pollId, router]);
-
-  const {
-    userName,
-    userId,
-    nameDialogOpen,
-    tempName,
-    setTempName,
-    setNameDialogOpen,
-    handleNameSubmit,
-    checkAndOpenDialog,
-  } = useVoter(pollId || '');
-  const { isPollClosed, timeRemaining, formatTime } = usePollTimer(poll);
-  const { vote, voting, isVotedByUser } = useVote(poll, setPoll, userId, userName, checkAndOpenDialog);
-  const [snackbarOpen, setSnackbarOpen] = useState(false);
-  const [snackbarMessage, setSnackbarMessage] = useState('');
-  const [isEndingPoll, setIsEndingPoll] = useState(false);
-
-  // チュートリアルを開始
-  useEffect(() => {
-    if (!isPollClosed) {
-      setupTutorial(
-        [
-          {
-            elementId: 'poll-settings-button',
-            title: 'メニュー',
-            description: `このアイコンをクリックすると各種設定を操作できるメニューが表示されます。`,
-            position: 'bottom',
-          }
-        ],
-        'tutorial-poll-settings-button'
-      );
+  try {
+    const context = getCloudflareContext();
+    const result = await getPoll(id, context.env);
+    if (!result.success || !result.data) {
+      return null;
     }
-  }, [poll, isPollClosed, setupTutorial]);
 
-  const getWinningOption = () => {
-    if (!poll || poll.options.length === 0) return null;
-    return poll.options.reduce((max, option) => (option.votes > max.votes ? option : max));
-  };
-
-  const endPoll = async () => {
-    if (!poll) return;
-
-    setIsEndingPoll(true);
-    try {
-      const response = await fetch(`/api/polls/${poll.id}/close`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ pollId: poll.id }),
-      });
-
-      if (response.ok) {
-        const updatedPollData = (await fetch(`/api/polls/${poll.id}`).then((res) =>
-          res.json()
-        )) as any;
-        // APIレスポンスをPoll型に変換
-        const updatedPoll: Poll = {
-          id: updatedPollData.id,
-          title: updatedPollData.title,
-          duration: updatedPollData.duration,
-          endDateTime: updatedPollData.endDateTime,
-          createdAt: updatedPollData.createdAt,
-          createdBy: updatedPollData.createdBy,
-          isClosed: updatedPollData.isClosed === 1 || updatedPollData.isClosed === true,
-          options: updatedPollData.options || [],
-        };
-        setPoll(updatedPoll);
-        setSnackbarMessage('投票を終了しました');
-        setSnackbarOpen(true);
-      } else {
-        setSnackbarMessage('投票の終了に失敗しました');
-        setSnackbarOpen(true);
-      }
-    } catch (error) {
-      console.error('投票終了エラー:', error);
-      setSnackbarMessage('投票の終了に失敗しました');
-      setSnackbarOpen(true);
-    } finally {
-      setIsEndingPoll(false);
-    }
-  };
-
-  const totalVotes = poll?.options.reduce((sum, option) => sum + option.votes, 0) || 0;
-  const winningOption = getWinningOption();
-
-  if (loading) {
-    return (
-      <Box sx={{ maxWidth: '900px', mx: 'auto', py: { xs: 2.5, sm: 3, md: 4 }, px: { xs: 2, sm: 3 }, boxSizing: 'border-box' }}>
-        <Box>読み込み中...</Box>
-      </Box>
-    );
+    return <PageClient initialPoll={result.data} pollId={id} />;
+  } catch (error) {
+    console.error('Error fetching poll data:', error);
+    redirect('/404');
   }
-
-  if (!poll) {
-    return null;
-  }
-
-  // 投票が終了している場合は結果ページを表示
-  if (poll && isPollClosed) {
-    return (
-      <Box sx={{ maxWidth: '900px', mx: 'auto', py: { xs: 2.5, sm: 3, md: 4 }, px: { xs: 2, sm: 3 }, boxSizing: 'border-box' }}>
-        <PollResultPage poll={poll} totalVotes={totalVotes} winningOption={winningOption} />
-      </Box>
-    );
-  }
-
-  return (
-    <Box sx={{ maxWidth: '900px', mx: 'auto', py: { xs: 2.5, sm: 3, md: 4 }, px: { xs: 2, sm: 3 }, boxSizing: 'border-box' }}>
-      <Box>
-        <PollHeader
-          poll={poll}
-          loading={false}
-          isPollClosed={isPollClosed}
-          timeRemaining={timeRemaining}
-          formatTime={formatTime}
-          isEndingPoll={isEndingPoll}
-          onEndPoll={endPoll}
-        />
-        <Box
-          sx={{
-            display: 'flex',
-            flexWrap: 'wrap',
-            gap: { xs: 2.5, sm: 3, md: 4 },
-            my: { xs: 2.5, sm: 3, md: 4 },
-            justifyContent: 'center',
-            alignItems: 'stretch',
-          }}
-        >
-          {poll?.options.map((option) => {
-            const isVoted = isVotedByUser(option);
-            const isVoting = voting === option.id;
-            const isDecided = !!(isPollClosed && winningOption && option.id === winningOption.id);
-            const isDisabled = !!(isPollClosed && !isDecided);
-
-            return (
-              <OptionCard
-                key={option.id}
-                option={option}
-                totalVotes={totalVotes}
-                isVoted={isVoted}
-                isVoting={isVoting}
-                isDisabled={isDisabled}
-                isDecided={isDecided}
-                isPollClosed={isPollClosed}
-                onVote={() => vote(option.id)}
-              />
-            );
-          })}
-        </Box>
-
-        <Box
-          sx={{
-            border: '1px solid #e5e7eb',
-            backgroundColor: '#f3f4f6',
-            p: 3,
-            borderRadius: 1,
-            height: 128,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            color: '#6b7280',
-            fontSize: '0.875rem',
-          }}
-        >
-          バナー広告
-        </Box>
-      </Box>
-
-      <PollResultDialog />
-      <VoterNameDialog
-        open={nameDialogOpen}
-        name={tempName}
-        onNameChange={setTempName}
-        onSubmit={handleNameSubmit}
-      />
-      <Snackbar
-        open={snackbarOpen}
-        autoHideDuration={3000}
-        onClose={() => setSnackbarOpen(false)}
-        message={snackbarMessage}
-      />
-    </Box>
-  );
 }

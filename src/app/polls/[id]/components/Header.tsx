@@ -21,7 +21,7 @@ export function Header({
   formatTime,
   isEndingPoll,
   onEndPoll,
-}: PollHeaderProps) {
+}: HeaderProps) {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
 

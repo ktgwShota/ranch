@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import type { Poll } from '../types';
+import type { DBPoll as Poll } from '@/services/db/poll/types';
 
 export function usePollTimer(poll: Poll | null) {
   const [isPollClosed, setIsPollClosed] = useState(false);
@@ -7,7 +7,7 @@ export function usePollTimer(poll: Poll | null) {
 
   useEffect(() => {
     if (poll) {
-      if (poll.isClosed) {
+      if (poll.isClosed === 1) {
         setIsPollClosed(true);
         setTimeRemaining(0);
       } else if (poll.endDateTime) {

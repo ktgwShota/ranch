@@ -1,13 +1,13 @@
 import { getDB } from '../client';
 import {
   type CreatePollData,
-  type Poll,
-  PollOption,
+  type DBPoll,
+  type DBPollOption,
+  type DBResult,
   type UpdatePollData,
   type VoteData,
 } from './types';
 
-// ポール作成
 export async function createPoll(data: CreatePollData, env: { DB: D1Database }) {
   try {
     console.log('createPoll called with data:', data);
@@ -78,8 +78,7 @@ export async function createPoll(data: CreatePollData, env: { DB: D1Database }) 
   }
 }
 
-// ポール取得
-export async function getPoll(pollId: string, env: { DB: D1Database }) {
+export async function getPoll(pollId: string, env: { DB: D1Database }): Promise<DBResult<DBPoll>> {
   const db = getDB(env);
 
   const poll = await db.prepare('SELECT * FROM polls WHERE id = ?').bind(pollId).first();
@@ -105,7 +104,7 @@ export async function getPoll(pollId: string, env: { DB: D1Database }) {
     })),
   };
 
-  return { success: true, data: pollData as unknown as Poll, error: undefined };
+  return { success: true, data: pollData as unknown as DBPoll, error: undefined };
 }
 
 // ポール一覧取得
@@ -134,7 +133,7 @@ export async function getPolls(env: { DB: D1Database }) {
     });
   }
 
-  return { success: true, data: pollsWithOptions as unknown as Poll[], error: undefined };
+  return { success: true, data: pollsWithOptions as unknown as DBPoll[], error: undefined };
 }
 
 // ポール更新

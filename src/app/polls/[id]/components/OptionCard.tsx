@@ -1,7 +1,7 @@
 import { Box, Card, CardContent, CardMedia, Skeleton, Typography } from '@mui/material';
 import { Restaurant as RestaurantIcon } from '@mui/icons-material';
-import type { Option } from '../types';
-import { PollResultDisplay } from './PollResultDisplay';
+import type { DBPollOption as Option } from '@/services/db/poll/types';
+import { ResultDisplay } from './ResultDisplay';
 import { VoterList } from './VoterList';
 import { VoteButton } from './VoteButton';
 
@@ -173,7 +173,7 @@ export function OptionCard({
           <Skeleton variant="text" height={28} sx={{ mb: 2 }} />
         )}
 
-        <PollResultDisplay votes={option.votes} percentage={votePercentage} />
+        <ResultDisplay votes={option.votes} percentage={votePercentage} />
         <VoterList voters={option.voters} />
         {!isPollClosed && (
           <VoteButton isVoted={isVoted} isVoting={isVoting} isDisabled={isDisabled} onClick={onVote} />

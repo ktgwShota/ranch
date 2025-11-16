@@ -1,5 +1,5 @@
 import { Box, Typography } from '@mui/material';
-import type { Voter } from '../types';
+import type { Voter } from '@/services/db/poll/types';
 
 interface VoterListProps {
   voters: Voter[];

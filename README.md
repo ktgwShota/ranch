@@ -95,13 +95,70 @@ src/
 #### ✅ `app/components/` に配置する
 - 複数のページで使用されるコンポーネント
 - 他のコンポーネントや Context に依存しない独立したコンポーネント
-- 例: `Header`, `Footer`, `OGPPreview`, `PollResultDialog`
+- 例: `Header`, `Footer`, `OGPPreview`
 
 #### ❌ `app/components/` に配置しない
 - **特定の Context に依存しているコンポーネント** → `app/contexts/` に配置
   - 例: `app/contexts/TutorialContext.tsx` 内の `Tutorial` コンポーネント
 - **特定のページでのみ使用するコンポーネント** → 該当するページのディレクトリに配置
   - 例: `app/polls/[id]/components/` 内のコンポーネント
+
+### 型定義分類ルール
+
+#### ✅ コンポーネントファイル内に定義する
+- **コンポーネントのProps型** → コンポーネントファイル内に直接定義
+  - そのコンポーネントでのみ使用される型
+  - 例: `OptionCard.tsx` 内の `OptionCardProps`
+
+```typescript
+// OptionCard.tsx
+interface OptionCardProps {
+  option: Option;
+  totalVotes: number;
+  // ...
+}
+
+export function OptionCard({ option, ... }: OptionCardProps) {
+  // ...
+}
+```
+
+#### ✅ `types.ts` に定義する
+- **複数の場所で使用される型** → 機能のディレクトリ内の `types.ts` に配置
+  - 複数のコンポーネントやhooksで使用される型
+  - 例: `app/polls/[id]/types.ts` 内の `Poll`, `Option`, `Voter`
+
+```typescript
+// types.ts
+export interface Poll {
+  id: string;
+  title: string;
+  options: Option[];
+}
+```
+
+#### ✅ Contextファイル内に定義する
+- **Context専用の型** → Contextファイル内に直接定義
+  - Contextと一緒に管理する型
+  - 例: `TutorialContext.tsx` 内の `TutorialStep`
+
+```typescript
+// TutorialContext.tsx
+interface TutorialStep {
+  elementId: string;
+  title: string;
+  // ...
+}
+```
+
+#### 判断基準
+
+| 型の種類 | 配置場所 | 例 |
+|---------|---------|-----|
+| **コンポーネントのProps** | コンポーネントファイル内 | `OptionCardProps` |
+| **複数箇所で使用** | `types.ts` | `Poll`, `Option` |
+| **Context専用** | Contextファイル内 | `TutorialStep` |
+| **汎用的な型** | `types.ts` | `OGPData`（他の場所でも使う可能性） |
 
 ## 📋 前提条件
 

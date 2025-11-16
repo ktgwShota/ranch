@@ -1,39 +1,43 @@
-// Worker層で使用する型定義
+// Worker層で使用する型定義（DBの実際の構造に合わせた型）
+// 注意: getPoll関数内でJSON.parseされているため、votersはVoter[]として扱われる
 
-export interface Poll {
+export interface DBPoll {
   id: string;
   title: string;
   duration: number;
   endDateTime: string | null;
   createdBy: string;
   createdAt: string;
-  isClosed: number;
-  options?: PollOption[];
+  isClosed: number; // 0 = 開いている, 1 = 閉じている
+  options: DBPollOption[];
 }
 
-export interface PollOption {
+export interface DBPollOption {
   id: number;
   url: string | undefined;
   title: string;
   description: string | undefined;
   image?: string;
   votes: number;
-  voters: string[];
+  voters: Array<{ id: string; name: string }>; // JSON.parseでVoter[]に変換される
 }
+
+// voters配列の要素型を抽出
+export type Voter = DBPollOption['voters'][number];
 
 export interface CreatePollData {
   title: string;
   duration?: number;
   endDateTime?: string | null;
   createdBy: string;
-  options: Omit<PollOption, 'id' | 'votes' | 'voters'>[];
+  options: Omit<DBPollOption, 'id' | 'votes' | 'voters'>[];
 }
 
 export interface UpdatePollData {
   title: string;
   duration?: number;
   endDateTime?: string | null;
-  options: PollOption[];
+  options: DBPollOption[];
 }
 
 export interface VoteData {
