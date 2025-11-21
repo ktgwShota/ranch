@@ -33,19 +33,16 @@ export default function VotingPage({ pollId, initialPoll }: VotingPageProps) {
     handleNameSubmit,
     checkAndOpenDialog,
   } = useVoter(pollId);
-  const { isPollClosed, timeRemaining, formatTime } = usePollTimer(poll);
+  const { timeRemaining, formatTime } = usePollTimer(poll);
   const { vote, voting, isVotedByUser } = useVote(poll, setPoll, userId, userName, checkAndOpenDialog);
 
-  // 名前入力ダイアログが開くときにエラーをリセット
   useEffect(() => {
     if (nameDialogOpen) {
       setNameError(null);
     }
   }, [nameDialogOpen]);
 
-  // 名前変更時に投票データも更新
   const handleNameSubmitWithPollUpdate = async () => {
-    // バリデーション
     if (!tempName.trim()) {
       setNameError('入力は必須です');
       return;
@@ -53,7 +50,6 @@ export default function VotingPage({ pollId, initialPoll }: VotingPageProps) {
 
     setNameError(null);
     await handleNameSubmit();
-    // 投票データの名前も更新
     if (poll && userId) {
       const updatedOptions = poll.options.map((option) => {
         const updatedVoters = option.voters.map((voter) =>
@@ -70,14 +66,25 @@ export default function VotingPage({ pollId, initialPoll }: VotingPageProps) {
     setNameError(null);
   };
 
-  // チュートリアルを開始
   useEffect(() => {
     setupTutorial(
       [
         {
+          elementId: 'option-title-1',
+          title: '店舗情報の確認',
+          description: `お店の名前をクリックすると店舗情報が表示されます。`,
+          position: 'bottom',
+        },
+        {
+          elementId: 'vote-button-1',
+          title: '投票ボタン',
+          description: `自分が行きたいと思ったお店に投票しましょう。投票後に取り消しをすることができます。`,
+          position: 'bottom',
+        },
+        {
           elementId: 'poll-settings-button',
           title: 'メニュー',
-          description: `このアイコンをクリックすると各種設定を操作できるメニューが表示されます。`,
+          description: `このアイコンをクリックすると各種設定を操作できるメニューが表示されます。主催者の方はここから投票を終了することができます。`,
           position: 'bottom',
         }
       ],
@@ -85,14 +92,12 @@ export default function VotingPage({ pollId, initialPoll }: VotingPageProps) {
     );
   }, [poll, setupTutorial]);
 
-  // タイマーで自動的に投票が終了した場合、サーバー側で再評価させる
+  // タイマーが0になったら、サーバー側で期限チェックと自動締切を実行させる
   useEffect(() => {
-    if (isPollClosed && poll && poll.isClosed === 0) {
-      // クライアント側でタイマーが終了したが、サーバー側ではまだ終了していない場合
-      // サーバー側で再評価させる
+    if (timeRemaining === 0 && poll && poll.isClosed === 0 && poll.endDateTime) {
       router.refresh();
     }
-  }, [isPollClosed, poll, router]);
+  }, [timeRemaining, poll, router]);
 
   const endPoll = async () => {
     if (!poll) return;
@@ -107,7 +112,6 @@ export default function VotingPage({ pollId, initialPoll }: VotingPageProps) {
       });
 
       if (response.ok) {
-        // サーバー側で再評価させるため、ページをリロード
         router.refresh();
       }
     } catch (error) {
@@ -147,7 +151,7 @@ export default function VotingPage({ pollId, initialPoll }: VotingPageProps) {
           {poll?.options.map((option) => {
             const isVoted = isVotedByUser(option);
             const isVoting = voting === option.id;
-            const isAnyVoting = voting !== null; // 他の選択肢が投票中かどうか
+            const isAnyVoting = voting !== null;
 
             return (
               <OptionCard
@@ -156,7 +160,7 @@ export default function VotingPage({ pollId, initialPoll }: VotingPageProps) {
                 totalVotes={totalVotes}
                 isVoted={isVoted}
                 isVoting={isVoting}
-                isDisabled={isAnyVoting && !isVoting} // 他の選択肢が投票中なら無効化
+                isDisabled={isAnyVoting && !isVoting}
                 onVote={() => vote(option.id)}
               />
             );

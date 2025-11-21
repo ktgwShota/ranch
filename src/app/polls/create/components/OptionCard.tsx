@@ -71,7 +71,6 @@ export function OptionCard({
 
         const data = responseData as {
           title?: string;
-          description?: string | null;
           budgetMin?: string;
           budgetMax?: string;
           budgetOptions?: Array<{ label: string; min: string; max: string }>;

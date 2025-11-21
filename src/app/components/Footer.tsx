@@ -15,14 +15,8 @@ export default function Footer() {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
-  const shopLinks = [
-    { label: '商品一覧', href: '/products', icon: <StoreIcon fontSize="small" /> },
-    { label: '配送方法', href: '/shipping', icon: <ShippingIcon fontSize="small" /> },
-    { label: '返品 / 交換', href: '/returns', icon: <ReturnIcon fontSize="small" /> },
-  ];
-
   const aboutLinks = [
-    { label: '村松屋について', href: '/about', icon: <InfoIcon fontSize="small" /> },
+    { label: 'サイト名について', href: '/about', icon: <InfoIcon fontSize="small" /> },
     { label: '利用規約', href: '/terms', icon: <GavelIcon fontSize="small" /> },
     { label: 'プライバシーポリシー', href: '/privacy', icon: <PrivacyIcon fontSize="small" /> },
     { label: 'お問い合わせ', href: '/contact', icon: <ContactIcon fontSize="small" /> },
@@ -61,7 +55,7 @@ export default function Footer() {
                 letterSpacing: '-0.02em',
               }}
             >
-              蜜芋の村松屋
+              サイト名
             </Typography>
             <Typography
               variant="body2"
@@ -72,7 +66,7 @@ export default function Footer() {
                 mx: isMobile ? 'auto' : 0,
               }}
             >
-              高品質な芋類をお手頃な価格でお届けします。
+              サイトのキャッチコピー
             </Typography>
           </Box>
 
@@ -84,47 +78,6 @@ export default function Footer() {
             justifyContent={isMobile ? 'center' : 'flex-end'}
             flexWrap="nowrap"
           >
-            {/* SHOP */}
-            <Box textAlign={isMobile ? 'center' : 'left'}>
-              <Typography
-                variant="subtitle1"
-                fontWeight="600"
-                sx={{
-                  color: 'white',
-                  mb: 2,
-                  fontSize: '1rem',
-                }}
-              >
-                SHOP
-              </Typography>
-              <Box display="flex" flexDirection="column" gap={1.5}>
-                {shopLinks.map((link) => (
-                  <Link
-                    key={link.label}
-                    href={link.href}
-                    sx={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: 1,
-                      color: 'rgba(255, 255, 255, 0.7)',
-                      textDecoration: 'none',
-                      fontWeight: 500,
-                      fontSize: '0.85rem',
-                      transition: 'all 0.2s ease',
-                      justifyContent: isMobile ? 'center' : 'flex-start',
-                      '&:hover': {
-                        color: 'white',
-                        transform: 'translateX(4px)',
-                      },
-                    }}
-                  >
-                    {link.icon}
-                    {link.label}
-                  </Link>
-                ))}
-              </Box>
-            </Box>
-
             {/* ABOUT */}
             <Box textAlign={isMobile ? 'center' : 'left'}>
               <Typography
@@ -181,7 +134,7 @@ export default function Footer() {
             textAlign: 'center',
           }}
         >
-          © 2025 蜜芋の村松屋. All rights reserved.
+          © 2025 サイト名. All rights reserved.
         </Typography>
       </Container>
     </Box>

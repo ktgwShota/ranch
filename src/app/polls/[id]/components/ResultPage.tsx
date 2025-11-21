@@ -2,7 +2,6 @@ import { Box, Paper, Typography, LinearProgress, Avatar, Divider } from '@mui/ma
 import { BarChart as BarChartIcon, HowToVote as HowToVoteIcon, People as PeopleIcon } from '@mui/icons-material';
 import type { DBPoll as Poll, DBPollOption as Option } from '@/services/db/poll/types';
 import { VotersList } from './VotersList';
-import { DescriptionText } from './DescriptionText';
 
 interface ResultPageProps {
   poll: Poll;
@@ -115,39 +114,49 @@ export function ResultPage({ poll, totalVotes, winningOption }: ResultPageProps)
                         {option.title || option.url}
                       </Typography>
 
-                      {/* 予算と備考の表示 */}
-                      {(option.budgetMin || option.budgetMax || option.description) && (
+                      {/* 予算の表示 */}
+                      {option.budgetMin || option.budgetMax ? (
+                        <Typography
+                          variant="body2"
+                          sx={{
+                            color: '#6b7280',
+                            fontSize: '14px',
+                            mb: 1.5,
+                          }}
+                        >
+                          予算:{' '}
+                          {(() => {
+                            const min = option.budgetMin && option.budgetMin.trim() ? parseInt(option.budgetMin, 10).toLocaleString() : '';
+                            const max = option.budgetMax && option.budgetMax.trim() ? parseInt(option.budgetMax, 10).toLocaleString() : '';
+                            if (min && max) {
+                              // 最小値と最大値が同じ場合は1つだけ表示
+                              if (option.budgetMin === option.budgetMax) {
+                                return `${min} 円`;
+                              }
+                              return `${min} ~ ${max} 円`;
+                            } else if (min) {
+                              return `${min} ~ 円`;
+                            } else if (max) {
+                              return `~ ${max} 円`;
+                            }
+                            return '';
+                          })()}
+                        </Typography>
+                      ) : null}
+
+                      {/* 備考の表示 */}
+                      {option.description && (
                         <Box sx={{ mb: 1.5 }}>
-                          {option.budgetMin || option.budgetMax ? (
-                            <Typography
-                              variant="body2"
-                              sx={{
-                                color: '#6b7280',
-                                fontSize: '14px',
-                                mb: option.description ? 0.5 : 0,
-                              }}
-                            >
-                              {(() => {
-                                const min = option.budgetMin && option.budgetMin.trim() ? `¥${parseInt(option.budgetMin, 10).toLocaleString()}` : '';
-                                const max = option.budgetMax && option.budgetMax.trim() ? `¥${parseInt(option.budgetMax, 10).toLocaleString()}` : '';
-                                if (min && max) {
-                                  // 最小値と最大値が同じ場合は1つだけ表示
-                                  if (option.budgetMin === option.budgetMax) {
-                                    return min;
-                                  }
-                                  return `${min}〜${max}`;
-                                } else if (min) {
-                                  return `${min}〜`;
-                                } else if (max) {
-                                  return `〜${max}`;
-                                }
-                                return '';
-                              })()}
-                            </Typography>
-                          ) : null}
-                          {option.description ? (
-                            <DescriptionText description={option.description} />
-                          ) : null}
+                          <Typography
+                            variant="body2"
+                            sx={{
+                              color: '#6b7280',
+                              fontSize: '14px',
+                              lineHeight: 1.5,
+                            }}
+                          >
+                            {option.description}
+                          </Typography>
                         </Box>
                       )}
 

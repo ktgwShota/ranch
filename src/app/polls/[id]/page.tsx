@@ -25,6 +25,39 @@ export default async function Page({ params }: PageProps) {
     }
 
     const pollData = result.data;
+
+    // endDateTimeが設定されていて、期限が過ぎている場合は自動的に投票を締め切る
+    if (pollData.endDateTime && pollData.isClosed === 0) {
+      const endTime = new Date(pollData.endDateTime).getTime();
+      const now = Date.now();
+      if (endTime <= now) {
+        // 期限が過ぎている場合は自動的に投票を締め切る
+        const { closePoll } = await import('@/services/db/poll');
+        await closePoll(id, context.env);
+        // 締め切った後、再度ポールデータを取得
+        const updatedResult = await getPoll(id, context.env);
+        if (updatedResult.success && updatedResult.data) {
+          const updatedPollData = updatedResult.data;
+          const structuredData = generateStructuredData(updatedPollData);
+          const totalVotes = calculateTotalVotes(updatedPollData);
+          const winningOption = getWinningOption(updatedPollData);
+
+          return (
+            <>
+              <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+              />
+
+              <Box sx={{ maxWidth: '900px', mx: 'auto', py: { xs: 2, sm: 2.5 }, px: { xs: 2, sm: 2.5 }, boxSizing: 'border-box' }}>
+                <ResultPage poll={updatedPollData} totalVotes={totalVotes} winningOption={winningOption} />
+              </Box>
+            </>
+          );
+        }
+      }
+    }
+
     const isClosed = pollData.isClosed === 1;
     const structuredData = generateStructuredData(pollData);
     const totalVotes = calculateTotalVotes(pollData);

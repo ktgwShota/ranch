@@ -1,7 +1,8 @@
 'use client';
 
-import { createContext, useContext, useState, useCallback, ReactNode, useEffect } from 'react';
+import { createContext, useContext, useState, useCallback, ReactNode, useEffect, useRef } from 'react';
 import { Box, Paper, Typography, Button } from '@mui/material';
+import { scrollToElement } from '@/utils/scroll';
 
 interface TutorialStep {
   elementId: string;
@@ -28,6 +29,15 @@ export function TutorialProvider({ children }: { children: ReactNode }) {
   const [currentStepIndex, setCurrentStepIndex] = useState<number | null>(null);
   const [steps, setSteps] = useState<TutorialStep[]>([]);
   const [localStorageKey, setLocalStorageKey] = useState<string>('');
+
+  // チュートリアル表示中はユーザーによる手動スクロールを無効化
+  useEffect(() => {
+    if (isActive) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+  }, [isActive]);
 
   const initTutorial = useCallback(() => {
     setIsActive(false);
@@ -62,9 +72,13 @@ export function TutorialProvider({ children }: { children: ReactNode }) {
     if (isLastStep) {
       finishTutorial();
     } else {
-      setCurrentStepIndex(currentStepIndex + 1);
+      const nextStepIndex = currentStepIndex + 1;
+      setCurrentStepIndex(nextStepIndex);
+
+      const nextStep = steps[nextStepIndex];
+      scrollToElement(nextStep.elementId);
     }
-  }, [currentStepIndex, steps.length, finishTutorial]);
+  }, [currentStepIndex, steps, finishTutorial]);
 
   const currentStep = currentStepIndex !== null ? steps[currentStepIndex] : null;
 
@@ -87,7 +101,7 @@ export function TutorialProvider({ children }: { children: ReactNode }) {
   );
 }
 
-export function Tutorial() {
+function Tutorial() {
   const { isActive, currentStep, currentStepIndex, totalSteps, goToNextStep, finishTutorial } = useTutorialContext();
 
   if (!isActive || !currentStep || currentStepIndex === null) {
@@ -97,6 +111,9 @@ export function Tutorial() {
   const [show, setShow] = useState(false);
   const [position, setPosition] = useState({ top: 0, left: 0 });
   const [highlightRect, setHighlightRect] = useState<DOMRect | null>(null);
+  const [elementStyle, setElementStyle] = useState<{
+    borderRadius: string;
+  }>({ borderRadius: '0px' });
 
   useEffect(() => {
     const updatePosition = () => {
@@ -109,26 +126,31 @@ export function Tutorial() {
       const rect = element.getBoundingClientRect();
       setHighlightRect(rect);
 
+      const computedStyle = window.getComputedStyle(element);
+      setElementStyle({
+        borderRadius: computedStyle.borderRadius
+      });
+
       const popoverPosition = currentStep.position || 'bottom';
       let top = 0;
       let left = 0;
 
       switch (popoverPosition) {
         case 'top':
-          top = rect.top - 8;
+          top = rect.top - 20;
           left = rect.left + rect.width / 2;
           break;
         case 'bottom':
-          top = rect.bottom + 8;
+          top = rect.bottom + 20;
           left = rect.left + rect.width / 2;
           break;
         case 'left':
           top = rect.top + rect.height / 2;
-          left = rect.left - 8;
+          left = rect.left - 20;
           break;
         case 'right':
           top = rect.top + rect.height / 2;
-          left = rect.right + 8;
+          left = rect.right + 20;
           break;
       }
 
@@ -136,21 +158,16 @@ export function Tutorial() {
       setShow(true);
     };
 
-    // 少し遅延させて位置を取得
-    const timer = setTimeout(updatePosition, 100);
-    window.addEventListener('resize', updatePosition);
-    window.addEventListener('scroll', updatePosition, true);
+    // NOTE: レイアウトが完了した次のフレーム（最速時間）で実行
+    requestAnimationFrame(updatePosition);
 
+    window.addEventListener('scroll', updatePosition);
     return () => {
-      clearTimeout(timer);
-      window.removeEventListener('resize', updatePosition);
-      window.removeEventListener('scroll', updatePosition, true);
+      window.removeEventListener('scroll', updatePosition);
     };
-  }, [currentStep.elementId, currentStep.position]);
+  }, [isActive, currentStep.elementId, currentStep.position]);
 
   if (!show || !highlightRect) return null;
-
-  const isLastStep = currentStepIndex === totalSteps - 1;
 
   return (
     <>
@@ -165,7 +182,6 @@ export function Tutorial() {
           backgroundColor: 'rgba(0, 0, 0, 0.5)',
           zIndex: 9999,
         }}
-        onClick={finishTutorial}
       />
 
       {/* ハイライト（要素の周り） */}
@@ -177,7 +193,7 @@ export function Tutorial() {
           width: highlightRect.width + 8,
           height: highlightRect.height + 8,
           border: '3px solid #3b82f6',
-          borderRadius: 1,
+          borderRadius: elementStyle.borderRadius,
           boxShadow: '0 0 0 9999px rgba(0, 0, 0, 0.5)',
           zIndex: 9999 + 1,
           pointerEvents: 'none',
@@ -204,20 +220,20 @@ export function Tutorial() {
             ? 'translateY(-50%)'
             : 'translateX(-50%)',
           p: 2.5,
+          width: 'calc(100% - 32px)',
           maxWidth: 320,
           zIndex: 9999 + 2,
           borderRadius: 2,
           backgroundColor: 'white',
         }}
-        onClick={(e) => e.stopPropagation()}
       >
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
-          <Box sx={{ flex: 1 }}>
+          <Box sx={{ width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <Typography variant="h6" fontWeight={700} sx={{ color: '#111827' }}>
               {currentStep.title}
             </Typography>
             {totalSteps > 1 && (
-              <Typography variant="caption" sx={{ color: '#6b7280' }}>
+              <Typography variant="caption" sx={{ mr: 0.5, color: '#6b7280' }}>
                 {currentStepIndex + 1} / {totalSteps}
               </Typography>
             )}
@@ -237,7 +253,15 @@ export function Tutorial() {
         <Box sx={{ display: 'flex', gap: 1, justifyContent: 'space-between' }}>
           <Button
             variant="contained"
-            onClick={isLastStep ? finishTutorial : goToNextStep}
+            onClick={(e) => {
+              e.stopPropagation();
+              const isLastStep = currentStepIndex === totalSteps - 1;
+              if (isLastStep) {
+                finishTutorial();
+              } else {
+                goToNextStep();
+              }
+            }}
             fullWidth={totalSteps === 1}
             sx={{
               backgroundColor: '#3b82f6',
@@ -249,10 +273,10 @@ export function Tutorial() {
               },
             }}
           >
-            わかった
+            わかりました
           </Button>
         </Box>
-      </Paper>
+      </Paper >
     </>
   );
 }

@@ -48,7 +48,7 @@ export function OptionCard({
         target="_blank"
         rel="noopener noreferrer"
         sx={{
-          height: 200,
+          aspectRatio: '16/10',
           backgroundImage: option.image
             ? `url(${option.image})`
             : 'linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%)',
@@ -107,6 +107,7 @@ export function OptionCard({
       >
         {option.title ? (
           <Typography
+            id={`option-title-${option.id}`}
             component="a"
             href={option.url}
             target="_blank"
@@ -196,6 +197,7 @@ export function OptionCard({
           <VoterList voters={option.voters} />
 
           <CustomButton
+            id={`vote-button-${option.id}`}
             onClick={onVote}
             disabled={isDisabled}
             loading={isVoting}

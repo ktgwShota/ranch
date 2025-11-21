@@ -173,7 +173,7 @@ export default function Index() {
         elevation={0}
         sx={{
           p: 5,
-          my: { xs: 2.5, sm: 3, md: 4 },
+          my: { xs: 2, sm: 2.5 },
           borderRadius: 0.5,
           border: '1px solid #ddd',
           backgroundColor: 'white',

@@ -2,35 +2,25 @@ import { useState, useEffect } from 'react';
 import type { DBPoll as Poll } from '@/services/db/poll/types';
 
 export function usePollTimer(poll: Poll | null) {
-  const [isPollClosed, setIsPollClosed] = useState(false);
   const [timeRemaining, setTimeRemaining] = useState<number | null>(null);
 
   useEffect(() => {
     if (poll) {
       if (poll.isClosed === 1) {
-        setIsPollClosed(true);
         setTimeRemaining(0);
       } else if (poll.endDateTime) {
         const endTime = new Date(poll.endDateTime).getTime();
         const now = Date.now();
         const remaining = Math.max(0, endTime - now);
-
-        if (remaining <= 0) {
-          setIsPollClosed(true);
-          setTimeRemaining(0);
-        } else {
-          setIsPollClosed(false);
-          setTimeRemaining(Math.ceil(remaining / 1000));
-        }
+        setTimeRemaining(Math.ceil(remaining / 1000));
       } else {
-        setIsPollClosed(false);
         setTimeRemaining(null);
       }
     }
   }, [poll]);
 
   useEffect(() => {
-    if (!poll || !poll.endDateTime || isPollClosed) {
+    if (!poll || !poll.endDateTime || poll.isClosed === 1) {
       return;
     }
 
@@ -40,7 +30,6 @@ export function usePollTimer(poll: Poll | null) {
       const remaining = Math.max(0, endTime - now);
 
       if (remaining <= 0) {
-        setIsPollClosed(true);
         setTimeRemaining(0);
         clearInterval(timer);
       } else {
@@ -49,7 +38,7 @@ export function usePollTimer(poll: Poll | null) {
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [poll, isPollClosed]);
+  }, [poll]);
 
   const formatTime = (seconds: number) => {
     const days = Math.floor(seconds / (24 * 60 * 60));
@@ -68,6 +57,6 @@ export function usePollTimer(poll: Poll | null) {
     }
   };
 
-  return { isPollClosed, timeRemaining, formatTime };
+  return { timeRemaining, formatTime };
 }
 

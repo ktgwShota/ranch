@@ -92,7 +92,7 @@ export async function POST(req: Request) {
             return {
               url,
               title: ogpData.title || url,
-              description: customDescription || ogpData.description || undefined,
+              description: customDescription || undefined,
               image: undefined,
               budgetMin,
               budgetMax,
@@ -102,7 +102,7 @@ export async function POST(req: Request) {
           return {
             url,
             title: ogpData.title || url,
-            description: customDescription || ogpData.description || undefined,
+            description: customDescription || undefined,
             image: ogpData.image || undefined,
             budgetMin,
             budgetMax,
