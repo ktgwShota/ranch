@@ -4,7 +4,6 @@ import { Box, Button } from '@mui/material';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useVoter } from '../hooks/useVoter';
-import { usePollTimer } from '../hooks/usePollTimer';
 import { useVote } from '../hooks/useVote';
 import { Header } from './Header';
 import { OptionCard } from './OptionCard';
@@ -22,56 +21,12 @@ export default function VotingPage({ pollId, initialPoll }: VotingPageProps) {
   const { setupTutorial } = useTutorialStore();
   const router = useRouter();
 
-  const {
-    userName,
-    userId,
-    setUserName,
-    setUserId,
-  } = useVoter(pollId);
-  const { timeRemaining, formatTime } = usePollTimer(poll);
-  const { vote, voting, isVotedByUser, refreshPoll } = useVote(poll, setPoll, userId, userName);
+  const { voter, setVoter } = useVoter(pollId);
+  const { vote, voting, isVotedByUser, refreshPoll } = useVote(poll, setPoll, voter);
 
   const [voteDialogOpen, setVoteDialogOpen] = useState(false);
   const [pendingOptionId, setPendingOptionId] = useState<number | null>(null);
   const [nameChangeDialogOpen, setNameChangeDialogOpen] = useState(false);
-
-  const handleVoteClick = (optionId: number) => {
-    if (!userId || !userName) {
-      // 名前がない場合は投票用ダイアログを開く
-      setPendingOptionId(optionId);
-      setVoteDialogOpen(true);
-    } else {
-      // 名前がある場合は直接投票
-      vote(optionId);
-    }
-  };
-
-  const handleVoteNameSubmit = async (name: string, newUserId: string) => {
-    // 名前とuserIdを更新
-    setUserName(name);
-    setUserId(newUserId);
-
-    // 投票を実行（新しいuserIdとuserNameを渡す）
-    if (pendingOptionId !== null) {
-      await vote(pendingOptionId, newUserId, name);
-      // 投票後にポーリングデータを再取得
-      await refreshPoll();
-    }
-
-    setVoteDialogOpen(false);
-    setPendingOptionId(null);
-  };
-
-  const handleNameChangeSubmit = async (name: string, newUserId: string) => {
-    // 名前とuserIdを更新
-    setUserName(name);
-    setUserId(newUserId);
-
-    // ポーリングデータを再取得（名前変更が反映されるように）
-    await refreshPoll();
-
-    setNameChangeDialogOpen(false);
-  };
 
   useEffect(() => {
     setupTutorial(
@@ -91,14 +46,63 @@ export default function VotingPage({ pollId, initialPoll }: VotingPageProps) {
       ],
       'tutorial-poll-settings-button'
     );
-  }, [poll, setupTutorial]);
+  }, []);
 
-  // タイマーが0になったら、サーバー側で期限チェックと自動締切を実行させる
+  // ユーザーが閲覧中に投票期限が切れた場合、強制的にリロードすることで ResultPage を表示
   useEffect(() => {
-    if (timeRemaining === 0 && poll && poll.isClosed === 0 && poll.endDateTime) {
-      router.refresh();
+    if (!poll || poll.isClosed === 1 || !poll.endDateTime) {
+      return;
     }
-  }, [timeRemaining, poll, router]);
+
+    const endDateTime = poll.endDateTime;
+    const checkTimeRemaining = () => {
+      const endTime = new Date(endDateTime).getTime();
+      const now = Date.now();
+      const remaining = Math.max(0, endTime - now);
+
+      if (remaining <= 0) {
+        router.refresh();
+      }
+    };
+
+    const timer = setInterval(checkTimeRemaining, 1000);
+    return () => clearInterval(timer);
+  }, [poll, router]);
+
+  const handleVoteClick = (optionId: number) => {
+    if (!voter) {
+      setPendingOptionId(optionId);
+      setVoteDialogOpen(true);
+    } else {
+      vote(optionId);
+    }
+  };
+
+  const handleVoteNameSubmit = async (name: string, newUserId: string) => {
+    // 名前とuserIdを更新
+    const newVoter = { id: newUserId, name };
+    setVoter(newVoter);
+
+    // 投票を実行（新しいvoterを渡す）
+    if (pendingOptionId !== null) {
+      await vote(pendingOptionId, newVoter);
+      // 投票後にポーリングデータを再取得
+      await refreshPoll();
+    }
+
+    setVoteDialogOpen(false);
+    setPendingOptionId(null);
+  };
+
+  const handleNameChangeSubmit = async (name: string, newUserId: string) => {
+    // 名前とuserIdを更新
+    setVoter({ id: newUserId, name });
+
+    // ポーリングデータを再取得（名前変更が反映されるように）
+    await refreshPoll();
+
+    setNameChangeDialogOpen(false);
+  };
 
   const endPoll = async () => {
     if (!poll) return;
@@ -115,26 +119,20 @@ export default function VotingPage({ pollId, initialPoll }: VotingPageProps) {
       if (response.ok) {
         router.refresh();
       }
-    } catch (error) {
-      console.error('投票終了エラー:', error);
+    } catch (e) {
     }
   };
-
-  const totalVotes = poll?.options.reduce((sum, option) => sum + option.votes, 0) || 0;
 
   return (
     <>
       <Box>
         <Header
           poll={poll}
-          loading={false}
-          timeRemaining={timeRemaining}
-          formatTime={formatTime}
           onEndPoll={endPoll}
           onChangeVoterName={() => {
             setNameChangeDialogOpen(true);
           }}
-          hasVoterName={!!userName && !!userId}
+          hasVoterName={!!voter}
         />
         <Box
           sx={{
@@ -149,6 +147,7 @@ export default function VotingPage({ pollId, initialPoll }: VotingPageProps) {
           }}
         >
           {poll?.options.map((option) => {
+            const totalVotes = poll.options.reduce((sum, option) => sum + option.votes, 0) || 0;
             const isVoted = isVotedByUser(option);
             const isVoting = voting === option.id;
             const isAnyVoting = voting !== null;
@@ -207,7 +206,7 @@ export default function VotingPage({ pollId, initialPoll }: VotingPageProps) {
         }}
         pollId={pollId}
         type="name-change"
-        initialName={userName}
+        initialName={voter?.name}
         onSubmit={handleNameChangeSubmit}
       />
     </>

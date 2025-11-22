@@ -1,6 +1,6 @@
 'use client';
 
-import { Box, Card, CardContent, CardMedia, Chip, Skeleton, Typography } from '@mui/material';
+import { Box, Card, CardContent, CardMedia, Chip, Typography } from '@mui/material';
 import { Restaurant as RestaurantIcon } from '@mui/icons-material';
 import type { DBPollOption as Option } from '@/services/db/poll/types';
 import { ResultDisplay } from './ResultDisplay';
@@ -149,7 +149,7 @@ export function OptionCard({
           minHeight: 0, // flexboxの子要素が縮小できるようにする
         }}
       >
-        {option.title ? (
+        {option.title && (
           <Typography
             id={`option-title-${option.id}`}
             component="a"
@@ -178,8 +178,6 @@ export function OptionCard({
           >
             {option.title}
           </Typography>
-        ) : (
-          <Skeleton variant="text" height={25.2} sx={{ mb: 1.5 }} />
         )}
 
         {/* 備考の表示 */}

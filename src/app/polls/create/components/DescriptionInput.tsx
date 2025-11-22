@@ -18,16 +18,16 @@ export function DescriptionInput({
             mb: 1,
           }}
         >
-          <Typography
-            variant="body2"
-            sx={{
-              fontSize: '0.85rem',
-              color: 'text.secondary',
-              fontWeight: 600,
-            }}
-          >
-            備考
-          </Typography>
+        <Typography
+          variant="body2"
+          sx={{
+            fontSize: '0.85rem',
+            color: 'text.secondary',
+            fontWeight: 600,
+          }}
+        >
+          備考
+        </Typography>
           <Typography
             variant="caption"
             sx={{

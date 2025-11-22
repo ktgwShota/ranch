@@ -1,8 +1,12 @@
 import { useState, useEffect } from 'react';
 
+export interface Voter {
+  id: string;
+  name: string;
+}
+
 export function useVoter(pollId: string) {
-  const [userName, setUserName] = useState<string>('');
-  const [userId, setUserId] = useState<string>('');
+  const [voter, setVoter] = useState<Voter | null>(null);
   const [nameDialogOpen, setNameDialogOpen] = useState(false);
   const [tempName, setTempName] = useState<string>('');
 
@@ -13,9 +17,8 @@ export function useVoter(pollId: string) {
 
     if (storedInfo) {
       try {
-        const userInfo = JSON.parse(storedInfo);
-        setUserName(userInfo.name);
-        setUserId(userInfo.id);
+        const userInfo = JSON.parse(storedInfo) as Voter;
+        setVoter(userInfo);
       } catch (error) {
         console.error('Error parsing stored user info:', error);
         localStorage.removeItem(storageKey);
@@ -28,21 +31,20 @@ export function useVoter(pollId: string) {
     if (tempName.trim()) {
       const newName = tempName.trim();
       // userIdがない場合は新しく生成
-      const newUserId = userId || `voter_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-      const userInfo = {
+      const newUserId = voter?.id || `voter_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      const newVoter: Voter = {
         id: newUserId,
         name: newName,
       };
 
-      setUserName(userInfo.name);
-      setUserId(userInfo.id);
+      setVoter(newVoter);
 
       // ローカルストレージに保存
       const storageKey = `voterInfo_${pollId}`;
-      localStorage.setItem(storageKey, JSON.stringify(userInfo));
+      localStorage.setItem(storageKey, JSON.stringify(newVoter));
 
       // データベースの投票者名も更新（投票済みの場合のみ、userIdが既に存在する場合）
-      if (userId) {
+      if (voter?.id) {
         try {
           await fetch(`/api/polls/${pollId}/voter-name`, {
             method: 'PUT',
@@ -50,7 +52,7 @@ export function useVoter(pollId: string) {
               'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-              voterId: userId,
+              voterId: voter.id,
               voterName: newName,
             }),
           });
@@ -64,7 +66,7 @@ export function useVoter(pollId: string) {
   };
 
   const checkAndOpenDialog = () => {
-    if (!userId || !userName) {
+    if (!voter) {
       setNameDialogOpen(true);
       return false;
     }
@@ -72,10 +74,8 @@ export function useVoter(pollId: string) {
   };
 
   return {
-    userName,
-    userId,
-    setUserName,
-    setUserId,
+    voter,
+    setVoter,
     nameDialogOpen,
     tempName,
     setTempName,

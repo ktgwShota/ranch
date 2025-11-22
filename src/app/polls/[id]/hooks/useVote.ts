@@ -1,62 +1,97 @@
 import { useState } from 'react';
 import type { Dispatch, SetStateAction } from 'react';
 import type { DBPoll as Poll, DBPollOption as Option } from '@/services/db/poll/types';
+import type { Voter } from './useVoter';
 
 export function useVote(
   poll: Poll | null,
   setPoll: Dispatch<SetStateAction<Poll | null>>,
-  userId: string,
-  userName: string
+  voter: Voter | null
 ) {
   const [voting, setVoting] = useState<number | null>(null);
   const [votedOptions, setVotedOptions] = useState<Set<number>>(new Set());
 
-  const vote = async (optionId: number, overrideUserId?: string, overrideUserName?: string) => {
+  const removeVoteFromOtherOptions = (options: Option[], targetOptionId: number, voterId: string): Option[] => {
+    return options.map((option) => {
+      if (option.id !== targetOptionId && option.voters.some((v) => v.id === voterId)) {
+        return {
+          ...option,
+          votes: option.votes - 1,
+          voters: option.voters.filter((v) => v.id !== voterId),
+        };
+      }
+      return option;
+    });
+  };
+
+  const toggleVoteForOption = (options: Option[], optionId: number, currentVoter: Voter): Option[] => {
+    return options.map((option) => {
+      if (option.id !== optionId) return option;
+
+      const hasVoted = option.voters.some((v) => v.id === currentVoter.id);
+
+      if (hasVoted) {
+        // 投票を取り消し
+        return {
+          ...option,
+          votes: option.votes - 1,
+          voters: option.voters.filter((v) => v.id !== currentVoter.id),
+        };
+      }
+
+      // 投票を追加
+      return {
+        ...option,
+        votes: option.votes + 1,
+        voters: [...option.voters, { id: currentVoter.id, name: currentVoter.name }],
+      };
+    });
+  };
+
+  const updateVotedOptions = (options: Option[], voterId: string): Set<number> => {
+    const newVotedOptions = new Set<number>();
+    options.forEach((option) => {
+      if (option.voters.some((v) => v.id === voterId)) {
+        newVotedOptions.add(option.id);
+      }
+    });
+    return newVotedOptions;
+  };
+
+  const sendVoteToServer = async (pollId: string, optionId: number, currentVoter: Voter): Promise<void> => {
+    try {
+      await fetch(`/api/polls/${pollId}/votes`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          optionId,
+          voterId: currentVoter.id,
+          voterName: currentVoter.name,
+        }),
+      });
+    } catch (error) {
+      console.error('Error updating vote:', error);
+    }
+  };
+
+  const vote = async (optionId: number, overrideVoter?: Voter) => {
     if (!poll || voting) return;
 
-    const currentUserId = overrideUserId || userId;
-    const currentUserName = overrideUserName || userName;
-
-    if (!currentUserId || !currentUserName) return;
+    const currentVoter = overrideVoter || voter;
+    if (!currentVoter) return;
 
     setVoting(optionId);
 
     // デザインのために1秒待ってから処理を開始
     await new Promise((resolve) => setTimeout(resolve, 1000));
 
-    // まず、他の選択肢から投票を削除（一人一票制）
-    let updatedOptions = poll.options.map((option) => {
-      if (option.id !== optionId && option.voters.some((voter) => voter.id === currentUserId)) {
-        return {
-          ...option,
-          votes: option.votes - 1,
-          voters: option.voters.filter((voter) => voter.id !== currentUserId),
-        };
-      }
-      return option;
-    });
+    // 他の選択肢から投票を削除（一人一票制）
+    let updatedOptions = removeVoteFromOtherOptions(poll.options, optionId, currentVoter.id);
 
-    // 次に、対象の選択肢を処理
-    updatedOptions = updatedOptions.map((option) => {
-      if (option.id === optionId) {
-        // 既にこの選択肢に投票済みの場合は投票を取り消し
-        if (option.voters.some((voter) => voter.id === currentUserId)) {
-          return {
-            ...option,
-            votes: option.votes - 1,
-            voters: option.voters.filter((voter) => voter.id !== currentUserId),
-          };
-        } else {
-          // 新しい選択肢に投票を追加
-          return {
-            ...option,
-            votes: option.votes + 1,
-            voters: [...option.voters, { id: currentUserId, name: currentUserName }],
-          };
-        }
-      }
-      return option;
-    });
+    // 対象の選択肢の投票をトグル
+    updatedOptions = toggleVoteForOption(updatedOptions, optionId, currentVoter);
 
     const updatedPoll = {
       ...poll,
@@ -66,35 +101,17 @@ export function useVote(
     setPoll(updatedPoll);
 
     // 投票状態を更新
-    const newVotedOptions = new Set<number>();
-    updatedOptions.forEach((option) => {
-      if (option.voters.some((voter) => voter.id === currentUserId)) {
-        newVotedOptions.add(option.id);
-      }
-    });
+    const newVotedOptions = updateVotedOptions(updatedOptions, currentVoter.id);
     setVotedOptions(newVotedOptions);
 
-    try {
-      await fetch(`/api/polls/${poll.id}/votes`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          optionId,
-          voterId: currentUserId,
-          voterName: currentUserName,
-        }),
-      });
-    } catch (error) {
-      console.error('Error updating vote:', error);
-    } finally {
-      setVoting(null);
-    }
+    // サーバーに投票を送信
+    await sendVoteToServer(poll.id, optionId, currentVoter);
+    setVoting(null);
   };
 
   const isVotedByUser = (option: Option) => {
-    return option.voters.some((voter) => voter.id === userId);
+    if (!voter) return false;
+    return option.voters.some((v) => v.id === voter.id);
   };
 
   const refreshPoll = async () => {

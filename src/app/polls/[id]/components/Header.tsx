@@ -1,7 +1,6 @@
 import {
   Box,
   Typography,
-  Skeleton,
   IconButton,
   Menu,
   MenuItem,
@@ -9,32 +8,64 @@ import {
   ListItemText,
 } from '@mui/material';
 import { Stop as StopIcon, Settings as SettingsIcon, Edit as EditIcon } from '@mui/icons-material';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import type { DBPoll as Poll } from '@/services/db/poll/types';
 import { CustomDialog } from '@/app/components/CustomDialog';
 
 interface HeaderProps {
   poll: Poll | null;
-  loading: boolean;
-  timeRemaining: number | null;
-  formatTime: (seconds: number) => string;
   onEndPoll: () => void;
   onChangeVoterName: () => void;
   hasVoterName: boolean;
 }
 
+function formatTime(seconds: number): string {
+  const days = Math.floor(seconds / (24 * 60 * 60));
+  const hours = Math.floor((seconds % (24 * 60 * 60)) / (60 * 60));
+  const mins = Math.floor((seconds % (60 * 60)) / 60);
+  const secs = seconds % 60;
+
+  if (days > 0) {
+    return `${days}日${hours}時間${mins}分`;
+  } else if (hours > 0) {
+    return `${hours}時間${mins}分`;
+  } else if (mins > 0) {
+    return `${mins}分${secs}秒`;
+  } else {
+    return `${secs}秒`;
+  }
+}
+
 export function Header({
   poll,
-  loading,
-  timeRemaining,
-  formatTime,
   onEndPoll,
   onChangeVoterName,
   hasVoterName,
 }: HeaderProps) {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
+  const [, setTick] = useState(0);
   const open = Boolean(anchorEl);
+
+  // リアルタイム更新のため、1秒ごとに再レンダリング
+  useEffect(() => {
+    if (!poll?.endDateTime || poll.isClosed === 1) {
+      return;
+    }
+
+    const timer = setInterval(() => {
+      setTick((prev) => prev + 1);
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [poll]);
+
+  const getTimeRemaining = (): number => {
+    if (!poll?.endDateTime) return 0;
+    const endTime = new Date(poll.endDateTime).getTime();
+    const now = Date.now();
+    return Math.max(0, Math.ceil((endTime - now) / 1000));
+  };
 
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
@@ -66,194 +97,182 @@ export function Header({
   return (
     <Box
       sx={{
-        background: '#f8f9fa',
+        background: '#ffffff',
         borderRadius: 0.5,
-        p: 3,
-        textAlign: 'center',
-        border: '1px solid #ddd',
+        p: { xs: 2.5, sm: 3 },
+        mb: 3,
+        border: '1px solid #e5e7eb',
       }}
     >
-      {loading ? (
-        <Skeleton variant="text" width="50%" height={33.27} sx={{ mx: 'auto' }} />
-      ) : (
-        <Box
+      <Box
+        sx={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          flexWrap: 'wrap',
+          gap: { xs: 2, sm: 3 },
+        }}
+      >
+        <Typography
+          variant="h5"
+          component="h1"
+          fontWeight="700"
           sx={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            flexWrap: 'wrap',
-            gap: 2,
+            color: '#111827',
+            fontSize: { xs: '20px', sm: '24px' },
+            lineHeight: 1.3,
+            flex: 1,
+            minWidth: 0,
           }}
         >
-          <Typography
-            variant="h6"
-            component="h1"
-            fontWeight="600"
-            sx={{
-              mx: 1,
-              color: '#495057',
-            }}
-          >
-            {poll?.title}
-          </Typography>
+          {poll?.title}
+        </Typography>
 
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-            {poll && (
-              <Box
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, flexShrink: 0 }}>
+          {poll && poll.endDateTime && (
+            <Box
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 1,
+                px: 1.5,
+                py: 1,
+                backgroundColor: '#eff6ff',
+                borderRadius: 2,
+                border: '1px solid #bfdbfe',
+                minWidth: 'fit-content',
+              }}
+            >
+              <Typography
+                variant="caption"
                 sx={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 1,
-                  px: '18px',
-                  py: '9px',
-                  backgroundColor: poll?.endDateTime ? '#e3f2fd' : '#e8f5e8',
-                  borderRadius: 3,
-                  border: `1px solid ${poll?.endDateTime ? '#2196f3' : '#4caf50'}`,
-                  minWidth: 'fit-content',
-                  boxShadow: poll?.endDateTime
-                    ? '0 2px 8px rgba(33, 150, 243, 0.2)'
-                    : '0 2px 8px rgba(76, 175, 80, 0.2)',
+                  color: '#1e40af',
+                  fontWeight: 500,
+                  fontSize: '13px',
+                  whiteSpace: 'nowrap',
+                  letterSpacing: '0.01em',
                 }}
               >
-                <Typography
-                  variant="caption"
-                  sx={{
-                    color: poll?.endDateTime ? '#1976d2' : '#4caf50',
-                    fontWeight: 600,
-                    fontSize: '14px',
-                    whiteSpace: 'nowrap',
-                  }}
-                >
-                  投票受付:
-                </Typography>
-                {poll?.endDateTime ? (
-                  <Typography
-                    variant="body2"
-                    sx={{
-                      color: '#1976d2',
-                      fontWeight: 700,
-                      fontSize: '14px',
-                      whiteSpace: 'nowrap',
-                    }}
-                  >
-                    {formatTime(timeRemaining || 0)}
-                  </Typography>
-                ) : (
-                  <Typography
-                    variant="body2"
-                    sx={{
-                      color: '#4caf50',
-                      fontWeight: 700,
-                      fontSize: '14px',
-                      whiteSpace: 'nowrap',
-                    }}
-                  >
-                    無期限
-                  </Typography>
-                )}
-              </Box>
-            )}
+                投票受付:
+              </Typography>
+              <Typography
+                variant="body2"
+                sx={{
+                  color: '#1e40af',
+                  fontSize: '13px',
+                  whiteSpace: 'nowrap',
+                  fontFamily: 'system-ui, -apple-system, sans-serif',
+                }}
+              >
+                {formatTime(getTimeRemaining())}
+              </Typography>
+            </Box>
+          )}
 
-            {poll && (
-              <>
-                <IconButton
-                  id="poll-settings-button"
-                  onClick={handleClick}
+          {poll && (
+            <>
+              <IconButton
+                id="poll-settings-button"
+                onClick={handleClick}
+                sx={{
+                  p: 1,
+                  color: '#6b7280',
+                  border: '1px solid #e5e7eb',
+                  borderRadius: 1.5,
+                  backgroundColor: '#ffffff',
+                  '&:hover': {
+                    backgroundColor: '#f9fafb',
+                    borderColor: '#d1d5db',
+                    color: '#374151',
+                  },
+                }}
+              >
+                <SettingsIcon sx={{ fontSize: '20px' }} />
+              </IconButton>
+              <Menu
+                anchorEl={anchorEl}
+                open={open}
+                onClose={handleClose}
+                anchorOrigin={{
+                  vertical: 'bottom',
+                  horizontal: 'right',
+                }}
+                transformOrigin={{
+                  vertical: 'top',
+                  horizontal: 'right',
+                }}
+                PaperProps={{
+                  elevation: 8,
+                  sx: {
+                    mt: 1.5,
+                    minWidth: 200,
+                    borderRadius: 2,
+                    border: '1px solid #e5e7eb',
+                    boxShadow: '0 4px 16px rgba(0, 0, 0, 0.1)',
+                    overflow: 'hidden',
+                  },
+                }}
+                MenuListProps={{
+                  sx: {
+                    py: 0.5,
+                  },
+                }}
+              >
+                <MenuItem
+                  onClick={handleChangeVoterName}
                   sx={{
-                    p: '6px',
-                    color: '#495057',
+                    py: 1.5,
+                    px: 2,
                     '&:hover': {
-                      backgroundColor: 'rgba(0, 0, 0, 0.04)',
+                      backgroundColor: '#f3f4f6',
+                    },
+                    '&:active': {
+                      backgroundColor: '#e5e7eb',
                     },
                   }}
                 >
-                  <SettingsIcon sx={{ fontSize: '26px' }} />
-                </IconButton>
-                <Menu
-                  anchorEl={anchorEl}
-                  open={open}
-                  onClose={handleClose}
-                  anchorOrigin={{
-                    vertical: 'bottom',
-                    horizontal: 'right',
-                  }}
-                  transformOrigin={{
-                    vertical: 'top',
-                    horizontal: 'right',
-                  }}
-                  PaperProps={{
-                    elevation: 8,
-                    sx: {
-                      mt: 1.5,
-                      minWidth: 200,
-                      borderRadius: 2,
-                      border: '1px solid #e5e7eb',
-                      boxShadow: '0 4px 16px rgba(0, 0, 0, 0.1)',
-                      overflow: 'hidden',
+                  <ListItemIcon sx={{ minWidth: 40 }}>
+                    <EditIcon fontSize="small" sx={{ color: '#3b82f6' }} />
+                  </ListItemIcon>
+                  <ListItemText
+                    primary={hasVoterName ? '投票者名を変更' : '投票者名を設定'}
+                    primaryTypographyProps={{
+                      fontSize: '14px',
+                      fontWeight: 500,
+                      color: '#374151',
+                    }}
+                  />
+                </MenuItem>
+                <MenuItem
+                  onClick={handleEndPollClick}
+                  sx={{
+                    py: 1.5,
+                    px: 2,
+                    '&:hover': {
+                      backgroundColor: '#fef2f2',
                     },
-                  }}
-                  MenuListProps={{
-                    sx: {
-                      py: 0.5,
+                    '&:active': {
+                      backgroundColor: '#fee2e2',
                     },
                   }}
                 >
-                  <MenuItem
-                    onClick={handleChangeVoterName}
-                    sx={{
-                      py: 1.5,
-                      px: 2,
-                      '&:hover': {
-                        backgroundColor: '#f3f4f6',
-                      },
-                      '&:active': {
-                        backgroundColor: '#e5e7eb',
-                      },
+                  <ListItemIcon sx={{ minWidth: 40 }}>
+                    <StopIcon fontSize="small" sx={{ color: '#ef4444' }} />
+                  </ListItemIcon>
+                  <ListItemText
+                    primary="投票を終了"
+                    primaryTypographyProps={{
+                      fontSize: '14px',
+                      fontWeight: 500,
+                      color: '#dc2626',
                     }}
-                  >
-                    <ListItemIcon sx={{ minWidth: 40 }}>
-                      <EditIcon fontSize="small" sx={{ color: '#3b82f6' }} />
-                    </ListItemIcon>
-                    <ListItemText
-                      primary={hasVoterName ? '投票者名を変更' : '投票者名を設定'}
-                      primaryTypographyProps={{
-                        fontSize: '14px',
-                        fontWeight: 500,
-                        color: '#374151',
-                      }}
-                    />
-                  </MenuItem>
-                  <MenuItem
-                    onClick={handleEndPollClick}
-                    sx={{
-                      py: 1.5,
-                      px: 2,
-                      '&:hover': {
-                        backgroundColor: '#fef2f2',
-                      },
-                      '&:active': {
-                        backgroundColor: '#fee2e2',
-                      },
-                    }}
-                  >
-                    <ListItemIcon sx={{ minWidth: 40 }}>
-                      <StopIcon fontSize="small" sx={{ color: '#ef4444' }} />
-                    </ListItemIcon>
-                    <ListItemText
-                      primary="投票を終了"
-                      primaryTypographyProps={{
-                        fontSize: '14px',
-                        fontWeight: 500,
-                        color: '#dc2626',
-                      }}
-                    />
-                  </MenuItem>
-                </Menu>
-              </>
-            )}
-          </Box>
+                  />
+                </MenuItem>
+              </Menu>
+            </>
+          )}
         </Box>
-      )}
+      </Box>
 
       <CustomDialog
         open={confirmDialogOpen}
