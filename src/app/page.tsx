@@ -1,450 +1,961 @@
 'use client';
 
 import {
-  Bolt as BoltIcon,
-  Create as CreateIcon,
-  DoneAll as DoneAllIcon,
-  HowToVote as HowToVoteIcon,
-  Link as LinkIcon,
-  Share as ShareIcon,
+  Box,
+  Button,
+  Container,
+  Typography,
+  Card,
+  CardContent,
+  Accordion,
+  AccordionSummary,
+  AccordionDetails,
+} from '@mui/material';
+import {
+  CheckCircle as CheckCircleIcon,
+  AutoAwesome as AutoAwesomeIcon,
+  Balance as BalanceIcon,
+  ExpandMore as ExpandMoreIcon,
 } from '@mui/icons-material';
-import { Box, Button, Container, Divider, Paper, Stack, Typography } from '@mui/material';
-import { motion } from 'framer-motion';
 import Link from 'next/link';
-import { useErrorStore } from './stores/errorStore';
 
-// --- Reusable Animated Components ---
-const StaggeredContainer = ({
-  children,
-  ...props
-}: {
-  children: React.ReactNode;
-  [key: string]: any;
-}) => {
-  const containerVariants = { hidden: {}, visible: { transition: { staggerChildren: 0.2 } } };
+// ヘッダーコンポーネント
+function LandingHeader() {
   return (
-    <motion.div
-      initial="hidden"
-      whileInView="visible"
-      viewport={{ once: true, amount: 0.3 }}
-      variants={containerVariants}
-      {...props}
-    >
-      {children}
-    </motion.div>
-  );
-};
-const FadeInItem = ({ children, ...props }: { children: React.ReactNode;[key: string]: any }) => {
-  const itemVariants = {
-    hidden: { opacity: 0, y: 30 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: {
-        duration: 0.6,
-        ease: [0.25, 0.46, 0.45, 0.94] as const,
-      },
-    },
-  };
-  return (
-    <motion.div variants={itemVariants} {...props}>
-      {children}
-    </motion.div>
-  );
-};
-
-// --- Main Page Component ---
-export default function Home() {
-  const features = [
-    {
-      icon: <BoltIcon />,
-      title: '即座に使用可能',
-      description:
-        '会員登録/課金は必要ありません。思い立った瞬間から誰でもすぐに無料で利用を開始できます。',
-    },
-    {
-      icon: <LinkIcon />,
-      title: '自動生成',
-      description:
-        'サイトの URL を貼るだけで、お店の名前と写真・説明文付きの投票ページが自動的に作成されます。',
-    },
-    {
-      icon: <HowToVoteIcon />,
-      title: '投票の透明性',
-      description:
-        '本音を知りたい時は「匿名」で。誰が何を食べたいかハッキリさせたい時は「実名」で。メンバーの関係性に合わせて選択できます。',
-    },
-  ];
-
-  const howItWorks = [
-    {
-      icon: <CreateIcon />,
-      title: 'STEP 1: ページを作成',
-      description: 'タイトルと候補となるお店の URL を2つ以上入力します。',
-    },
-    {
-      icon: <ShareIcon />,
-      title: 'STEP 2: リンクを共有',
-      description: '作成したページの URL を LINE や Slack でメンバーに共有します。',
-    },
-    {
-      icon: <DoneAllIcon />,
-      title: 'STEP 3: お店を決定',
-      description:
-        'メンバーはリンク先で投票。結果はリアルタイムに集計され、お店が自動で決まります。',
-    },
-  ];
-
-  return (
-    // ここがスクロールコンテナになります
     <Box
       sx={{
-        backgroundColor: '#ffffff',
-        color: '#1a1a1a',
-        overflowX: 'hidden',
-        // --- CSS Scroll Snapの設定 ---
-        height: '100vh', // コンテナの高さを画面の高さに
-        overflowY: 'auto', // Y軸のスクロールを有効に
-        scrollSnapType: 'y mandatory', // Y軸方向で、必ずスナップポイントに強制的に止まる
-        '&::-webkit-scrollbar': {
-          display: 'none', // スクロールバーを非表示にして、よりアプリらしく
-        },
-        msOverflowStyle: 'none', // IE/Edge用
-        scrollbarWidth: 'none', // Firefox用
+        position: 'sticky',
+        top: 0,
+        zIndex: 1000,
+        backgroundColor: 'white',
+        borderBottom: '1px solid #e5e7eb',
       }}
     >
-      {/* <Box sx={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'radial-gradient(circle at 10% 20%, rgba(52, 152, 219, 0.08) 0%, rgba(248, 250, 252, 0.8) 25%), radial-gradient(circle at 80% 90%, rgba(142, 68, 173, 0.08) 0%, rgba(248, 250, 252, 0.8) 25%), linear-gradient(135deg, #f8fafc 0%, #ffffff 100%)', zIndex: 0 }} /> */}
-
-      <Box sx={{ position: 'relative', zIndex: 1 }}>
-        {/* ヒーローセクション */}
-        <Container
-          component="section"
-          maxWidth="md"
+      <Container maxWidth={false} sx={{ maxWidth: '1000px' }}>
+        <Box
           sx={{
-            height: '100vh',
             display: 'flex',
+            justifyContent: 'space-between',
             alignItems: 'center',
-            justifyContent: 'center',
-            scrollSnapAlign: 'start',
+            py: 2,
           }}
         >
-          <StaggeredContainer>
-            <Box textAlign="center">
-              <FadeInItem>
-                <Typography
-                  component="h1"
-                  variant="h1"
-                  sx={{
-                    fontSize: { xs: '1.8rem', sm: '2.5rem', md: '3rem' },
-                    fontWeight: 800,
-                    lineHeight: 1.2,
-                    my: 3,
-                    letterSpacing: '-0.02em',
-                    background: 'linear-gradient(45deg, #1a1a1a 30%, #3498db 80%)',
-                    WebkitBackgroundClip: 'text',
-                    WebkitTextFillColor: 'transparent',
-                  }}
-                >
-                  「何でもいいよ」<span className="-ml-3">は</span>
-                  <span className="ml-1 -mr-4">、</span>許さない。
-                </Typography>
-              </FadeInItem>
-
-              <FadeInItem>
-                <Typography
-                  sx={{
-                    color: '#666666',
-                    maxWidth: '650px',
-                    mx: 'auto',
-                    mb: 1,
-                    fontSize: { xs: '1.1rem', md: '1.25rem' },
-                  }}
-                >
-                  全員の意思を可視化する。
-                </Typography>
-
-                <Typography
-                  sx={{
-                    color: '#666666',
-                    maxWidth: '650px',
-                    mx: 'auto',
-                    mb: 5,
-                    fontSize: { xs: '1.1rem', md: '1.25rem' },
-                  }}
-                >
-                  これからは公平な多数決でお店を決める。
-                </Typography>
-              </FadeInItem>
-
-              <FadeInItem>
-                <Button
-                  component={Link}
-                  href="/polls/create"
-                  variant="contained"
-                  size="large"
-                  sx={{
-                    py: 2,
-                    px: 6,
-                    fontSize: '1.125rem',
-                    fontWeight: 700,
-                    borderRadius: '999px',
-                    textTransform: 'none',
-                    boxShadow: '0 0 20px rgba(52, 152, 219, 0.5)',
-                    transition: 'transform 0.2s',
-                    '&:hover': {
-                      transform: 'scale(1.05)',
-                      boxShadow: '0 0 30px rgba(52, 152, 219, 0.7)',
-                    },
-                  }}
-                >
-                  無料で始める
-                </Button>
-              </FadeInItem>
+          {/* ロゴ */}
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <Box
+              sx={{
+                width: 32,
+                height: 32,
+                borderRadius: '50%',
+                backgroundColor: '#3b82f6',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: 'white',
+              }}
+            >
+              <CheckCircleIcon sx={{ fontSize: 20 }} />
             </Box>
-          </StaggeredContainer>
-        </Container>
+            <Typography variant="h6" sx={{ fontWeight: 700, color: '#1f2937' }}>
+              ◎チョイスル
+            </Typography>
+          </Box>
 
-        {/* 特徴セクション */}
-        <Container
-          component="section"
-          maxWidth={false}
+          {/* ナビゲーション */}
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+            <Typography
+              component="a"
+              href="#features"
+              sx={{
+                color: '#6b7280',
+                textDecoration: 'none',
+                fontSize: '0.95rem',
+                fontWeight: 500,
+                '&:hover': { color: '#3b82f6' },
+              }}
+            >
+              機能
+            </Typography>
+            <Typography
+              component="a"
+              href="#pricing"
+              sx={{
+                color: '#6b7280',
+                textDecoration: 'none',
+                fontSize: '0.95rem',
+                fontWeight: 500,
+                '&:hover': { color: '#3b82f6' },
+              }}
+            >
+              料金
+            </Typography>
+            <Typography
+              component="a"
+              href="#login"
+              sx={{
+                color: '#6b7280',
+                textDecoration: 'none',
+                fontSize: '0.95rem',
+                fontWeight: 500,
+                '&:hover': { color: '#3b82f6' },
+              }}
+            >
+              ログイン
+            </Typography>
+            <Button
+              variant="contained"
+              sx={{
+                backgroundColor: '#3b82f6',
+                color: 'white',
+                borderRadius: '8px',
+                px: 3,
+                py: 1,
+                textTransform: 'none',
+                fontWeight: 600,
+                '&:hover': { backgroundColor: '#2563eb' },
+              }}
+            >
+              新規登録
+            </Button>
+          </Box>
+        </Box>
+      </Container>
+    </Box>
+  );
+}
+
+// ヒーローセクションコンポーネント
+function HeroSection() {
+  return (
+    <Box
+      sx={{
+        position: 'relative',
+        minHeight: 'calc(100vh - 80px)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        textAlign: 'center',
+        backgroundImage: 'url(/hero-background.jpg)',
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat',
+        '&::before': {
+          content: '""',
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: 'rgba(0, 0, 0, 0.3)',
+          zIndex: 1,
+        },
+      }}
+    >
+      <Container
+        maxWidth={false}
+        sx={{
+          maxWidth: '1000px',
+          position: 'relative',
+          zIndex: 2,
+        }}
+      >
+        <Typography
+          variant="h1"
           sx={{
-            backgroundColor: '#f8fafc',
-            height: '100vh',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            scrollSnapAlign: 'start',
-            width: '100vw',
+            fontSize: { xs: '2.5rem', md: '3.5rem' },
+            fontWeight: 700,
+            color: 'white',
+            mb: 3,
+            lineHeight: 1.2,
+            textShadow: '0 2px 4px rgba(0, 0, 0, 0.3)',
           }}
         >
+          幹事の店選び、サクッと解決。
+        </Typography>
+        <Typography
+          variant="body1"
+          sx={{
+            fontSize: { xs: '1rem', md: '1.125rem' },
+            color: 'rgba(255, 255, 255, 0.95)',
+            maxWidth: '700px',
+            mx: 'auto',
+            mb: 4,
+            lineHeight: 1.6,
+            textShadow: '0 1px 2px rgba(0, 0, 0, 0.3)',
+          }}
+        >
+          イベントの店選びを簡単に決められる投票ツールです。
+          投票を作成してリンクを共有すれば、誰でも投票でき、やり取りなしで最適な場所を見つけられます。
+        </Typography>
+        <Button
+          component={Link}
+          href="/polls/create"
+          variant="contained"
+          sx={{
+            backgroundColor: '#3b82f6',
+            color: 'white',
+            borderRadius: '8px',
+            px: 4,
+            py: 1.5,
+            fontSize: '1rem',
+            textTransform: 'none',
+            fontWeight: 600,
+            boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.3)',
+            '&:hover': { backgroundColor: '#2563eb' },
+          }}
+        >
+          無料で投票を作成
+        </Button>
+      </Container>
+    </Box>
+  );
+}
+
+// 機能セクションコンポーネント
+function FeaturesSection() {
+  return (
+    <Box id="features" sx={{ py: { xs: 8, md: 12 }, backgroundColor: 'white' }}>
+      <Container maxWidth={false} sx={{ maxWidth: '1000px' }}>
+        <Typography
+          variant="h2"
+          sx={{
+            fontSize: { xs: '2rem', md: '2.5rem' },
+            fontWeight: 700,
+            color: '#1f2937',
+            textAlign: 'center',
+            mb: 2,
+          }}
+        >
+          終わりのないやり取りに疲れていませんか？チョイスルが簡単にします。
+        </Typography>
+        <Typography
+          variant="body1"
+          sx={{
+            fontSize: '1.125rem',
+            color: '#6b7280',
+            textAlign: 'center',
+            maxWidth: '600px',
+            mx: 'auto',
+            mb: 6,
+          }}
+        >
+          イベントの計画は楽しいものであるべきです。チョイスルは店選びのストレスをなくし、
+          素晴らしい時間に集中できるように作りました。
+        </Typography>
+
+        <Box
+          sx={{
+            display: 'grid',
+            gridTemplateColumns: { xs: '1fr', md: 'repeat(3, 1fr)' },
+            gap: 4,
+          }}
+        >
+          {/* カード1 */}
+          <Card
+            sx={{
+              border: '1px solid #e5e7eb',
+              borderRadius: '12px',
+              boxShadow: 'none',
+              '&:hover': { boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' },
+            }}
+          >
+            <CardContent sx={{ p: 3 }}>
+              <Box
+                sx={{
+                  width: 48,
+                  height: 48,
+                  borderRadius: '12px',
+                  backgroundColor: '#fef3c7',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  mb: 2,
+                }}
+              >
+                <AutoAwesomeIcon sx={{ fontSize: 28, color: '#f59e0b' }} />
+              </Box>
+              <Typography
+                variant="h6"
+                sx={{ fontWeight: 600, color: '#1f2937', mb: 1 }}
+              >
+                店舗情報の自動取得
+              </Typography>
+              <Typography variant="body2" sx={{ color: '#6b7280', lineHeight: 1.6 }}>
+                店舗のURLを貼り付けるだけで、名前、住所、写真を自動で取得します。
+              </Typography>
+            </CardContent>
+          </Card>
+
+          {/* カード2 */}
+          <Card
+            sx={{
+              border: '1px solid #e5e7eb',
+              borderRadius: '12px',
+              boxShadow: 'none',
+              '&:hover': { boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' },
+            }}
+          >
+            <CardContent sx={{ p: 3 }}>
+              <Box
+                sx={{
+                  width: 48,
+                  height: 48,
+                  borderRadius: '12px',
+                  backgroundColor: '#fef3c7',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  mb: 2,
+                }}
+              >
+                <BalanceIcon sx={{ fontSize: 28, color: '#f59e0b' }} />
+              </Box>
+              <Typography
+                variant="h6"
+                sx={{ fontWeight: 600, color: '#1f2937', mb: 1 }}
+              >
+                公平で簡単な投票
+              </Typography>
+              <Typography variant="body2" sx={{ color: '#6b7280', lineHeight: 1.6 }}>
+                誰でも投票できるシンプルな投票を共有できます。リアルタイムで結果を確認し、合意形成を図れます。
+              </Typography>
+            </CardContent>
+          </Card>
+
+          {/* カード3 */}
+          <Card
+            sx={{
+              border: '1px solid #e5e7eb',
+              borderRadius: '12px',
+              boxShadow: 'none',
+              '&:hover': { boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' },
+            }}
+          >
+            <CardContent sx={{ p: 3 }}>
+              <Box
+                sx={{
+                  width: 48,
+                  height: 48,
+                  borderRadius: '12px',
+                  backgroundColor: '#d1fae5',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  mb: 2,
+                }}
+              >
+                <CheckCircleIcon sx={{ fontSize: 28, color: '#10b981' }} />
+              </Box>
+              <Typography
+                variant="h6"
+                sx={{ fontWeight: 600, color: '#1f2937', mb: 1 }}
+              >
+                簡単な意思決定
+              </Typography>
+              <Typography variant="body2" sx={{ color: '#6b7280', lineHeight: 1.6 }}>
+                返信を追いかける必要はありません。迅速に明確な決定を得られ、作業負荷とストレスを軽減できます。
+              </Typography>
+            </CardContent>
+          </Card>
+        </Box>
+      </Container>
+    </Box>
+  );
+}
+
+// スマートフォンモックアップコンポーネント
+function PhoneMockup({ children, bgColor }: { children: React.ReactNode; bgColor: string }) {
+  return (
+    <Box
+      sx={{
+        width: { xs: '100%', md: '400px' },
+        maxWidth: '100%',
+        aspectRatio: '1',
+        backgroundColor: bgColor,
+        borderRadius: '12px',
+        border: '1px solid white',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+        p: 2,
+      }}
+    >
+      <Box
+        sx={{
+          width: '70%',
+          maxWidth: '280px',
+          backgroundColor: 'white',
+          borderRadius: '24px',
+          overflow: 'hidden',
+          boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.2)',
+        }}
+      >
+        {/* ステータスバー */}
+        <Box
+          sx={{
+            backgroundColor: '#1f2937',
+            color: 'white',
+            px: 2,
+            py: 0.5,
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            fontSize: '0.7rem',
+          }}
+        >
+          <Box>9:41</Box>
+          <Box sx={{ display: 'flex', gap: 0.5 }}>
+            <Box sx={{ width: 12, height: 6, border: '1px solid white', borderRadius: '2px' }} />
+            <Box sx={{ width: 12, height: 6, border: '1px solid white', borderRadius: '2px' }} />
+          </Box>
+        </Box>
+        {/* アプリ画面 */}
+        {children}
+      </Box>
+    </Box>
+  );
+}
+
+// How it Works セクションコンポーネント
+function HowItWorksSection() {
+  return (
+    <Box sx={{ py: { xs: 8, md: 12 }, backgroundColor: '#f9fafb' }}>
+      <Container maxWidth={false} sx={{ maxWidth: '1000px' }}>
+        <Typography
+          variant="h2"
+          sx={{
+            fontSize: { xs: '2rem', md: '2.5rem' },
+            fontWeight: 700,
+            color: '#1f2937',
+            textAlign: 'center',
+            mb: 8,
+          }}
+        >
+          使い方
+        </Typography>
+
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: { xs: 8, md: 12 } }}>
+          {/* Step 1: テキスト左、画像右 */}
           <Box
             sx={{
               display: 'flex',
-              flexDirection: 'column',
+              flexDirection: { xs: 'column', md: 'row' },
               alignItems: 'center',
-              justifyContent: 'center',
-              width: '100%',
-              textAlign: 'center',
+              gap: 6,
             }}
           >
-            <Box textAlign="center" mb={10}>
+            <Box sx={{ flex: 1, textAlign: { xs: 'center', md: 'left' } }}>
               <Typography
-                component="h2"
-                variant="h2"
-                sx={{ fontWeight: 700, mb: 2, fontSize: { xs: '2rem', md: '2.5rem' } }}
+                sx={{
+                  color: '#3b82f6',
+                  fontSize: '0.875rem',
+                  fontWeight: 600,
+                  mb: 1,
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.05em',
+                }}
               >
-                チョイスルが選ばれる理由
+                ステップ1
               </Typography>
               <Typography
-                sx={{ color: '#666666', fontSize: '1.125rem', maxWidth: '600px', mx: 'auto' }}
+                variant="h4"
+                sx={{
+                  fontWeight: 700,
+                  color: '#1f2937',
+                  mb: 2,
+                  fontSize: { xs: '1.5rem', md: '2rem' },
+                }}
               >
-                ユーザーのニーズを満たすための3つの力
+                投票ページを作成
+              </Typography>
+              <Typography
+                variant="body1"
+                sx={{ color: '#6b7280', lineHeight: 1.7, fontSize: '1.125rem' }}
+              >
+                店舗のウェブサイトリンクを貼り付けるだけで、投票に店舗オプションを追加できます。
+                自動取得機能が必要な詳細情報をすべて取得するため、時間と労力を節約できます。
               </Typography>
             </Box>
             <Box
               sx={{
+                flex: 1,
                 display: 'flex',
-                flexDirection: { xs: 'column', sm: 'row' },
-                gap: 4,
                 justifyContent: 'center',
-                alignItems: 'stretch',
-                width: '100%',
+                alignItems: 'center',
               }}
             >
-              {features.map((feature, index) => (
-                <Box
-                  key={feature.title}
-                  sx={{
-                    position: 'relative',
-                    p: 5,
-                    flex: 1,
-                    height: '100%',
-                    maxWidth: { xs: '100%', sm: '320px' },
-                    borderRadius: 4,
-                    background:
-                      'linear-gradient(135deg, rgba(52, 152, 219, 0.05) 0%, rgba(255, 255, 255, 0.8) 100%)',
-                    backdropFilter: 'blur(20px)',
-                    border: '1px solid rgba(52, 152, 219, 0.1)',
-                    boxShadow: '0 8px 32px 0 rgba(0, 0, 0, 0.1)',
-                    transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
-                    '&:hover': {
-                      transform: 'translateY(-8px) scale(1.02)',
-                      borderColor: 'rgba(52, 152, 219, 0.3)',
-                      boxShadow: '0 16px 48px 0 rgba(52, 152, 219, 0.15)',
-                    },
-                  }}
-                >
-                  <Box
-                    sx={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      width: 64,
-                      height: 64,
-                      borderRadius: '20px',
-                      background: 'linear-gradient(135deg, #3498db 0%, #2980b9 100%)',
-                      color: 'white',
-                      mb: 4,
-                      boxShadow: '0 8px 24px rgba(52, 152, 219, 0.3)',
-                      fontSize: '1.5rem',
-                      mx: 'auto',
-                    }}
-                  >
-                    {feature.icon}
-                  </Box>
-                  <Typography
-                    variant="h5"
-                    fontWeight="700"
-                    mb={2}
-                    sx={{ fontSize: '1.25rem', color: '#1a1a1a', textAlign: 'center' }}
-                  >
-                    {feature.title}
-                  </Typography>
-                  <Typography
-                    variant="body1"
-                    color="#666666"
-                    lineHeight={1.7}
-                    sx={{ fontSize: '0.95rem', textAlign: 'center' }}
-                  >
-                    {feature.description}
-                  </Typography>
-                </Box>
-              ))}
-            </Box>
-          </Box>
-        </Container>
-
-        {/* 「使い方」セクション */}
-        <Container
-          component="section"
-          maxWidth="md"
-          sx={{
-            height: '100vh',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
-            scrollSnapAlign: 'start',
-          }}
-        >
-          <StaggeredContainer>
-            <FadeInItem>
-              <Box textAlign="center" mb={10}>
-                <Typography component="h2" variant="h2" sx={{ fontWeight: 700, mb: 2 }}>
-                  簡単3ステップで。
-                </Typography>
-                <Typography
-                  sx={{ color: '#666666', fontSize: '1.125rem', maxWidth: '600px', mx: 'auto' }}
-                >
-                  驚くほど簡単な操作で、面倒な調整から解放されます。
-                </Typography>
-              </Box>
-            </FadeInItem>
-            <Stack spacing={4} divider={<Divider sx={{ borderColor: 'rgba(0,0,0,0.1)' }} />}>
-              {howItWorks.map((step, index) => (
-                <FadeInItem key={step.title}>
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+              <PhoneMockup bgColor="#fed7aa">
+                <Box sx={{ p: 2, minHeight: '400px' }}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
                     <Box
                       sx={{
-                        width: 56,
-                        height: 56,
+                        width: 24,
+                        height: 24,
                         borderRadius: '50%',
-                        border: '2px solid #3498db',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        color: '#3498db',
-                        flexShrink: 0,
+                        backgroundColor: '#e5e7eb',
+                        mr: 1,
                       }}
-                    >
-                      <Typography fontWeight="700" fontSize="1.5rem">
-                        {index + 1}
-                      </Typography>
-                    </Box>
-                    <Box sx={{ flex: 1 }}>
-                      <Typography variant="h6" fontWeight="700" mb={0.5} sx={{ color: '#1a1a1a' }}>
-                        {step.title}
-                      </Typography>
-                      <Typography variant="body1" color="#666666">
-                        {step.description}
-                      </Typography>
-                    </Box>
+                    />
+                    <Typography sx={{ fontWeight: 600, fontSize: '0.9rem' }}>
+                      CHOICERU
+                    </Typography>
                   </Box>
-                </FadeInItem>
-              ))}
-            </Stack>
-          </StaggeredContainer>
-        </Container>
+                  <Typography
+                    sx={{
+                      fontWeight: 600,
+                      fontSize: '0.85rem',
+                      color: '#1f2937',
+                      mb: 2,
+                    }}
+                  >
+                    What a Poll
+                  </Typography>
+                  <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                    {['Bistro 92', 'Elmwood Grill', 'The Corner Cafe'].map(
+                      (name, idx) => (
+                        <Box
+                          key={idx}
+                          sx={{
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'center',
+                            p: 1.5,
+                            backgroundColor: '#f9fafb',
+                            borderRadius: '8px',
+                          }}
+                        >
+                          <Typography sx={{ fontSize: '0.8rem' }}>{name}</Typography>
+                          <Typography sx={{ fontSize: '0.75rem', color: '#6b7280' }}>
+                            {idx + 1}
+                          </Typography>
+                        </Box>
+                      ),
+                    )}
+                  </Box>
+                </Box>
+              </PhoneMockup>
+            </Box>
+          </Box>
 
-        {/* CTAセクション */}
-        <Container
-          component="section"
-          maxWidth="md"
-          sx={{
-            height: '100vh',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            scrollSnapAlign: 'start',
-          }}
-        >
-          <FadeInItem>
-            <Paper
+          {/* Step 2: 画像左、テキスト右 */}
+          <Box
+            sx={{
+              display: 'flex',
+              flexDirection: { xs: 'column', md: 'row' },
+              alignItems: 'center',
+              gap: 6,
+            }}
+          >
+            <Box
               sx={{
-                p: { xs: 4, md: 8 },
-                textAlign: 'center',
-                borderRadius: 6,
-                background:
-                  'linear-gradient(45deg, rgba(52, 152, 219, 0.05) 0%, rgba(142, 68, 173, 0.05) 100%)',
-                border: '1px solid rgba(52, 152, 219, 0.1)',
-                boxShadow: '0 8px 32px 0 rgba(0, 0, 0, 0.1)',
+                flex: 1,
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                order: { xs: 2, md: 1 },
+              }}
+            >
+              <PhoneMockup bgColor="#ccfbf1">
+                <Box sx={{ p: 2, minHeight: '400px' }}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                    <Box
+                      sx={{
+                        width: 24,
+                        height: 24,
+                        borderRadius: '50%',
+                        backgroundColor: '#e5e7eb',
+                        mr: 1,
+                      }}
+                    />
+                    <Typography sx={{ fontWeight: 600, fontSize: '0.9rem' }}>
+                      CHOICERU
+                    </Typography>
+                  </Box>
+                  <Typography
+                    sx={{
+                      fontWeight: 600,
+                      fontSize: '0.85rem',
+                      color: '#1f2937',
+                      mb: 1.5,
+                    }}
+                  >
+                    Invite
+                  </Typography>
+                  <Box
+                    sx={{
+                      backgroundColor: '#f3f4f6',
+                      borderRadius: '8px',
+                      p: 1,
+                      mb: 2,
+                      height: 32,
+                    }}
+                  />
+                  <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                    {['Option 1', 'Option 2', 'Option 3', 'Option 4'].map(
+                      (opt, idx) => (
+                        <Box
+                          key={idx}
+                          sx={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: 1,
+                            p: 1,
+                          }}
+                        >
+                          <Box
+                            sx={{
+                              width: 20,
+                              height: 20,
+                              border: '2px solid #e5e7eb',
+                              borderRadius: '4px',
+                            }}
+                          />
+                          <Typography sx={{ fontSize: '0.8rem' }}>{opt}</Typography>
+                        </Box>
+                      ),
+                    )}
+                  </Box>
+                </Box>
+              </PhoneMockup>
+            </Box>
+            <Box
+              sx={{
+                flex: 1,
+                textAlign: { xs: 'center', md: 'left' },
+                order: { xs: 1, md: 2 },
               }}
             >
               <Typography
-                component="h2"
-                variant="h2"
-                sx={{ fontWeight: 700, mb: 3, color: '#1a1a1a' }}
-              >
-                さあ、最高の選択を。
-              </Typography>
-              <Typography
                 sx={{
-                  color: '#666666',
-                  fontSize: '1.125rem',
-                  maxWidth: '600px',
-                  mx: 'auto',
-                  mb: 5,
+                  color: '#3b82f6',
+                  fontSize: '0.875rem',
+                  fontWeight: 600,
+                  mb: 1,
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.05em',
                 }}
               >
-                今すぐ無料で、最高の意思決定ツールを体験してください。
+                ステップ2
               </Typography>
-              <Button
-                component={Link}
-                href="/polls/create"
-                variant="contained"
-                size="large"
+              <Typography
+                variant="h4"
                 sx={{
-                  py: 2,
-                  px: 6,
-                  fontSize: '1.125rem',
                   fontWeight: 700,
-                  borderRadius: '999px',
-                  textTransform: 'none',
-                  boxShadow: '0 0 30px rgba(52, 152, 219, 0.3)',
-                  transition: 'transform 0.2s',
-                  '&:hover': {
-                    transform: 'scale(1.05)',
-                    boxShadow: '0 0 40px rgba(52, 152, 219, 0.5)',
+                  color: '#1f2937',
+                  mb: 2,
+                  fontSize: { xs: '1.5rem', md: '2rem' },
+                }}
+              >
+                投票ページを共有
+              </Typography>
+              <Typography
+                variant="body1"
+                sx={{ color: '#6b7280', lineHeight: 1.7, fontSize: '1.125rem' }}
+              >
+                投票のユニークなリンクを取得し、任意のメッセージアプリでグループと共有できます。
+                友達はどのデバイスからでも投票でき、登録は不要です。
+              </Typography>
+            </Box>
+          </Box>
+
+          {/* Step 3: テキスト左、画像右 */}
+          <Box
+            sx={{
+              display: 'flex',
+              flexDirection: { xs: 'column', md: 'row' },
+              alignItems: 'center',
+              gap: 6,
+            }}
+          >
+            <Box sx={{ flex: 1, textAlign: { xs: 'center', md: 'left' } }}>
+              <Typography
+                sx={{
+                  color: '#3b82f6',
+                  fontSize: '0.875rem',
+                  fontWeight: 600,
+                  mb: 1,
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.05em',
+                }}
+              >
+                ステップ3
+              </Typography>
+              <Typography
+                variant="h4"
+                sx={{
+                  fontWeight: 700,
+                  color: '#1f2937',
+                  mb: 2,
+                  fontSize: { xs: '1.5rem', md: '2rem' },
+                }}
+              >
+                お店が決定
+              </Typography>
+              <Typography
+                variant="body1"
+                sx={{ color: '#6b7280', lineHeight: 1.7, fontSize: '1.125rem' }}
+              >
+                投票が集まるのを見て、どの店舗が勝者か簡単に確認できます。
+                これだけです！煩雑なグループチャットやスプレッドシートは不要です。
+              </Typography>
+            </Box>
+            <Box
+              sx={{
+                flex: 1,
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+              }}
+            >
+              <PhoneMockup bgColor="#ccfbf1">
+                <Box sx={{ p: 2, minHeight: '400px', position: 'relative' }}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                    <Box
+                      sx={{
+                        width: 24,
+                        height: 24,
+                        borderRadius: '50%',
+                        backgroundColor: '#e5e7eb',
+                        mr: 1,
+                      }}
+                    />
+                    <Typography sx={{ fontWeight: 600, fontSize: '0.9rem' }}>
+                      CHOICERU
+                    </Typography>
+                  </Box>
+                  <Typography
+                    sx={{
+                      fontWeight: 600,
+                      fontSize: '0.85rem',
+                      color: '#1f2937',
+                      mb: 2,
+                    }}
+                  >
+                    VOTES
+                  </Typography>
+                  <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+                    {[
+                      { name: 'YAMADA TARO', hasHeart: true },
+                      { name: 'TANAKA JIRO', hasHeart: true },
+                      { name: 'SUZUKI HANAKO', hasHeart: true },
+                    ].map((item, idx) => (
+                      <Box
+                        key={idx}
+                        sx={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'space-between',
+                          p: 1,
+                        }}
+                      >
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                          <Box
+                            sx={{
+                              width: 32,
+                              height: 32,
+                              borderRadius: '50%',
+                              backgroundColor: '#e5e7eb',
+                            }}
+                          />
+                          <Typography sx={{ fontSize: '0.8rem' }}>
+                            {item.name}
+                          </Typography>
+                        </Box>
+                        {item.hasHeart && (
+                          <Box
+                            sx={{
+                              width: 20,
+                              height: 20,
+                              borderRadius: '50%',
+                              backgroundColor: '#fecdd3',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                            }}
+                          >
+                            <Typography sx={{ fontSize: '0.7rem', color: '#dc2626' }}>
+                              ♥
+                            </Typography>
+                          </Box>
+                        )}
+                      </Box>
+                    ))}
+                  </Box>
+                </Box>
+              </PhoneMockup>
+            </Box>
+          </Box>
+        </Box>
+      </Container>
+    </Box>
+  );
+}
+
+// FAQ セクションコンポーネント
+function FAQSection() {
+  const faqItems = [
+    {
+      question: 'チョイスルは無料で使えますか？',
+      answer:
+        'はい、チョイスルは完全に無料で使用できます。無制限に投票を作成し、好きなだけ多くの人を招待して投票してもらえます。',
+    },
+    {
+      question: '友達は投票するために登録が必要ですか？',
+      answer:
+        'いいえ、友達はアカウントを作成したり登録したりする必要はありません。リンクをクリックするだけで、すぐに投票できます。',
+    },
+    {
+      question: '投票にいくつ店舗オプションを追加できますか？',
+      answer:
+        '投票には好きなだけ多くの店舗オプションを追加できます。オプションの数に制限はありません。',
+    },
+    {
+      question: '自動取得機能はどの店舗サイトでも動作しますか？',
+      answer:
+        '自動取得機能は、主要な店舗サイトやレビュープラットフォームのほとんどで動作します。サポートされていないサイトの場合でも、手動で店舗情報を追加できます。',
+    },
+  ];
+
+  return (
+    <Box sx={{ py: { xs: 8, md: 12 }, backgroundColor: 'white' }}>
+      <Container maxWidth={false} sx={{ maxWidth: '1000px' }}>
+        <Typography
+          variant="h2"
+          sx={{
+            fontSize: { xs: '2rem', md: '2.5rem' },
+            fontWeight: 700,
+            color: '#1f2937',
+            textAlign: 'center',
+            mb: 2,
+          }}
+        >
+          よくある質問
+        </Typography>
+        <Typography
+          variant="body1"
+          sx={{
+            fontSize: '1.125rem',
+            color: '#6b7280',
+            textAlign: 'center',
+            maxWidth: '600px',
+            mx: 'auto',
+            mb: 6,
+          }}
+        >
+          質問がありますか？お答えします。チョイスルについてよくある質問をまとめました。
+        </Typography>
+
+        <Box sx={{ maxWidth: '800px', mx: 'auto' }}>
+          {faqItems.map((item, idx) => (
+            <Accordion
+              key={idx}
+              sx={{
+                border: '1px solid #e5e7eb',
+                borderRadius: '8px !important',
+                mb: 2,
+                boxShadow: 'none',
+                '&:before': { display: 'none' },
+              }}
+            >
+              <AccordionSummary
+                expandIcon={<ExpandMoreIcon />}
+                sx={{
+                  px: 3,
+                  py: 2,
+                  '& .MuiAccordionSummary-content': {
+                    my: 0,
                   },
                 }}
               >
-                投票ページを作成する
-              </Button>
-            </Paper>
-          </FadeInItem>
-        </Container>
-      </Box>
+                <Typography sx={{ fontWeight: 600, color: '#1f2937' }}>
+                  {item.question}
+                </Typography>
+              </AccordionSummary>
+              <AccordionDetails sx={{ px: 3, pb: 3 }}>
+                <Typography sx={{ color: '#6b7280', lineHeight: 1.6 }}>
+                  {item.answer}
+                </Typography>
+              </AccordionDetails>
+            </Accordion>
+          ))}
+        </Box>
+      </Container>
+    </Box>
+  );
+}
+
+// ボトムCTA セクションコンポーネント
+function BottomCTASection() {
+  return (
+    <Box
+      sx={{
+        py: { xs: 8, md: 12 },
+        backgroundColor: '#3b82f6',
+        color: 'white',
+      }}
+    >
+      <Container maxWidth={false} sx={{ maxWidth: '1000px' }}>
+        <Box sx={{ textAlign: 'center' }}>
+          <Typography
+            variant="h2"
+            sx={{
+              fontSize: { xs: '2rem', md: '2.5rem' },
+              fontWeight: 700,
+              color: 'white',
+              mb: 2,
+            }}
+          >
+            意思決定を簡単にしませんか？
+          </Typography>
+          <Typography
+            variant="body1"
+            sx={{
+              fontSize: '1.125rem',
+              color: 'rgba(255, 255, 255, 0.9)',
+              maxWidth: '600px',
+              mx: 'auto',
+              mb: 4,
+              lineHeight: 1.6,
+            }}
+          >
+            終わりのないチャットをやめて、ストレスゼロで次のイベントの計画を始めましょう。
+            みんなを素早く同じページに集められます。
+          </Typography>
+          <Button
+            component={Link}
+            href="/polls/create"
+            variant="contained"
+            sx={{
+              backgroundColor: 'white',
+              color: '#3b82f6',
+              borderRadius: '8px',
+              px: 4,
+              py: 1.5,
+              fontSize: '1rem',
+              textTransform: 'none',
+              fontWeight: 600,
+              '&:hover': { backgroundColor: '#f3f4f6' },
+            }}
+          >
+            無料で始める
+          </Button>
+        </Box>
+      </Container>
+    </Box>
+  );
+}
+
+// メインコンポーネント
+export default function HomePage() {
+  return (
+    <Box sx={{ width: '100%' }}>
+      <LandingHeader />
+      <HeroSection />
+      <FeaturesSection />
+      <HowItWorksSection />
+      <FAQSection />
+      <BottomCTASection />
     </Box>
   );
 }
