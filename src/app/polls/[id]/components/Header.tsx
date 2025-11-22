@@ -68,7 +68,7 @@ export function Header({
       sx={{
         background: '#f8f9fa',
         borderRadius: 0.5,
-        p: 2.5,
+        p: 3,
         textAlign: 'center',
         border: '1px solid #ddd',
       }}

@@ -14,20 +14,20 @@ export function ResultPage({ poll, totalVotes, winningOption }: ResultPageProps)
 
   return (
     <>
-      <Box sx={{ display: 'flex', gap: 2.5, flexDirection: { xs: 'column', md: 'row' }, width: '100%', boxSizing: 'border-box' }}>
+      <Box sx={{ display: 'flex', gap: 3, flexDirection: { xs: 'column', md: 'row' }, width: '100%', boxSizing: 'border-box' }}>
         {/* 左側: 投票結果 */}
         <Box sx={{ flex: 1, minWidth: 0, boxSizing: 'border-box' }}>
           <Paper
             elevation={0}
             sx={{
-              p: { xs: 2, sm: 2, md: 2.5 },
+              p: { xs: 2, sm: 2, md: 3 },
               borderRadius: 0.5,
               border: '1px solid #e5e7eb',
               backgroundColor: 'white',
               boxSizing: 'border-box',
             }}
           >
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2.5 }}>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                 <BarChartIcon sx={{ color: '#3b82f6', fontSize: '24px' }} />
                 <Typography variant="h6" component="h2" fontWeight={700} sx={{ color: '#111827' }}>
@@ -37,11 +37,11 @@ export function ResultPage({ poll, totalVotes, winningOption }: ResultPageProps)
               {/* <ResultPageClient poll={poll} /> */}
             </Box>
 
-            <Typography variant="body1" sx={{ color: '#111827', mb: 2.5, fontSize: '16px' }}>
+            <Typography variant="body1" sx={{ color: '#111827', mb: 3, fontSize: '16px' }}>
               {poll.title}
             </Typography>
 
-            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
               {sortedOptions.map((option, index) => {
                 const percentage = totalVotes > 0 ? (option.votes / totalVotes) * 100 : 0;
                 const isWinner = winningOption && option.id === winningOption.id;
@@ -98,7 +98,7 @@ export function ResultPage({ poll, totalVotes, winningOption }: ResultPageProps)
                       },
                     }}
                   >
-                    <Box sx={{ p: 2.5, position: 'relative', zIndex: 1 }}>
+                    <Box sx={{ p: 3, position: 'relative', zIndex: 1 }}>
                       <Typography
                         className="option-title"
                         variant="body1"
@@ -215,11 +215,11 @@ export function ResultPage({ poll, totalVotes, winningOption }: ResultPageProps)
           <Paper
             elevation={0}
             sx={{
-              p: { xs: 2, sm: 2.5 },
+              p: { xs: 2, sm: 3 },
               borderRadius: 0.5,
               border: '1px solid #e5e7eb',
               backgroundColor: 'white',
-              mb: 2.5,
+              mb: 3,
               boxSizing: 'border-box',
             }}
           >
@@ -249,7 +249,7 @@ export function ResultPage({ poll, totalVotes, winningOption }: ResultPageProps)
           <Paper
             elevation={0}
             sx={{
-              p: { xs: 2, sm: 2.5 },
+              p: { xs: 2, sm: 3 },
               borderRadius: 0.5,
               border: '1px solid #e5e7eb',
               backgroundColor: 'white',
@@ -269,10 +269,10 @@ export function ResultPage({ poll, totalVotes, winningOption }: ResultPageProps)
 
       <Box
         sx={{
-          mt: 2.5,
+          mt: 3,
           border: '1px solid #e5e7eb',
           backgroundColor: '#f3f4f6',
-          p: 2.5,
+          p: 3,
           borderRadius: 1,
           height: 128,
           display: 'flex',

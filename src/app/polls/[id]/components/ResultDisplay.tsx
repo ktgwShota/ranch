@@ -51,7 +51,7 @@ export function ResultDisplay({ votes, percentage }: ResultDisplayProps) {
           height: 8,
           borderRadius: 4,
           backgroundColor: '#e5e7eb',
-          mb: 2.5,
+          mb: 3,
           '& .MuiLinearProgress-bar': {
             borderRadius: 4,
             background: '#3b82f6',

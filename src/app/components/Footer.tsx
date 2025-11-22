@@ -1,5 +1,6 @@
 'use client';
 
+import { LAYOUT_CONSTANTS } from '@/config/constants';
 import {
   ContactMail as ContactIcon,
   Gavel as GavelIcon,
@@ -31,7 +32,7 @@ export default function Footer() {
         mt: 'auto',
       }}
     >
-      <Container maxWidth={false} sx={{ maxWidth: 1000, pt: 6, pb: 3 }}>
+      <Container maxWidth={false} sx={{ maxWidth: LAYOUT_CONSTANTS.MAX_CONTENT_WIDTH, pt: 6, pb: 3 }}>
         <Box
           display="flex"
           flexDirection={isMobile ? 'column' : 'row'}

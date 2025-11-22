@@ -12,6 +12,7 @@ import {
 } from '@mui/material';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { LAYOUT_CONSTANTS } from '@/config/constants';
 
 export default function Header() {
   const theme = useTheme();
@@ -35,7 +36,7 @@ export default function Header() {
         zIndex: 1000,
       }}
     >
-      <Container maxWidth={false} sx={{ maxWidth: '900px' }}>
+      <Container maxWidth={false} sx={{ maxWidth: LAYOUT_CONSTANTS.MAX_CONTENT_WIDTH }}>
         <Toolbar
           sx={{
             justifyContent: 'space-between',

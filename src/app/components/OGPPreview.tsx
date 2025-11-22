@@ -40,7 +40,7 @@ export function OGPPreview({ url, size = 'small', onDataLoaded }: OGPPreviewProp
 
   const sizeConfig = {
     small: { imageSize: 60, padding: 2 },
-    medium: { imageSize: 80, padding: 2.5 },
+    medium: { imageSize: 80, padding: 3 },
     large: { imageSize: 120, padding: 3 },
   };
 

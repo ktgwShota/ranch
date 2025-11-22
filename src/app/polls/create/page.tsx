@@ -17,6 +17,7 @@ import { OptionCard } from './components/OptionCard';
 import { AddOptionButton } from './components/AddOptionButton';
 import { VotingDeadline } from './components/VotingDeadline';
 import { CreatePollButton } from './components/CreatePollButton';
+import { LAYOUT_CONSTANTS } from '@/config/constants';
 
 const MAX_OPTIONS = 6;
 const MIN_OPTIONS = 2;
@@ -168,12 +169,12 @@ export default function Index() {
   };
 
   return (
-    <Container maxWidth="md">
+    <Container maxWidth={false} sx={{ maxWidth: LAYOUT_CONSTANTS.MAX_CONTENT_WIDTH }}>
       <Paper
         elevation={0}
         sx={{
-          p: 5,
-          my: { xs: 2, sm: 2.5 },
+          p: 3,
+          my: { xs: 2, sm: 3 },
           borderRadius: 0.5,
           border: '1px solid #ddd',
           backgroundColor: 'white',

@@ -36,9 +36,9 @@ export function OptionCard({
         display: 'flex',
         flexDirection: 'column',
         borderRadius: 0.5,
-        boxShadow: '0 0 5px 1px rgba(0,0,0,0.1)',
+        border: '1px solid #e5e7eb',
         background: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
-        // boxShadow: 'none',
+        boxShadow: 'none',
         position: 'relative',
       }}
     >
@@ -96,7 +96,7 @@ export function OptionCard({
       <CardContent
         sx={{
           flexGrow: 1,
-          p: 2.5,
+          p: 3,
           display: 'flex',
           flexDirection: 'column',
           background: 'transparent',
@@ -206,6 +206,7 @@ export function OptionCard({
             fullWidth
             size="large"
             sx={{
+              boxShadow: 'none',
               borderRadius: 2,
               textTransform: 'none',
               fontWeight: 600,

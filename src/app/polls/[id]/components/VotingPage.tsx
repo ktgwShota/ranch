@@ -1,6 +1,6 @@
 'use client';
 
-import { Box } from '@mui/material';
+import { Box, Button } from '@mui/material';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useVoter } from '../hooks/useVoter';
@@ -9,7 +9,7 @@ import { useVote } from '../hooks/useVote';
 import { Header } from './Header';
 import { OptionCard } from './OptionCard';
 import { VoterNameDialog } from './VoterNameDialog';
-import { useTutorialContext } from '@/app/contexts/TutorialContext';
+import { useTutorialStore } from '@/app/stores/tutorialStore';
 import type { DBPoll as Poll } from '@/services/db/poll/types';
 
 interface VotingPageProps {
@@ -19,7 +19,7 @@ interface VotingPageProps {
 
 export default function VotingPage({ pollId, initialPoll }: VotingPageProps) {
   const [poll, setPoll] = useState<Poll | null>(initialPoll);
-  const { setupTutorial } = useTutorialContext();
+  const { setupTutorial } = useTutorialStore();
   const router = useRouter();
 
   const {
@@ -143,8 +143,8 @@ export default function VotingPage({ pollId, initialPoll }: VotingPageProps) {
               xs: '1fr',
               sm: 'repeat(2, 1fr)',
             },
-            gap: { xs: 2, sm: 2.5 },
-            my: { xs: 2, sm: 2.5 },
+            gap: { xs: 2, sm: 3 },
+            my: { xs: 2, sm: 3 },
             justifyContent: 'center',
           }}
         >
@@ -171,7 +171,7 @@ export default function VotingPage({ pollId, initialPoll }: VotingPageProps) {
           sx={{
             border: '1px solid #e5e7eb',
             backgroundColor: '#f3f4f6',
-            p: 2.5,
+            p: 3,
             borderRadius: 1,
             height: 128,
             display: 'flex',

@@ -124,7 +124,7 @@ export function OptionCard({
     <Box
       sx={{
         mb: 3,
-        p: 2.5,
+        p: 3,
         borderRadius: 0.5,
         border: '1px solid',
         borderColor: urlError ? '#f44336' : '#ddd',
@@ -150,7 +150,7 @@ export function OptionCard({
         >
           {index + 1}
         </Box>
-        <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 2.5 }}>
+        <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 3 }}>
           <UrlInput
             value={option.url}
             onChange={(value) => onOptionChange({ url: value })}
@@ -179,7 +179,7 @@ export function OptionCard({
         )}
       </Box>
 
-      <Divider sx={{ my: 2.5, }} />
+      <Divider sx={{ my: 3, }} />
 
       <BudgetSelector option={option} onOptionChange={onOptionChange} />
 

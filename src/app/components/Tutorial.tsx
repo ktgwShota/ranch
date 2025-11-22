@@ -1,34 +1,21 @@
 'use client';
 
-import { createContext, useContext, useState, useCallback, ReactNode, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { Box, Paper, Typography, Button } from '@mui/material';
-import { scrollToElement } from '@/utils/scroll';
+import { useTutorialStore } from '@/app/stores/tutorialStore';
 
-interface TutorialStep {
-  elementId: string;
-  title: string;
-  description: string;
-  position?: 'top' | 'bottom' | 'left' | 'right';
-}
+export function Tutorial() {
+  const { isActive, currentStepIndex, steps, goToNextStep, finishTutorial } = useTutorialStore();
 
-interface TutorialContextValue {
-  isActive: boolean;
-  currentStep: TutorialStep | null;
-  currentStepIndex: number | null;
-  totalSteps: number;
-  steps: TutorialStep[];
-  setupTutorial: (steps: TutorialStep[], localStorageKey: string) => void;
-  goToNextStep: () => void;
-  finishTutorial: () => void;
-}
+  const currentStep = currentStepIndex !== null ? steps[currentStepIndex] : null;
+  const totalSteps = steps.length;
 
-const TutorialContext = createContext<TutorialContextValue | undefined>(undefined);
-
-export function TutorialProvider({ children }: { children: ReactNode }) {
-  const [isActive, setIsActive] = useState(false);
-  const [currentStepIndex, setCurrentStepIndex] = useState<number | null>(null);
-  const [steps, setSteps] = useState<TutorialStep[]>([]);
-  const [localStorageKey, setLocalStorageKey] = useState<string>('');
+  const [show, setShow] = useState(false);
+  const [position, setPosition] = useState({ top: 0, left: 0 });
+  const [highlightRect, setHighlightRect] = useState<DOMRect | null>(null);
+  const [elementStyle, setElementStyle] = useState<{
+    borderRadius: string;
+  }>({ borderRadius: '0px' });
 
   // チュートリアル表示中はユーザーによる手動スクロールを無効化
   useEffect(() => {
@@ -39,83 +26,12 @@ export function TutorialProvider({ children }: { children: ReactNode }) {
     }
   }, [isActive]);
 
-  const initTutorial = useCallback(() => {
-    setIsActive(false);
-    setCurrentStepIndex(null);
-    setSteps([]);
-    setLocalStorageKey('');
-  }, []);
-
-  const setupTutorial = useCallback((steps: TutorialStep[], localStorageKey: string) => {
-    if (steps.length === 0) return;
-
-    const isCompleted = localStorage.getItem(localStorageKey);
-    if (isCompleted === 'true') return;
-
-    setSteps(steps);
-    setLocalStorageKey(localStorageKey);
-    setCurrentStepIndex(0);
-    setIsActive(true);
-  }, []);
-
-  const finishTutorial = useCallback(() => {
-    if (localStorageKey) {
-      localStorage.setItem(localStorageKey, 'true');
-    }
-    initTutorial();
-  }, [localStorageKey, initTutorial]);
-
-  const goToNextStep = useCallback(() => {
-    if (currentStepIndex === null) return;
-
-    const isLastStep = currentStepIndex === steps.length - 1;
-    if (isLastStep) {
-      finishTutorial();
-    } else {
-      const nextStepIndex = currentStepIndex + 1;
-      setCurrentStepIndex(nextStepIndex);
-
-      const nextStep = steps[nextStepIndex];
-      scrollToElement(nextStep.elementId);
-    }
-  }, [currentStepIndex, steps, finishTutorial]);
-
-  const currentStep = currentStepIndex !== null ? steps[currentStepIndex] : null;
-
-  return (
-    <TutorialContext.Provider
-      value={{
-        isActive,
-        currentStep,
-        currentStepIndex,
-        totalSteps: steps.length,
-        steps,
-        setupTutorial,
-        goToNextStep,
-        finishTutorial,
-      }}
-    >
-      {children}
-      <Tutorial />
-    </TutorialContext.Provider>
-  );
-}
-
-function Tutorial() {
-  const { isActive, currentStep, currentStepIndex, totalSteps, goToNextStep, finishTutorial } = useTutorialContext();
-
-  if (!isActive || !currentStep || currentStepIndex === null) {
-    return null;
-  }
-
-  const [show, setShow] = useState(false);
-  const [position, setPosition] = useState({ top: 0, left: 0 });
-  const [highlightRect, setHighlightRect] = useState<DOMRect | null>(null);
-  const [elementStyle, setElementStyle] = useState<{
-    borderRadius: string;
-  }>({ borderRadius: '0px' });
-
   useEffect(() => {
+    if (!isActive || !currentStep || currentStepIndex === null) {
+      setShow(false);
+      return;
+    }
+
     const updatePosition = () => {
       const element = document.getElementById(currentStep.elementId);
       if (!element) {
@@ -128,7 +44,7 @@ function Tutorial() {
 
       const computedStyle = window.getComputedStyle(element);
       setElementStyle({
-        borderRadius: computedStyle.borderRadius
+        borderRadius: computedStyle.borderRadius,
       });
 
       const popoverPosition = currentStep.position || 'bottom';
@@ -165,9 +81,11 @@ function Tutorial() {
     return () => {
       window.removeEventListener('scroll', updatePosition);
     };
-  }, [isActive, currentStep.elementId, currentStep.position]);
+  }, [isActive, currentStep?.elementId, currentStep?.position, currentStepIndex]);
 
-  if (!show || !highlightRect) return null;
+  if (!isActive || !currentStep || currentStepIndex === null || !show || !highlightRect) {
+    return null;
+  }
 
   return (
     <>
@@ -216,10 +134,11 @@ function Tutorial() {
           position: 'fixed',
           top: position.top,
           left: position.left,
-          transform: currentStep.position === 'left' || currentStep.position === 'right'
-            ? 'translateY(-50%)'
-            : 'translateX(-50%)',
-          p: 2.5,
+          transform:
+            currentStep.position === 'left' || currentStep.position === 'right'
+              ? 'translateY(-50%)'
+              : 'translateX(-50%)',
+          p: 3,
           width: 'calc(100% - 32px)',
           maxWidth: 320,
           zIndex: 9999 + 2,
@@ -276,15 +195,8 @@ function Tutorial() {
             わかりました
           </Button>
         </Box>
-      </Paper >
+      </Paper>
     </>
   );
 }
 
-export function useTutorialContext() {
-  const context = useContext(TutorialContext);
-  if (context === undefined) {
-    throw new Error('useTutorialContext must be used within a TutorialProvider');
-  }
-  return context;
-}

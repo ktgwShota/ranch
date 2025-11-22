@@ -103,7 +103,7 @@ export function VotingDeadline({
             lineHeight: 1.6,
           }}
         >
-          指定日時に投票結果が自動的に公開されます（指定日時に達する前に投票を締め切ることも可能です）
+          指定日時に投票結果が自動的に公開されます。
         </Typography>
       </Box>
     </Box>

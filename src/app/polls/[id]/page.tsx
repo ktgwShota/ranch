@@ -6,6 +6,7 @@ import VotingPage from './components/VotingPage';
 import { ResultPage } from './components/ResultPage';
 import { Box } from '@mui/material';
 import { DBPoll, DBPollOption } from '@/services/db/poll/types';
+import { LAYOUT_CONSTANTS } from '@/config/constants';
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -49,7 +50,7 @@ export default async function Page({ params }: PageProps) {
                 dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
               />
 
-              <Box sx={{ maxWidth: '900px', mx: 'auto', py: { xs: 2, sm: 2.5 }, px: { xs: 2, sm: 2.5 }, boxSizing: 'border-box' }}>
+              <Box sx={{ maxWidth: LAYOUT_CONSTANTS.MAX_CONTENT_WIDTH, mx: 'auto', py: { xs: 2, sm: 3 }, px: { xs: 2, sm: 3 }, boxSizing: 'border-box' }}>
                 <ResultPage poll={updatedPollData} totalVotes={totalVotes} winningOption={winningOption} />
               </Box>
             </>
@@ -70,7 +71,7 @@ export default async function Page({ params }: PageProps) {
           dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
         />
 
-        <Box sx={{ maxWidth: '900px', mx: 'auto', py: { xs: 2, sm: 2.5 }, px: { xs: 2, sm: 2.5 }, boxSizing: 'border-box' }}>
+        <Box sx={{ maxWidth: LAYOUT_CONSTANTS.MAX_CONTENT_WIDTH, mx: 'auto', py: { xs: 2, sm: 3 }, px: { xs: 2, sm: 3 }, boxSizing: 'border-box' }}>
           {isClosed ? (
             <ResultPage poll={pollData} totalVotes={totalVotes} winningOption={winningOption} />
           ) : (

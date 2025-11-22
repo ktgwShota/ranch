@@ -61,14 +61,14 @@ export function CustomDialog({
           fontWeight: 600,
           color: '#111827',
           pt: 3,
-          px: 2.5,
+          px: 3,
           pb: 2,
         }}
       >
         {title}
       </DialogTitle>
       {(description || children) && (
-        <DialogContent sx={{ px: 2.5, py: 0 }}>
+        <DialogContent sx={{ px: 3, py: 0 }}>
           {description && (
             <DialogContentText
               sx={{
@@ -85,7 +85,7 @@ export function CustomDialog({
       {(onConfirm || cancelLabel) && (
         <DialogActions
           sx={{
-            p: 2.5,
+            p: 3,
             gap: 1,
           }}
         >
