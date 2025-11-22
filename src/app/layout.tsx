@@ -7,6 +7,7 @@ import { theme } from '@/lib/mui/theme';
 import Footer from './components/Footer';
 import Header from './components/Header';
 import { TutorialProvider } from './contexts/TutorialContext';
+import { ErrorSnackbar } from './components/ErrorSnackbar';
 
 const roboto = Roboto({
   weight: ['300', '400', '500', '700'],
@@ -38,6 +39,7 @@ export default function RootLayout({
             }}
           >
             <Header />
+            <ErrorSnackbar />
             <TutorialProvider>
               <Box component="main" sx={{ flexGrow: 1 }}>
                 {children}

@@ -6,21 +6,18 @@ export function useVote(
   poll: Poll | null,
   setPoll: Dispatch<SetStateAction<Poll | null>>,
   userId: string,
-  userName: string,
-  checkAndOpenDialog?: () => boolean
+  userName: string
 ) {
   const [voting, setVoting] = useState<number | null>(null);
   const [votedOptions, setVotedOptions] = useState<Set<number>>(new Set());
 
-  const vote = async (optionId: number) => {
+  const vote = async (optionId: number, overrideUserId?: string, overrideUserName?: string) => {
     if (!poll || voting) return;
 
-    // 投票者名が存在しない場合はダイアログを開いて投票を中断
-    if (checkAndOpenDialog && !checkAndOpenDialog()) {
-      return;
-    }
+    const currentUserId = overrideUserId || userId;
+    const currentUserName = overrideUserName || userName;
 
-    if (!userId || !userName) return;
+    if (!currentUserId || !currentUserName) return;
 
     setVoting(optionId);
 
@@ -29,11 +26,11 @@ export function useVote(
 
     // まず、他の選択肢から投票を削除（一人一票制）
     let updatedOptions = poll.options.map((option) => {
-      if (option.id !== optionId && option.voters.some((voter) => voter.id === userId)) {
+      if (option.id !== optionId && option.voters.some((voter) => voter.id === currentUserId)) {
         return {
           ...option,
           votes: option.votes - 1,
-          voters: option.voters.filter((voter) => voter.id !== userId),
+          voters: option.voters.filter((voter) => voter.id !== currentUserId),
         };
       }
       return option;
@@ -43,18 +40,18 @@ export function useVote(
     updatedOptions = updatedOptions.map((option) => {
       if (option.id === optionId) {
         // 既にこの選択肢に投票済みの場合は投票を取り消し
-        if (option.voters.some((voter) => voter.id === userId)) {
+        if (option.voters.some((voter) => voter.id === currentUserId)) {
           return {
             ...option,
             votes: option.votes - 1,
-            voters: option.voters.filter((voter) => voter.id !== userId),
+            voters: option.voters.filter((voter) => voter.id !== currentUserId),
           };
         } else {
           // 新しい選択肢に投票を追加
           return {
             ...option,
             votes: option.votes + 1,
-            voters: [...option.voters, { id: userId, name: userName }],
+            voters: [...option.voters, { id: currentUserId, name: currentUserName }],
           };
         }
       }
@@ -71,7 +68,7 @@ export function useVote(
     // 投票状態を更新
     const newVotedOptions = new Set<number>();
     updatedOptions.forEach((option) => {
-      if (option.voters.some((voter) => voter.id === userId)) {
+      if (option.voters.some((voter) => voter.id === currentUserId)) {
         newVotedOptions.add(option.id);
       }
     });
@@ -85,8 +82,8 @@ export function useVote(
         },
         body: JSON.stringify({
           optionId,
-          voterId: userId,
-          voterName: userName,
+          voterId: currentUserId,
+          voterName: currentUserName,
         }),
       });
     } catch (error) {
@@ -100,6 +97,19 @@ export function useVote(
     return option.voters.some((voter) => voter.id === userId);
   };
 
-  return { vote, voting, votedOptions, isVotedByUser };
+  const refreshPoll = async () => {
+    if (!poll) return;
+    try {
+      const response = await fetch(`/api/polls/${poll.id}`);
+      if (response.ok) {
+        const updatedPoll = (await response.json()) as Poll;
+        setPoll(updatedPoll);
+      }
+    } catch (error) {
+      console.error('Error fetching updated poll:', error);
+    }
+  };
+
+  return { vote, voting, votedOptions, isVotedByUser, refreshPoll };
 }
 

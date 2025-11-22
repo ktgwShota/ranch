@@ -11,6 +11,7 @@ import {
 import { Box, Button, Container, Divider, Paper, Stack, Typography } from '@mui/material';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
+import { useErrorStore } from './stores/errorStore';
 
 // --- Reusable Animated Components ---
 const StaggeredContainer = ({
@@ -33,7 +34,7 @@ const StaggeredContainer = ({
     </motion.div>
   );
 };
-const FadeInItem = ({ children, ...props }: { children: React.ReactNode; [key: string]: any }) => {
+const FadeInItem = ({ children, ...props }: { children: React.ReactNode;[key: string]: any }) => {
   const itemVariants = {
     hidden: { opacity: 0, y: 30 },
     visible: {

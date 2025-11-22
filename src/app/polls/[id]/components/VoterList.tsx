@@ -82,7 +82,7 @@ export function VoterList({ voters }: VoterListProps) {
             fontStyle: 'italic',
           }}
         >
-          まだ投票がありません。
+          -
         </Typography>
       )}
     </Box>

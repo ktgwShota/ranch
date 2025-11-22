@@ -50,7 +50,7 @@ export function CustomDialog({
       fullWidth={fullWidth}
       PaperProps={{
         sx: {
-          borderRadius: 2,
+          borderRadius: 1,
           minWidth: 320,
         },
       }}
@@ -60,19 +60,20 @@ export function CustomDialog({
           fontSize: '1.125rem',
           fontWeight: 600,
           color: '#111827',
-          pb: description || children ? 1 : 0,
+          pt: 3,
+          px: 2.5,
+          pb: 2,
         }}
       >
         {title}
       </DialogTitle>
       {(description || children) && (
-        <DialogContent>
+        <DialogContent sx={{ px: 2.5, py: 0 }}>
           {description && (
             <DialogContentText
               sx={{
                 color: '#6b7280',
                 fontSize: '0.875rem',
-                lineHeight: 1.6,
               }}
             >
               {description}
@@ -84,8 +85,7 @@ export function CustomDialog({
       {(onConfirm || cancelLabel) && (
         <DialogActions
           sx={{
-            px: 3,
-            pb: 2.5,
+            p: 2.5,
             gap: 1,
           }}
         >
@@ -96,7 +96,7 @@ export function CustomDialog({
               sx={{
                 textTransform: 'none',
                 borderRadius: 1.5,
-                px: 2.5,
+                px: 2,
                 py: 1,
                 borderColor: '#d1d5db',
                 color: '#374151',
@@ -118,7 +118,7 @@ export function CustomDialog({
               sx={{
                 textTransform: 'none',
                 borderRadius: 1.5,
-                px: 2.5,
+                px: 2,
                 py: 1,
                 ...(confirmButtonColor === 'error' && {
                   backgroundColor: '#ef4444',

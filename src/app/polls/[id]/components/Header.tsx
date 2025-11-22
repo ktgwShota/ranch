@@ -198,33 +198,31 @@ export function Header({
                     },
                   }}
                 >
-                  {hasVoterName && (
-                    <MenuItem
-                      onClick={handleChangeVoterName}
-                      sx={{
-                        py: 1.5,
-                        px: 2,
-                        '&:hover': {
-                          backgroundColor: '#f3f4f6',
-                        },
-                        '&:active': {
-                          backgroundColor: '#e5e7eb',
-                        },
+                  <MenuItem
+                    onClick={handleChangeVoterName}
+                    sx={{
+                      py: 1.5,
+                      px: 2,
+                      '&:hover': {
+                        backgroundColor: '#f3f4f6',
+                      },
+                      '&:active': {
+                        backgroundColor: '#e5e7eb',
+                      },
+                    }}
+                  >
+                    <ListItemIcon sx={{ minWidth: 40 }}>
+                      <EditIcon fontSize="small" sx={{ color: '#3b82f6' }} />
+                    </ListItemIcon>
+                    <ListItemText
+                      primary={hasVoterName ? '投票者名を変更' : '投票者名を設定'}
+                      primaryTypographyProps={{
+                        fontSize: '14px',
+                        fontWeight: 500,
+                        color: '#374151',
                       }}
-                    >
-                      <ListItemIcon sx={{ minWidth: 40 }}>
-                        <EditIcon fontSize="small" sx={{ color: '#3b82f6' }} />
-                      </ListItemIcon>
-                      <ListItemText
-                        primary="投票者名を変更する"
-                        primaryTypographyProps={{
-                          fontSize: '14px',
-                          fontWeight: 500,
-                          color: '#374151',
-                        }}
-                      />
-                    </MenuItem>
-                  )}
+                    />
+                  </MenuItem>
                   <MenuItem
                     onClick={handleEndPollClick}
                     sx={{

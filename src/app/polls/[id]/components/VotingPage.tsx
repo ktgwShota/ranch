@@ -1,6 +1,6 @@
 'use client';
 
-import { Box, TextField } from '@mui/material';
+import { Box } from '@mui/material';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useVoter } from '../hooks/useVoter';
@@ -8,7 +8,7 @@ import { usePollTimer } from '../hooks/usePollTimer';
 import { useVote } from '../hooks/useVote';
 import { Header } from './Header';
 import { OptionCard } from './OptionCard';
-import { CustomDialog } from '@/app/components/CustomDialog';
+import { VoterNameDialog } from './VoterNameDialog';
 import { useTutorialContext } from '@/app/contexts/TutorialContext';
 import type { DBPoll as Poll } from '@/services/db/poll/types';
 
@@ -19,51 +19,58 @@ interface VotingPageProps {
 
 export default function VotingPage({ pollId, initialPoll }: VotingPageProps) {
   const [poll, setPoll] = useState<Poll | null>(initialPoll);
-  const [nameError, setNameError] = useState<string | null>(null);
   const { setupTutorial } = useTutorialContext();
   const router = useRouter();
 
   const {
     userName,
     userId,
-    nameDialogOpen,
-    tempName,
-    setTempName,
-    setNameDialogOpen,
-    handleNameSubmit,
-    checkAndOpenDialog,
+    setUserName,
+    setUserId,
   } = useVoter(pollId);
   const { timeRemaining, formatTime } = usePollTimer(poll);
-  const { vote, voting, isVotedByUser } = useVote(poll, setPoll, userId, userName, checkAndOpenDialog);
+  const { vote, voting, isVotedByUser, refreshPoll } = useVote(poll, setPoll, userId, userName);
 
-  useEffect(() => {
-    if (nameDialogOpen) {
-      setNameError(null);
-    }
-  }, [nameDialogOpen]);
+  const [voteDialogOpen, setVoteDialogOpen] = useState(false);
+  const [pendingOptionId, setPendingOptionId] = useState<number | null>(null);
+  const [nameChangeDialogOpen, setNameChangeDialogOpen] = useState(false);
 
-  const handleNameSubmitWithPollUpdate = async () => {
-    if (!tempName.trim()) {
-      setNameError('入力は必須です');
-      return;
-    }
-
-    setNameError(null);
-    await handleNameSubmit();
-    if (poll && userId) {
-      const updatedOptions = poll.options.map((option) => {
-        const updatedVoters = option.voters.map((voter) =>
-          voter.id === userId ? { ...voter, name: tempName.trim() } : voter
-        );
-        return { ...option, voters: updatedVoters };
-      });
-      setPoll({ ...poll, options: updatedOptions });
+  const handleVoteClick = (optionId: number) => {
+    if (!userId || !userName) {
+      // 名前がない場合は投票用ダイアログを開く
+      setPendingOptionId(optionId);
+      setVoteDialogOpen(true);
+    } else {
+      // 名前がある場合は直接投票
+      vote(optionId);
     }
   };
 
-  const handleNameDialogClose = () => {
-    setNameDialogOpen(false);
-    setNameError(null);
+  const handleVoteNameSubmit = async (name: string, newUserId: string) => {
+    // 名前とuserIdを更新
+    setUserName(name);
+    setUserId(newUserId);
+
+    // 投票を実行（新しいuserIdとuserNameを渡す）
+    if (pendingOptionId !== null) {
+      await vote(pendingOptionId, newUserId, name);
+      // 投票後にポーリングデータを再取得
+      await refreshPoll();
+    }
+
+    setVoteDialogOpen(false);
+    setPendingOptionId(null);
+  };
+
+  const handleNameChangeSubmit = async (name: string, newUserId: string) => {
+    // 名前とuserIdを更新
+    setUserName(name);
+    setUserId(newUserId);
+
+    // ポーリングデータを再取得（名前変更が反映されるように）
+    await refreshPoll();
+
+    setNameChangeDialogOpen(false);
   };
 
   useEffect(() => {
@@ -71,20 +78,14 @@ export default function VotingPage({ pollId, initialPoll }: VotingPageProps) {
       [
         {
           elementId: 'option-title-1',
-          title: '店舗情報の確認',
-          description: `お店の名前をクリックすると店舗情報が表示されます。`,
-          position: 'bottom',
-        },
-        {
-          elementId: 'vote-button-1',
-          title: '投票ボタン',
-          description: `自分が行きたいと思ったお店に投票しましょう。投票後に取り消しをすることができます。`,
+          title: '店舗情報',
+          description: `こちらをクリックすると店舗情報が表示されます。外部サイトに遷移します。`,
           position: 'bottom',
         },
         {
           elementId: 'poll-settings-button',
           title: 'メニュー',
-          description: `このアイコンをクリックすると各種設定を操作できるメニューが表示されます。主催者の方はここから投票を終了することができます。`,
+          description: `名前の変更や投票の早期終了などの設定ができます。一部機能は権限が必要です。`,
           position: 'bottom',
         }
       ],
@@ -131,8 +132,7 @@ export default function VotingPage({ pollId, initialPoll }: VotingPageProps) {
           formatTime={formatTime}
           onEndPoll={endPoll}
           onChangeVoterName={() => {
-            setTempName(userName);
-            setNameDialogOpen(true);
+            setNameChangeDialogOpen(true);
           }}
           hasVoterName={!!userName && !!userId}
         />
@@ -161,7 +161,7 @@ export default function VotingPage({ pollId, initialPoll }: VotingPageProps) {
                 isVoted={isVoted}
                 isVoting={isVoting}
                 isDisabled={isAnyVoting && !isVoting}
-                onVote={() => vote(option.id)}
+                onVote={() => handleVoteClick(option.id)}
               />
             );
           })}
@@ -171,7 +171,7 @@ export default function VotingPage({ pollId, initialPoll }: VotingPageProps) {
           sx={{
             border: '1px solid #e5e7eb',
             backgroundColor: '#f3f4f6',
-            p: 3,
+            p: 2.5,
             borderRadius: 1,
             height: 128,
             display: 'flex',
@@ -185,34 +185,31 @@ export default function VotingPage({ pollId, initialPoll }: VotingPageProps) {
         </Box>
       </Box>
 
-      <CustomDialog
-        open={nameDialogOpen}
-        onClose={handleNameDialogClose}
-        title="投票者名を入力してください"
-        confirmLabel="決定"
-        onConfirm={handleNameSubmitWithPollUpdate}
-        confirmButtonProps={{
-          disabled: !!nameError || tempName.trim() === '',
-        }}
-      >
-        <TextField
-          autoFocus
-          margin="dense"
-          label="お名前"
-          fullWidth
-          variant="outlined"
-          value={tempName}
-          onChange={(e) => setTempName(e.target.value)}
-          onKeyPress={(e) => {
-            if (e.key === 'Enter' && !nameError && tempName.trim()) {
-              handleNameSubmitWithPollUpdate();
-            }
+      {/* 投票用の名前入力ダイアログ */}
+      {pendingOptionId !== null && (
+        <VoterNameDialog
+          open={voteDialogOpen}
+          onClose={() => {
+            setVoteDialogOpen(false);
+            setPendingOptionId(null);
           }}
-          error={!!nameError}
-          helperText={nameError}
-          sx={{ mt: 2 }}
+          pollId={pollId}
+          type="vote"
+          onSubmit={handleVoteNameSubmit}
         />
-      </CustomDialog>
+      )}
+
+      {/* 名前変更用の名前入力ダイアログ */}
+      <VoterNameDialog
+        open={nameChangeDialogOpen}
+        onClose={() => {
+          setNameChangeDialogOpen(false);
+        }}
+        pollId={pollId}
+        type="name-change"
+        initialName={userName}
+        onSubmit={handleNameChangeSubmit}
+      />
     </>
   );
 }

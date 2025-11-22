@@ -74,6 +74,8 @@ export function useVoter(pollId: string) {
   return {
     userName,
     userId,
+    setUserName,
+    setUserId,
     nameDialogOpen,
     tempName,
     setTempName,

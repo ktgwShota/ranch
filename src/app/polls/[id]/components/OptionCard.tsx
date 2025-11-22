@@ -96,7 +96,7 @@ export function OptionCard({
       <CardContent
         sx={{
           flexGrow: 1,
-          p: 3,
+          p: 2.5,
           display: 'flex',
           flexDirection: 'column',
           background: 'transparent',
@@ -197,7 +197,6 @@ export function OptionCard({
           <VoterList voters={option.voters} />
 
           <CustomButton
-            id={`vote-button-${option.id}`}
             onClick={onVote}
             disabled={isDisabled}
             loading={isVoting}

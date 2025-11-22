@@ -98,7 +98,7 @@ export function ResultPage({ poll, totalVotes, winningOption }: ResultPageProps)
                       },
                     }}
                   >
-                    <Box sx={{ p: 3, position: 'relative', zIndex: 1 }}>
+                    <Box sx={{ p: 2.5, position: 'relative', zIndex: 1 }}>
                       <Typography
                         className="option-title"
                         variant="body1"
@@ -272,7 +272,7 @@ export function ResultPage({ poll, totalVotes, winningOption }: ResultPageProps)
           mt: 2.5,
           border: '1px solid #e5e7eb',
           backgroundColor: '#f3f4f6',
-          p: 3,
+          p: 2.5,
           borderRadius: 1,
           height: 128,
           display: 'flex',
