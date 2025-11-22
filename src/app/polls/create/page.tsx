@@ -115,15 +115,19 @@ export default function Index() {
       return;
     }
 
-    // 締切日時のバリデーション（任意）
-    if (deadlineDate && deadlineTime) {
-      const selectedDateTime = new Date(`${deadlineDate}T${deadlineTime}`);
-      const now = new Date();
+    // 投票期限の必須チェック
+    if (!deadlineDate || !deadlineTime) {
+      setErrorMessage('投票期限を入力してください。');
+      return;
+    }
 
-      if (selectedDateTime <= now) {
-        setErrorMessage('締切日時は現在時刻より後の日時を選択してください');
-        return;
-      }
+    // 締切日時のバリデーション
+    const selectedDateTime = new Date(`${deadlineDate}T${deadlineTime}`);
+    const now = new Date();
+
+    if (selectedDateTime <= now) {
+      setErrorMessage('締切日時は現在時刻より後の日時を選択してください');
+      return;
     }
 
     setIsLoading(true);
@@ -143,8 +147,8 @@ export default function Index() {
             budgetMax: option.budgetMax || undefined,
             description: option.description || undefined,
           })),
-          endDate: deadlineDate || null,
-          endTime: deadlineTime || null,
+          endDate: deadlineDate,
+          endTime: deadlineTime,
         }),
       });
 
