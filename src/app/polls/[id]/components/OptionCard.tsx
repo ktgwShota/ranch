@@ -1,6 +1,6 @@
 'use client';
 
-import { Box, Card, CardContent, CardMedia, Skeleton, Typography } from '@mui/material';
+import { Box, Card, CardContent, CardMedia, Chip, Skeleton, Typography } from '@mui/material';
 import { Restaurant as RestaurantIcon } from '@mui/icons-material';
 import type { DBPollOption as Option } from '@/services/db/poll/types';
 import { ResultDisplay } from './ResultDisplay';
@@ -61,6 +61,50 @@ export function OptionCard({
           cursor: 'pointer',
         }}
       >
+        {/* 予算ラベル（画像の右上） */}
+        {option.budgetMin || option.budgetMax ? (
+          <Box
+            sx={{
+              position: 'absolute',
+              top: 10,
+              right: 10,
+              zIndex: 1,
+            }}
+          >
+            <Chip
+              label={(() => {
+                const min = option.budgetMin && option.budgetMin.trim() ? parseInt(option.budgetMin, 10).toLocaleString() : '';
+                const max = option.budgetMax && option.budgetMax.trim() ? parseInt(option.budgetMax, 10).toLocaleString() : '';
+                if (min && max) {
+                  if (option.budgetMin === option.budgetMax) {
+                    return `${min} 円`;
+                  }
+                  return `${min} ~ ${max} 円`;
+                } else if (min) {
+                  return `${min} ~ 円`;
+                } else if (max) {
+                  return `~ ${max} 円`;
+                }
+                return '';
+              })()}
+              size="small"
+              sx={{
+                background: 'linear-gradient(135deg, rgba(17, 24, 39, 0.8) 0%, rgba(31, 41, 55, 0.85) 100%)',
+                color: '#ffffff',
+                fontSize: '12px',
+                fontWeight: 600,
+                height: '28px',
+                backdropFilter: 'blur(12px) saturate(150%)',
+                borderRadius: '4px',
+                border: '0.5px solid rgba(255, 255, 255, 0.1)',
+                '& .MuiChip-label': {
+                  fontFamily: 'system-ui, -apple-system, sans-serif',
+                },
+              }}
+            />
+          </Box>
+        ) : null}
+
         {!option.image && (
           <Box
             sx={{
@@ -137,36 +181,6 @@ export function OptionCard({
         ) : (
           <Skeleton variant="text" height={25.2} sx={{ mb: 1.5 }} />
         )}
-
-        {/* 予算の表示 */}
-        {option.budgetMin || option.budgetMax ? (
-          <Typography
-            variant="body2"
-            sx={{
-              color: '#6b7280',
-              fontSize: '14px',
-              mb: 1.5,
-            }}
-          >
-            予算:{' '}
-            {(() => {
-              const min = option.budgetMin && option.budgetMin.trim() ? parseInt(option.budgetMin, 10).toLocaleString() : '';
-              const max = option.budgetMax && option.budgetMax.trim() ? parseInt(option.budgetMax, 10).toLocaleString() : '';
-              if (min && max) {
-                // 最小値と最大値が同じ場合は1つだけ表示
-                if (option.budgetMin === option.budgetMax) {
-                  return `${min} 円`;
-                }
-                return `${min} ~ ${max} 円`;
-              } else if (min) {
-                return `${min} ~ 円`;
-              } else if (max) {
-                return `~ ${max} 円`;
-              }
-              return '';
-            })()}
-          </Typography>
-        ) : null}
 
         {/* 備考の表示 */}
         {option.description && (
