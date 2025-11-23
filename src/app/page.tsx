@@ -5,16 +5,12 @@ import {
   Button,
   Container,
   Typography,
-  Card,
-  CardContent,
   Accordion,
   AccordionSummary,
   AccordionDetails,
 } from '@mui/material';
 import {
   CheckCircle as CheckCircleIcon,
-  AutoAwesome as AutoAwesomeIcon,
-  Balance as BalanceIcon,
   ExpandMore as ExpandMoreIcon,
 } from '@mui/icons-material';
 import Link from 'next/link';
@@ -152,7 +148,7 @@ function HeroSection() {
           left: 0,
           right: 0,
           bottom: 0,
-          backgroundColor: 'rgba(0, 0, 0, 0.3)',
+          backgroundColor: 'rgba(0, 0, 0, 0.5)',
           zIndex: 1,
         },
       }}
@@ -171,27 +167,28 @@ function HeroSection() {
             fontSize: { xs: '2.5rem', md: '3.5rem' },
             fontWeight: 700,
             color: 'white',
-            mb: 3,
             lineHeight: 1.2,
-            textShadow: '0 2px 4px rgba(0, 0, 0, 0.3)',
+            textShadow: '0 2px 8px rgba(0, 0, 0, 0.7)',
           }}
         >
-          幹事の店選び、サクッと解決。
+          "幹事の時間" もっと大切に。
         </Typography>
         <Typography
           variant="body1"
           sx={{
-            fontSize: { xs: '1rem', md: '1.125rem' },
+            fontSize: { xs: '1rem', md: '1.15rem' },
             color: 'rgba(255, 255, 255, 0.95)',
             maxWidth: '700px',
             mx: 'auto',
+            mt: 3,
             mb: 4,
             lineHeight: 1.6,
-            textShadow: '0 1px 2px rgba(0, 0, 0, 0.3)',
+            textShadow: '0 1px 4px rgba(0, 0, 0, 0.7)',
           }}
         >
-          イベントの店選びを簡単に決められる投票ツールです。
-          投票を作成してリンクを共有すれば、誰でも投票でき、やり取りなしで最適な場所を見つけられます。
+          店決めに悩む時代はもう終わり。行く店をみんなで決める。
+          <br />
+          チョイスルは店決めに悩む幹事のためのサービスを提供します。
         </Typography>
         <Button
           component={Link}
@@ -201,7 +198,7 @@ function HeroSection() {
             backgroundColor: '#3b82f6',
             color: 'white',
             borderRadius: '8px',
-            px: 4,
+            px: 3,
             py: 1.5,
             fontSize: '1rem',
             textTransform: 'none',
@@ -210,160 +207,8 @@ function HeroSection() {
             '&:hover': { backgroundColor: '#2563eb' },
           }}
         >
-          無料で投票を作成
+          無料で始める
         </Button>
-      </Container>
-    </Box>
-  );
-}
-
-// 機能セクションコンポーネント
-function FeaturesSection() {
-  return (
-    <Box id="features" sx={{ py: { xs: 8, md: 12 }, backgroundColor: 'white' }}>
-      <Container maxWidth={false} sx={{ maxWidth: '1000px' }}>
-        <Typography
-          variant="h2"
-          sx={{
-            fontSize: { xs: '2rem', md: '2.5rem' },
-            fontWeight: 700,
-            color: '#1f2937',
-            textAlign: 'center',
-            mb: 2,
-          }}
-        >
-          終わりのないやり取りに疲れていませんか？チョイスルが簡単にします。
-        </Typography>
-        <Typography
-          variant="body1"
-          sx={{
-            fontSize: '1.125rem',
-            color: '#6b7280',
-            textAlign: 'center',
-            maxWidth: '600px',
-            mx: 'auto',
-            mb: 6,
-          }}
-        >
-          イベントの計画は楽しいものであるべきです。チョイスルは店選びのストレスをなくし、
-          素晴らしい時間に集中できるように作りました。
-        </Typography>
-
-        <Box
-          sx={{
-            display: 'grid',
-            gridTemplateColumns: { xs: '1fr', md: 'repeat(3, 1fr)' },
-            gap: 4,
-          }}
-        >
-          {/* カード1 */}
-          <Card
-            sx={{
-              border: '1px solid #e5e7eb',
-              borderRadius: '12px',
-              boxShadow: 'none',
-              '&:hover': { boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' },
-            }}
-          >
-            <CardContent sx={{ p: 3 }}>
-              <Box
-                sx={{
-                  width: 48,
-                  height: 48,
-                  borderRadius: '12px',
-                  backgroundColor: '#fef3c7',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  mb: 2,
-                }}
-              >
-                <AutoAwesomeIcon sx={{ fontSize: 28, color: '#f59e0b' }} />
-              </Box>
-              <Typography
-                variant="h6"
-                sx={{ fontWeight: 600, color: '#1f2937', mb: 1 }}
-              >
-                店舗情報の自動取得
-              </Typography>
-              <Typography variant="body2" sx={{ color: '#6b7280', lineHeight: 1.6 }}>
-                店舗のURLを貼り付けるだけで、名前、住所、写真を自動で取得します。
-              </Typography>
-            </CardContent>
-          </Card>
-
-          {/* カード2 */}
-          <Card
-            sx={{
-              border: '1px solid #e5e7eb',
-              borderRadius: '12px',
-              boxShadow: 'none',
-              '&:hover': { boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' },
-            }}
-          >
-            <CardContent sx={{ p: 3 }}>
-              <Box
-                sx={{
-                  width: 48,
-                  height: 48,
-                  borderRadius: '12px',
-                  backgroundColor: '#fef3c7',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  mb: 2,
-                }}
-              >
-                <BalanceIcon sx={{ fontSize: 28, color: '#f59e0b' }} />
-              </Box>
-              <Typography
-                variant="h6"
-                sx={{ fontWeight: 600, color: '#1f2937', mb: 1 }}
-              >
-                公平で簡単な投票
-              </Typography>
-              <Typography variant="body2" sx={{ color: '#6b7280', lineHeight: 1.6 }}>
-                誰でも投票できるシンプルな投票を共有できます。リアルタイムで結果を確認し、合意形成を図れます。
-              </Typography>
-            </CardContent>
-          </Card>
-
-          {/* カード3 */}
-          <Card
-            sx={{
-              border: '1px solid #e5e7eb',
-              borderRadius: '12px',
-              boxShadow: 'none',
-              '&:hover': { boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' },
-            }}
-          >
-            <CardContent sx={{ p: 3 }}>
-              <Box
-                sx={{
-                  width: 48,
-                  height: 48,
-                  borderRadius: '12px',
-                  backgroundColor: '#d1fae5',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  mb: 2,
-                }}
-              >
-                <CheckCircleIcon sx={{ fontSize: 28, color: '#10b981' }} />
-              </Box>
-              <Typography
-                variant="h6"
-                sx={{ fontWeight: 600, color: '#1f2937', mb: 1 }}
-              >
-                簡単な意思決定
-              </Typography>
-              <Typography variant="body2" sx={{ color: '#6b7280', lineHeight: 1.6 }}>
-                返信を追いかける必要はありません。迅速に明確な決定を得られ、作業負荷とストレスを軽減できます。
-              </Typography>
-            </CardContent>
-          </Card>
-        </Box>
       </Container>
     </Box>
   );
@@ -435,10 +280,24 @@ function HowItWorksSection() {
             fontWeight: 700,
             color: '#1f2937',
             textAlign: 'center',
-            mb: 8,
+            mb: 2,
           }}
         >
-          使い方
+          How to use Choiceru
+        </Typography>
+        <Typography
+          variant="body1"
+          sx={{
+            fontWeight: 'bold',
+            fontSize: '1.125rem',
+            color: '#6b7280',
+            textAlign: 'center',
+            maxWidth: '600px',
+            mx: 'auto',
+            mb: 6,
+          }}
+        >
+          チョイスルの使い方
         </Typography>
 
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: { xs: 8, md: 12 } }}>
@@ -479,8 +338,7 @@ function HowItWorksSection() {
                 variant="body1"
                 sx={{ color: '#6b7280', lineHeight: 1.7, fontSize: '1.125rem' }}
               >
-                店舗のウェブサイトリンクを貼り付けるだけで、投票に店舗オプションを追加できます。
-                自動取得機能が必要な詳細情報をすべて取得するため、時間と労力を節約できます。
+                候補となる店舗の URL を入力して投票ページを作成しましょう。店舗名や写真などは自動的に取得されるため、大半の情報は手動で入力する必要がありません。
               </Typography>
             </Box>
             <Box
@@ -659,8 +517,7 @@ function HowItWorksSection() {
                 variant="body1"
                 sx={{ color: '#6b7280', lineHeight: 1.7, fontSize: '1.125rem' }}
               >
-                投票のユニークなリンクを取得し、任意のメッセージアプリでグループと共有できます。
-                友達はどのデバイスからでも投票でき、登録は不要です。
+                作成した投票ページを LINE や Slack などの SNS で共有して、参加者の投票が終わるまで待ちます。
               </Typography>
             </Box>
           </Box>
@@ -702,8 +559,7 @@ function HowItWorksSection() {
                 variant="body1"
                 sx={{ color: '#6b7280', lineHeight: 1.7, fontSize: '1.125rem' }}
               >
-                投票が集まるのを見て、どの店舗が勝者か簡単に確認できます。
-                これだけです！煩雑なグループチャットやスプレッドシートは不要です。
+                投票期限に達すると投票結果が公開されます。
               </Typography>
             </Box>
             <Box
@@ -802,24 +658,19 @@ function HowItWorksSection() {
 function FAQSection() {
   const faqItems = [
     {
-      question: 'チョイスルは無料で使えますか？',
+      question: '料金はかかりますか？',
       answer:
-        'はい、チョイスルは完全に無料で使用できます。無制限に投票を作成し、好きなだけ多くの人を招待して投票してもらえます。',
+        '本サービスは完全無料でご利用いただけます。',
     },
     {
-      question: '友達は投票するために登録が必要ですか？',
+      question: 'アカウント登録が必要になりますか？',
       answer:
-        'いいえ、友達はアカウントを作成したり登録したりする必要はありません。リンクをクリックするだけで、すぐに投票できます。',
-    },
-    {
-      question: '投票にいくつ店舗オプションを追加できますか？',
-      answer:
-        '投票には好きなだけ多くの店舗オプションを追加できます。オプションの数に制限はありません。',
+        'アカウントを作成する必要はありません。誰でもすぐにご利用いただけます。',
     },
     {
       question: '自動取得機能はどの店舗サイトでも動作しますか？',
       answer:
-        '自動取得機能は、主要な店舗サイトやレビュープラットフォームのほとんどで動作します。サポートされていないサイトの場合でも、手動で店舗情報を追加できます。',
+        '自動取得機能は、主要なサイトのほとんどで動作します。ただし、一部のレガシーなサイトでは動作しない場合があります。',
     },
   ];
 
@@ -836,11 +687,12 @@ function FAQSection() {
             mb: 2,
           }}
         >
-          よくある質問
+          Frequently Asked Questions
         </Typography>
         <Typography
           variant="body1"
           sx={{
+            fontWeight: 'bold',
             fontSize: '1.125rem',
             color: '#6b7280',
             textAlign: 'center',
@@ -849,7 +701,7 @@ function FAQSection() {
             mb: 6,
           }}
         >
-          質問がありますか？お答えします。チョイスルについてよくある質問をまとめました。
+          よくある質問
         </Typography>
 
         <Box sx={{ maxWidth: '800px', mx: 'auto' }}>
@@ -958,7 +810,6 @@ export default function HomePage() {
     <Box sx={{ width: '100%' }}>
       <LandingHeader />
       <HeroSection />
-      <FeaturesSection />
       <HowItWorksSection />
       <FAQSection />
       <BottomCTASection />
