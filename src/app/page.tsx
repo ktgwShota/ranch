@@ -320,12 +320,12 @@ function HowItWorksSection() {
   };
 
   return (
-    <Box ref={sectionRef} sx={{ py: { xs: 8, md: 12 }, backgroundColor: '#f9fafb' }}>
+    <Box ref={sectionRef} sx={{ pt: { xs: 8, md: 10 }, backgroundColor: '#f9fafb' }}>
       <Container maxWidth={false} sx={{ maxWidth: '980px' }}>
         <Typography
           variant="h2"
           sx={{
-            fontSize: { xs: '2rem', md: '2.5rem' },
+            fontSize: { xs: '1.75rem', md: '2.25rem' },
             fontWeight: 700,
             color: '#1f2937',
             textAlign: 'center',
@@ -343,16 +343,16 @@ function HowItWorksSection() {
             textAlign: 'center',
             maxWidth: '600px',
             mx: 'auto',
-            mb: 6,
+            mb: 4,
           }}
         >
           チョイスルの使い方
         </Typography>
 
         {/* カルーセルコンテナ */}
-        <Box sx={{ position: 'relative', mb: 4 }}>
+        <Box sx={{ position: 'relative' }}>
           {/* スライドコンテンツ */}
-          <Box sx={{ overflow: 'hidden', mb: 4, width: '100%', position: 'relative', isolation: 'isolate' }}>
+          <Box sx={{ overflow: 'hidden', width: '100%', position: 'relative', isolation: 'isolate' }}>
             <Box
               sx={{
                 display: 'flex',
@@ -392,7 +392,7 @@ function HowItWorksSection() {
                         fontWeight: 700,
                         color: '#1f2937',
                         mb: 2,
-                        fontSize: { xs: '1.5rem', md: '2rem' },
+                        fontSize: '1.75rem',
                       }}
                     >
                       投票ページを作成
@@ -458,7 +458,7 @@ function HowItWorksSection() {
                         fontWeight: 700,
                         color: '#1f2937',
                         mb: 2,
-                        fontSize: { xs: '1.5rem', md: '2rem' },
+                        fontSize: '1.75rem',
                       }}
                     >
                       投票ページを共有
@@ -524,7 +524,7 @@ function HowItWorksSection() {
                         fontWeight: 700,
                         color: '#1f2937',
                         mb: 2,
-                        fontSize: { xs: '1.5rem', md: '2rem' },
+                        fontSize: '1.75rem',
                       }}
                     >
                       お店が決定
@@ -570,6 +570,7 @@ function HowItWorksSection() {
               alignItems: 'center',
               justifyContent: 'center',
               gap: 2,
+              py: 4,
             }}
           >
             {/* 左矢印ボタン */}
@@ -645,22 +646,12 @@ function FAQSection() {
     {
       question: '利用料金はかかりますか？',
       answer:
-        '本アプリは無料でご利用いただけます。',
+        '無料でご利用いただけます。',
     },
     {
-      question: '利用するにはアカウント登録は必要ですか？',
+      question: '利用するにはアカウント登録が必要ですか？',
       answer:
-        'アカウント登録は不要です。誰でもすぐにご利用いただけます。',
-    },
-    {
-      question: '投票者名を後から変更することはできますか？',
-      answer:
-        '投票ページのメニュー（歯車アイコン）から投票者名を変更できます。',
-    },
-    {
-      question: '投票締切日時よりも前に投票を締め切ることはできますか？',
-      answer:
-        '投票ページのメニュー（歯車アイコン）から任意のタイミングで投票を締め切ることができます。投票結果は投票を締め切ると同時に公開されます。※こちらの機能は権限を持つ幹事のみ使用可能です。',
+        'アカウント登録は不要です。',
     },
     {
       question: '対応しているブラウザを教えてくれますか？',
@@ -670,17 +661,17 @@ function FAQSection() {
     {
       question: 'シークレットモード / プライベートモード に対応していますか？',
       answer:
-        'シークレットモード / プライベートモード には対応しておりません。標準モードをご利用ください。',
+        'シークレットモード / プライベートモード には対応していません。必ず標準モードをご利用ください。',
     },
   ];
 
   return (
-    <Box sx={{ py: { xs: 8, md: 12 }, backgroundColor: 'white' }}>
+    <Box sx={{ py: { xs: 8, md: 10 }, backgroundColor: 'white' }}>
       <Container maxWidth={false} sx={{ maxWidth: '980px' }}>
         <Typography
           variant="h2"
           sx={{
-            fontSize: { xs: '2rem', md: '2.5rem' },
+            fontSize: { xs: '1.75rem', md: '2.25rem' },
             fontWeight: 700,
             color: '#1f2937',
             textAlign: 'center',
@@ -697,7 +688,7 @@ function FAQSection() {
             color: '#6b7280',
             textAlign: 'center',
             mx: 'auto',
-            mb: 6,
+            mb: 4,
           }}
         >
           よくある質問
@@ -754,9 +745,8 @@ function BottomCTASection() {
   return (
     <Box
       sx={{
-        py: { xs: 8, md: 12 },
-        backgroundColor: '#3b82f6',
-        color: 'white',
+        pt: 6,
+        background: 'linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%)',
       }}
     >
       <Container maxWidth={false} sx={{ maxWidth: '980px' }}>
@@ -764,13 +754,13 @@ function BottomCTASection() {
           <Typography
             variant="h2"
             sx={{
-              fontSize: { xs: '2rem', md: '2.5rem' },
+              fontSize: '1.75rem',
               fontWeight: 700,
               color: 'white',
-              mb: 2,
+              mb: 3,
             }}
           >
-            早速試してみませんか？
+            意思決定 = ストレスフリー
           </Typography>
           <Typography
             variant="body1"
@@ -779,11 +769,11 @@ function BottomCTASection() {
               color: 'rgba(255, 255, 255, 0.9)',
               maxWidth: '800px',
               mx: 'auto',
-              mb: 4,
               lineHeight: 1.6,
             }}
           >
-            煩わしい調整はもう終わりです。3ステップで誰でも簡単に、みんなが納得するお店が決定します。幹事の時間を大切にする新しい方法を、今すぐ無料で体験してください。
+            テストテキストテストテキストテストテキスト<br />
+            『簡単3ステップ』で全員が納得するお店を決めましょう！
           </Typography>
           <Button
             component={Link}
@@ -793,19 +783,22 @@ function BottomCTASection() {
               backgroundColor: 'white',
               color: '#3b82f6',
               borderRadius: '8px',
-              px: 4,
+              mt: 3,
+              mb: 4,
+              px: 2.5,
               py: 1.5,
               fontSize: '1rem',
               textTransform: 'none',
+              boxShadow: 'none',
               fontWeight: 600,
               '&:hover': { backgroundColor: '#f3f4f6' },
             }}
           >
-            今すぐ試す
+            無料で始める
           </Button>
         </Box>
-      </Container>
-    </Box>
+      </Container >
+    </Box >
   );
 }
 
