@@ -32,7 +32,7 @@ function LandingHeader() {
         borderBottom: '1px solid rgba(255, 255, 255, 0.2)',
       }}
     >
-      <Container maxWidth={false} sx={{ maxWidth: '1000px' }}>
+      <Container maxWidth={false} sx={{ maxWidth: '980px' }}>
         <Box
           sx={{
             display: 'flex',
@@ -156,7 +156,7 @@ function HeroSection() {
       <Container
         maxWidth={false}
         sx={{
-          maxWidth: '1000px',
+          maxWidth: '980px',
           position: 'relative',
           zIndex: 2,
         }}
@@ -229,13 +229,13 @@ function PhoneMockup({ children, bgColor }: { children: React.ReactNode; bgColor
         alignItems: 'center',
         justifyContent: 'center',
         boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
-        p: 2,
+
       }}
     >
       <Box
         sx={{
-          width: '70%',
-          maxWidth: '280px',
+          width: '100%',
+          height: '100%',
           backgroundColor: 'white',
           borderRadius: '24px',
           overflow: 'hidden',
@@ -272,7 +272,7 @@ function PhoneMockup({ children, bgColor }: { children: React.ReactNode; bgColor
 function HowItWorksSection() {
   return (
     <Box sx={{ py: { xs: 8, md: 12 }, backgroundColor: '#f9fafb' }}>
-      <Container maxWidth={false} sx={{ maxWidth: '1000px' }}>
+      <Container maxWidth={false} sx={{ maxWidth: '980px' }}>
         <Typography
           variant="h2"
           sx={{
@@ -345,12 +345,12 @@ function HowItWorksSection() {
               sx={{
                 flex: 1,
                 display: 'flex',
-                justifyContent: 'center',
+                justifyContent: 'flex-end',
                 alignItems: 'center',
               }}
             >
               <PhoneMockup bgColor="#fed7aa">
-                <Box sx={{ p: 2, minHeight: '400px' }}>
+                <Box>
                   <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
                     <Box
                       sx={{
@@ -415,13 +415,13 @@ function HowItWorksSection() {
               sx={{
                 flex: 1,
                 display: 'flex',
-                justifyContent: 'center',
+                justifyContent: 'flex-start',
                 alignItems: 'center',
                 order: { xs: 2, md: 1 },
               }}
             >
               <PhoneMockup bgColor="#ccfbf1">
-                <Box sx={{ p: 2, minHeight: '400px' }}>
+                <Box>
                   <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
                     <Box
                       sx={{
@@ -566,12 +566,12 @@ function HowItWorksSection() {
               sx={{
                 flex: 1,
                 display: 'flex',
-                justifyContent: 'center',
+                justifyContent: 'flex-end',
                 alignItems: 'center',
               }}
             >
               <PhoneMockup bgColor="#ccfbf1">
-                <Box sx={{ p: 2, minHeight: '400px', position: 'relative' }}>
+                <Box>
                   <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
                     <Box
                       sx={{
@@ -658,25 +658,20 @@ function HowItWorksSection() {
 function FAQSection() {
   const faqItems = [
     {
-      question: '料金はかかりますか？',
+      question: '利用料金はかかりますか？',
       answer:
         '本サービスは完全無料でご利用いただけます。',
     },
     {
-      question: 'アカウント登録が必要になりますか？',
+      question: '利用するにはアカウント登録が必要になりますか？',
       answer:
         'アカウントを作成する必要はありません。誰でもすぐにご利用いただけます。',
-    },
-    {
-      question: '自動取得機能はどの店舗サイトでも動作しますか？',
-      answer:
-        '自動取得機能は、主要なサイトのほとんどで動作します。ただし、一部のレガシーなサイトでは動作しない場合があります。',
-    },
+    }
   ];
 
   return (
     <Box sx={{ py: { xs: 8, md: 12 }, backgroundColor: 'white' }}>
-      <Container maxWidth={false} sx={{ maxWidth: '1000px' }}>
+      <Container maxWidth={false} sx={{ maxWidth: '980px' }}>
         <Typography
           variant="h2"
           sx={{
@@ -696,7 +691,6 @@ function FAQSection() {
             fontSize: '1.125rem',
             color: '#6b7280',
             textAlign: 'center',
-            maxWidth: '600px',
             mx: 'auto',
             mb: 6,
           }}
@@ -721,8 +715,15 @@ function FAQSection() {
                 sx={{
                   px: 3,
                   py: 2,
+                  minHeight: '64px',
+                  '&.Mui-expanded': {
+                    minHeight: '64px',
+                  },
                   '& .MuiAccordionSummary-content': {
                     my: 0,
+                    '&.Mui-expanded': {
+                      my: 0,
+                    },
                   },
                 }}
               >
@@ -753,7 +754,7 @@ function BottomCTASection() {
         color: 'white',
       }}
     >
-      <Container maxWidth={false} sx={{ maxWidth: '1000px' }}>
+      <Container maxWidth={false} sx={{ maxWidth: '980px' }}>
         <Box sx={{ textAlign: 'center' }}>
           <Typography
             variant="h2"
@@ -764,21 +765,20 @@ function BottomCTASection() {
               mb: 2,
             }}
           >
-            意思決定を簡単にしませんか？
+            早速試してみませんか？
           </Typography>
           <Typography
             variant="body1"
             sx={{
               fontSize: '1.125rem',
               color: 'rgba(255, 255, 255, 0.9)',
-              maxWidth: '600px',
+              maxWidth: '800px',
               mx: 'auto',
               mb: 4,
               lineHeight: 1.6,
             }}
           >
-            終わりのないチャットをやめて、ストレスゼロで次のイベントの計画を始めましょう。
-            みんなを素早く同じページに集められます。
+            煩わしい調整はもう終わりです。3ステップで誰でも簡単に、みんなが納得するお店が決定します。幹事の時間を大切にする新しい方法を、今すぐ無料で体験してください。
           </Typography>
           <Button
             component={Link}
@@ -796,7 +796,7 @@ function BottomCTASection() {
               '&:hover': { backgroundColor: '#f3f4f6' },
             }}
           >
-            無料で始める
+            今すぐ試す
           </Button>
         </Box>
       </Container>
@@ -811,8 +811,8 @@ export default function HomePage() {
       <LandingHeader />
       <HeroSection />
       <HowItWorksSection />
-      <FAQSection />
       <BottomCTASection />
+      <FAQSection />
     </Box>
   );
 }
