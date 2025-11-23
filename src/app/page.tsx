@@ -1,5 +1,6 @@
 'use client';
 
+import { useState, useRef } from 'react';
 import {
   Box,
   Button,
@@ -8,15 +9,47 @@ import {
   Accordion,
   AccordionSummary,
   AccordionDetails,
+  IconButton,
 } from '@mui/material';
 import {
   CheckCircle as CheckCircleIcon,
   ExpandMore as ExpandMoreIcon,
+  ArrowBack as ArrowBackIcon,
+  ArrowForward as ArrowForwardIcon,
 } from '@mui/icons-material';
 import Link from 'next/link';
 
 // 定数
 const HEADER_HEIGHT = '80px';
+
+// モックアップ用の定数
+const MOCK_POLL_TITLE = '歓迎会のお店はどこがいい？';
+const MOCK_RESTAURANT_1 = {
+  name: 'レストランA',
+  url: 'https://tabelog.com/tokyo/...',
+  budgetMin: '8,000',
+  budgetMax: '10,000',
+  description: '会社から徒歩10分 / 個室あり / 駐車場なし',
+  votes: 8,
+  percentage: 80.0,
+};
+const MOCK_RESTAURANT_2 = {
+  name: 'レストランB',
+  url: 'https://tabelog.com/tokyo/...',
+  budgetMin: '8,000',
+  budgetMax: '10,000',
+  description: '会社から徒歩10分 / 個室あり / 駐車場なし',
+  votes: 2,
+  percentage: 20.0,
+};
+const MOCK_TOTAL_VOTES = 10;
+const MOCK_VOTERS = [
+  { name: 'ユーザーA', letter: 'A', votedFor: MOCK_RESTAURANT_1.name },
+  { name: 'ユーザーB', letter: 'B', votedFor: MOCK_RESTAURANT_1.name },
+  { name: 'ユーザーC', letter: 'C', votedFor: MOCK_RESTAURANT_1.name },
+  { name: 'ユーザーD', letter: 'D', votedFor: MOCK_RESTAURANT_2.name },
+  { name: 'ユーザーE', letter: 'E', votedFor: MOCK_RESTAURANT_2.name },
+];
 
 // ヘッダーコンポーネント
 function LandingHeader() {
@@ -186,29 +219,10 @@ function HeroSection() {
             textShadow: '0 1px 4px rgba(0, 0, 0, 0.7)',
           }}
         >
-          店決めに悩む時代はもう終わり。行く店をみんなで決める。
+          店決めに悩む時代はもう終わり。行く店はみんなで決める。
           <br />
           チョイスルは店決めに悩む幹事のためのサービスを提供します。
         </Typography>
-        <Button
-          component={Link}
-          href="/polls/create"
-          variant="contained"
-          sx={{
-            backgroundColor: '#3b82f6',
-            color: 'white',
-            borderRadius: '8px',
-            px: 3,
-            py: 1.5,
-            fontSize: '1rem',
-            textTransform: 'none',
-            fontWeight: 600,
-            boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.3)',
-            '&:hover': { backgroundColor: '#2563eb' },
-          }}
-        >
-          無料で始める
-        </Button>
       </Container>
     </Box>
   );
@@ -219,17 +233,16 @@ function PhoneMockup({ children, bgColor }: { children: React.ReactNode; bgColor
   return (
     <Box
       sx={{
-        width: { xs: '100%', md: '400px' },
+        width: { xs: '100%', md: '440px' },
+        height: { xs: 'auto', md: '450px' },
         maxWidth: '100%',
-        aspectRatio: '1',
-        backgroundColor: bgColor,
+        backgroundColor: 'transparent',
         borderRadius: '12px',
-        border: '1px solid white',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
-
+        py: 2,
+        px: 0,
       }}
     >
       <Box
@@ -237,32 +250,108 @@ function PhoneMockup({ children, bgColor }: { children: React.ReactNode; bgColor
           width: '100%',
           height: '100%',
           backgroundColor: 'white',
-          borderRadius: '24px',
+          borderRadius: '8px',
           overflow: 'hidden',
-          boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.2)',
+          boxShadow: '0 4px 20px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(0, 0, 0, 0.05)',
+          display: 'flex',
+          flexDirection: 'column',
         }}
       >
-        {/* ステータスバー */}
+        {/* Macウィンドウのタイトルバー */}
         <Box
           sx={{
-            backgroundColor: '#1f2937',
-            color: 'white',
-            px: 2,
-            py: 0.5,
+            backgroundColor: '#f5f5f5',
+            borderBottom: '1px solid #e0e0e0',
+            px: 1.5,
+            py: 0.75,
             display: 'flex',
-            justifyContent: 'space-between',
             alignItems: 'center',
-            fontSize: '0.7rem',
+            gap: 0.75,
+            flexShrink: 0,
           }}
         >
-          <Box>9:41</Box>
-          <Box sx={{ display: 'flex', gap: 0.5 }}>
-            <Box sx={{ width: 12, height: 6, border: '1px solid white', borderRadius: '2px' }} />
-            <Box sx={{ width: 12, height: 6, border: '1px solid white', borderRadius: '2px' }} />
+          {/* ウィンドウコントロールボタン */}
+          <Box sx={{ display: 'flex', gap: 0.5, flexShrink: 0 }}>
+            <Box
+              sx={{
+                width: '10px',
+                height: '10px',
+                borderRadius: '50%',
+                backgroundColor: '#ff5f57',
+              }}
+            />
+            <Box
+              sx={{
+                width: '10px',
+                height: '10px',
+                borderRadius: '50%',
+                backgroundColor: '#ffbd2e',
+              }}
+            />
+            <Box
+              sx={{
+                width: '10px',
+                height: '10px',
+                borderRadius: '50%',
+                backgroundColor: '#28ca42',
+              }}
+            />
+          </Box>
+          {/* URLバー */}
+          <Box
+            sx={{
+              ml: 'auto',
+              backgroundColor: 'white',
+              border: '1px solid #d0d0d0',
+              borderRadius: '4px',
+              px: 1,
+              py: 0.25,
+              display: 'flex',
+              alignItems: 'center',
+              maxWidth: '60%',
+              flexShrink: 0,
+            }}
+          >
+            <Typography
+              sx={{
+                fontSize: '0.65rem',
+                color: '#666',
+                fontWeight: 400,
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap',
+              }}
+            >
+              localhost:3000/polls/create
+            </Typography>
           </Box>
         </Box>
         {/* アプリ画面 */}
-        {children}
+        <Box
+          sx={{
+            flex: 1,
+            overflow: 'hidden',
+            display: 'flex',
+            flexDirection: 'column',
+            backgroundColor: '#f5f5f5',
+            p: 1.5,
+          }}
+        >
+          <Box
+            sx={{
+              width: '100%',
+              height: '100%',
+              backgroundColor: 'white',
+              borderRadius: '8px',
+              boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
+              overflow: 'hidden',
+              display: 'flex',
+              flexDirection: 'column',
+            }}
+          >
+            {children}
+          </Box>
+        </Box>
       </Box>
     </Box>
   );
@@ -270,8 +359,24 @@ function PhoneMockup({ children, bgColor }: { children: React.ReactNode; bgColor
 
 // How it Works セクションコンポーネント
 function HowItWorksSection() {
+  const [currentSlide, setCurrentSlide] = useState(0);
+  const totalSlides = 3;
+  const sectionRef = useRef<HTMLDivElement>(null);
+
+  const handlePrevious = () => {
+    setCurrentSlide((prev) => (prev === 0 ? totalSlides - 1 : prev - 1));
+  };
+
+  const handleNext = () => {
+    setCurrentSlide((prev) => (prev === totalSlides - 1 ? 0 : prev + 1));
+  };
+
+  const handleDotClick = (index: number) => {
+    setCurrentSlide(index);
+  };
+
   return (
-    <Box sx={{ py: { xs: 8, md: 12 }, backgroundColor: '#f9fafb' }}>
+    <Box ref={sectionRef} sx={{ py: { xs: 8, md: 12 }, backgroundColor: '#f9fafb' }}>
       <Container maxWidth={false} sx={{ maxWidth: '980px' }}>
         <Typography
           variant="h2"
@@ -300,353 +405,289 @@ function HowItWorksSection() {
           チョイスルの使い方
         </Typography>
 
-        <Box sx={{ display: 'flex', flexDirection: 'column', gap: { xs: 8, md: 12 } }}>
-          {/* Step 1: テキスト左、画像右 */}
-          <Box
-            sx={{
-              display: 'flex',
-              flexDirection: { xs: 'column', md: 'row' },
-              alignItems: 'center',
-              gap: 6,
-            }}
-          >
-            <Box sx={{ flex: 1, textAlign: { xs: 'center', md: 'left' } }}>
-              <Typography
-                sx={{
-                  color: '#3b82f6',
-                  fontSize: '0.875rem',
-                  fontWeight: 600,
-                  mb: 1,
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.05em',
-                }}
-              >
-                ステップ1
-              </Typography>
-              <Typography
-                variant="h4"
-                sx={{
-                  fontWeight: 700,
-                  color: '#1f2937',
-                  mb: 2,
-                  fontSize: { xs: '1.5rem', md: '2rem' },
-                }}
-              >
-                投票ページを作成
-              </Typography>
-              <Typography
-                variant="body1"
-                sx={{ color: '#6b7280', lineHeight: 1.7, fontSize: '1.125rem' }}
-              >
-                候補となる店舗の URL を入力して投票ページを作成しましょう。店舗名や写真などは自動的に取得されるため、大半の情報は手動で入力する必要がありません。
-              </Typography>
-            </Box>
+        {/* カルーセルコンテナ */}
+        <Box sx={{ position: 'relative', mb: 4 }}>
+          {/* スライドコンテンツ */}
+          <Box sx={{ overflow: 'hidden', mb: 4, width: '100%', position: 'relative', isolation: 'isolate' }}>
             <Box
               sx={{
-                flex: 1,
                 display: 'flex',
-                justifyContent: 'flex-end',
-                alignItems: 'center',
+                width: `${totalSlides * 100}%`,
+                transform: `translateX(-${(currentSlide * 100) / totalSlides}%)`,
+                transition: 'transform 0.3s ease-in-out',
+                willChange: 'transform',
+                position: 'relative',
               }}
             >
-              <PhoneMockup bgColor="#fed7aa">
-                <Box>
-                  <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                    <Box
+              {/* Step 1: テキスト左、画像右 */}
+              <Box sx={{ width: `${100 / totalSlides}%`, flexShrink: 0, boxSizing: 'border-box', overflow: 'hidden' }}>
+                <Box
+                  sx={{
+                    display: 'flex',
+                    flexDirection: { xs: 'column', md: 'row' },
+                    alignItems: 'center',
+                    gap: 6,
+                  }}
+                >
+                  <Box sx={{ flex: 1, textAlign: { xs: 'center', md: 'left' } }}>
+                    <Typography
                       sx={{
-                        width: 24,
-                        height: 24,
-                        borderRadius: '50%',
-                        backgroundColor: '#e5e7eb',
-                        mr: 1,
+                        color: '#3b82f6',
+                        fontSize: '0.875rem',
+                        fontWeight: 600,
+                        mb: 1,
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.05em',
                       }}
-                    />
-                    <Typography sx={{ fontWeight: 600, fontSize: '0.9rem' }}>
-                      CHOICERU
+                    >
+                      ステップ1
+                    </Typography>
+                    <Typography
+                      variant="h4"
+                      sx={{
+                        fontWeight: 700,
+                        color: '#1f2937',
+                        mb: 2,
+                        fontSize: { xs: '1.5rem', md: '2rem' },
+                      }}
+                    >
+                      投票ページを作成
+                    </Typography>
+                    <Typography
+                      variant="body1"
+                      sx={{ color: '#6b7280', lineHeight: 1.7, fontSize: '1.125rem' }}
+                    >
+                      候補となる店舗の URL を入力して投票ページを作成しましょう。店舗名や画像は自動的に入力されます。
                     </Typography>
                   </Box>
-                  <Typography
-                    sx={{
-                      fontWeight: 600,
-                      fontSize: '0.85rem',
-                      color: '#1f2937',
-                      mb: 2,
-                    }}
-                  >
-                    What a Poll
-                  </Typography>
-                  <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-                    {['Bistro 92', 'Elmwood Grill', 'The Corner Cafe'].map(
-                      (name, idx) => (
-                        <Box
-                          key={idx}
-                          sx={{
-                            display: 'flex',
-                            justifyContent: 'space-between',
-                            alignItems: 'center',
-                            p: 1.5,
-                            backgroundColor: '#f9fafb',
-                            borderRadius: '8px',
-                          }}
-                        >
-                          <Typography sx={{ fontSize: '0.8rem' }}>{name}</Typography>
-                          <Typography sx={{ fontSize: '0.75rem', color: '#6b7280' }}>
-                            {idx + 1}
-                          </Typography>
-                        </Box>
-                      ),
-                    )}
-                  </Box>
-                </Box>
-              </PhoneMockup>
-            </Box>
-          </Box>
-
-          {/* Step 2: 画像左、テキスト右 */}
-          <Box
-            sx={{
-              display: 'flex',
-              flexDirection: { xs: 'column', md: 'row' },
-              alignItems: 'center',
-              gap: 6,
-            }}
-          >
-            <Box
-              sx={{
-                flex: 1,
-                display: 'flex',
-                justifyContent: 'flex-start',
-                alignItems: 'center',
-                order: { xs: 2, md: 1 },
-              }}
-            >
-              <PhoneMockup bgColor="#ccfbf1">
-                <Box>
-                  <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                    <Box
-                      sx={{
-                        width: 24,
-                        height: 24,
-                        borderRadius: '50%',
-                        backgroundColor: '#e5e7eb',
-                        mr: 1,
-                      }}
-                    />
-                    <Typography sx={{ fontWeight: 600, fontSize: '0.9rem' }}>
-                      CHOICERU
-                    </Typography>
-                  </Box>
-                  <Typography
-                    sx={{
-                      fontWeight: 600,
-                      fontSize: '0.85rem',
-                      color: '#1f2937',
-                      mb: 1.5,
-                    }}
-                  >
-                    Invite
-                  </Typography>
                   <Box
                     sx={{
-                      backgroundColor: '#f3f4f6',
-                      borderRadius: '8px',
-                      p: 1,
-                      mb: 2,
-                      height: 32,
+                      flex: 1,
+                      display: 'flex',
+                      justifyContent: 'flex-end',
+                      alignItems: 'center',
+                      height: { xs: 'auto', md: '450px' },
                     }}
-                  />
-                  <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-                    {['Option 1', 'Option 2', 'Option 3', 'Option 4'].map(
-                      (opt, idx) => (
-                        <Box
-                          key={idx}
-                          sx={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: 1,
-                            p: 1,
-                          }}
-                        >
-                          <Box
-                            sx={{
-                              width: 20,
-                              height: 20,
-                              border: '2px solid #e5e7eb',
-                              borderRadius: '4px',
-                            }}
-                          />
-                          <Typography sx={{ fontSize: '0.8rem' }}>{opt}</Typography>
-                        </Box>
-                      ),
-                    )}
+                  >
+                    <Box
+                      component="img"
+                      src="https://placehold.co/440x600/fed7aa/ffffff?text=Step+1"
+                      alt="投票ページ作成画面"
+                      sx={{
+                        width: { xs: '100%', md: '440px' },
+                        height: { xs: 'auto', md: '600px' },
+                        objectFit: 'contain',
+                        borderRadius: '8px',
+                        boxShadow: '0 4px 20px rgba(0, 0, 0, 0.15)',
+                      }}
+                    />
                   </Box>
                 </Box>
-              </PhoneMockup>
-            </Box>
-            <Box
-              sx={{
-                flex: 1,
-                textAlign: { xs: 'center', md: 'left' },
-                order: { xs: 1, md: 2 },
-              }}
-            >
-              <Typography
-                sx={{
-                  color: '#3b82f6',
-                  fontSize: '0.875rem',
-                  fontWeight: 600,
-                  mb: 1,
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.05em',
-                }}
-              >
-                ステップ2
-              </Typography>
-              <Typography
-                variant="h4"
-                sx={{
-                  fontWeight: 700,
-                  color: '#1f2937',
-                  mb: 2,
-                  fontSize: { xs: '1.5rem', md: '2rem' },
-                }}
-              >
-                投票ページを共有
-              </Typography>
-              <Typography
-                variant="body1"
-                sx={{ color: '#6b7280', lineHeight: 1.7, fontSize: '1.125rem' }}
-              >
-                作成した投票ページを LINE や Slack などの SNS で共有して、参加者の投票が終わるまで待ちます。
-              </Typography>
+              </Box>
+
+              {/* Step 2: テキスト左、画像右 */}
+              <Box sx={{ width: `${100 / totalSlides}%`, flexShrink: 0, boxSizing: 'border-box', overflow: 'hidden' }}>
+                <Box
+                  sx={{
+                    display: 'flex',
+                    flexDirection: { xs: 'column', md: 'row' },
+                    alignItems: 'center',
+                    gap: 6,
+                  }}
+                >
+                  <Box sx={{ flex: 1, textAlign: { xs: 'center', md: 'left' } }}>
+                    <Typography
+                      sx={{
+                        color: '#3b82f6',
+                        fontSize: '0.875rem',
+                        fontWeight: 600,
+                        mb: 1,
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.05em',
+                      }}
+                    >
+                      ステップ2
+                    </Typography>
+                    <Typography
+                      variant="h4"
+                      sx={{
+                        fontWeight: 700,
+                        color: '#1f2937',
+                        mb: 2,
+                        fontSize: { xs: '1.5rem', md: '2rem' },
+                      }}
+                    >
+                      投票ページを共有
+                    </Typography>
+                    <Typography
+                      variant="body1"
+                      sx={{ color: '#6b7280', lineHeight: 1.7, fontSize: '1.125rem' }}
+                    >
+                      作成した投票ページを LINE や Slack などの SNS で共有して、参加者の投票が終わるまで待ちます。
+                    </Typography>
+                  </Box>
+                  <Box
+                    sx={{
+                      flex: 1,
+                      display: 'flex',
+                      justifyContent: 'flex-end',
+                      alignItems: 'center',
+                      height: { xs: 'auto', md: '450px' },
+                    }}
+                  >
+                    <Box
+                      component="img"
+                      src="https://placehold.co/440x600/ccfbf1/ffffff?text=Step+2"
+                      alt="投票ページ共有画面"
+                      sx={{
+                        width: { xs: '100%', md: '440px' },
+                        height: { xs: 'auto', md: '600px' },
+                        objectFit: 'contain',
+                        borderRadius: '8px',
+                        boxShadow: '0 4px 20px rgba(0, 0, 0, 0.15)',
+                      }}
+                    />
+                  </Box>
+                </Box>
+              </Box>
+
+              {/* Step 3: テキスト左、画像右 */}
+              <Box sx={{ width: `${100 / totalSlides}%`, flexShrink: 0, boxSizing: 'border-box', overflow: 'hidden' }}>
+                <Box
+                  sx={{
+                    display: 'flex',
+                    flexDirection: { xs: 'column', md: 'row' },
+                    alignItems: 'center',
+                    gap: 6,
+                  }}
+                >
+                  <Box sx={{ flex: 1, textAlign: { xs: 'center', md: 'left' } }}>
+                    <Typography
+                      sx={{
+                        color: '#3b82f6',
+                        fontSize: '0.875rem',
+                        fontWeight: 600,
+                        mb: 1,
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.05em',
+                      }}
+                    >
+                      ステップ3
+                    </Typography>
+                    <Typography
+                      variant="h4"
+                      sx={{
+                        fontWeight: 700,
+                        color: '#1f2937',
+                        mb: 2,
+                        fontSize: { xs: '1.5rem', md: '2rem' },
+                      }}
+                    >
+                      お店が決定
+                    </Typography>
+                    <Typography
+                      variant="body1"
+                      sx={{ color: '#6b7280', lineHeight: 1.7, fontSize: '1.125rem' }}
+                    >
+                      投票期限に達すると投票結果が公開されます。
+                    </Typography>
+                  </Box>
+                  <Box
+                    sx={{
+                      flex: 1,
+                      display: 'flex',
+                      justifyContent: 'flex-end',
+                      alignItems: 'center',
+                      height: { xs: 'auto', md: '450px' },
+                    }}
+                  >
+                    <Box
+                      component="img"
+                      src="https://placehold.co/440x600/ccfbf1/ffffff?text=Step+3"
+                      alt="投票結果画面"
+                      sx={{
+                        width: { xs: '100%', md: '440px' },
+                        height: { xs: 'auto', md: '600px' },
+                        objectFit: 'contain',
+                        borderRadius: '8px',
+                        boxShadow: '0 4px 20px rgba(0, 0, 0, 0.15)',
+                      }}
+                    />
+                  </Box>
+                </Box>
+              </Box>
             </Box>
           </Box>
 
-          {/* Step 3: テキスト左、画像右 */}
+          {/* ナビゲーション */}
           <Box
             sx={{
               display: 'flex',
-              flexDirection: { xs: 'column', md: 'row' },
               alignItems: 'center',
-              gap: 6,
+              justifyContent: 'center',
+              gap: 2,
             }}
           >
-            <Box sx={{ flex: 1, textAlign: { xs: 'center', md: 'left' } }}>
-              <Typography
-                sx={{
-                  color: '#3b82f6',
-                  fontSize: '0.875rem',
-                  fontWeight: 600,
-                  mb: 1,
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.05em',
-                }}
-              >
-                ステップ3
-              </Typography>
-              <Typography
-                variant="h4"
-                sx={{
-                  fontWeight: 700,
-                  color: '#1f2937',
-                  mb: 2,
-                  fontSize: { xs: '1.5rem', md: '2rem' },
-                }}
-              >
-                お店が決定
-              </Typography>
-              <Typography
-                variant="body1"
-                sx={{ color: '#6b7280', lineHeight: 1.7, fontSize: '1.125rem' }}
-              >
-                投票期限に達すると投票結果が公開されます。
-              </Typography>
-            </Box>
-            <Box
+            {/* 左矢印ボタン */}
+            <IconButton
+              onClick={handlePrevious}
+              disabled={currentSlide === 0}
               sx={{
-                flex: 1,
-                display: 'flex',
-                justifyContent: 'flex-end',
-                alignItems: 'center',
+                width: '40px',
+                height: '40px',
+                borderRadius: '50%',
+                '&:hover': {
+                  backgroundColor: '#f9fafb',
+                },
+                '&.Mui-disabled': {
+                  backgroundColor: '#f9fafb',
+                  opacity: 0.5,
+                },
               }}
             >
-              <PhoneMockup bgColor="#ccfbf1">
-                <Box>
-                  <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                    <Box
-                      sx={{
-                        width: 24,
-                        height: 24,
-                        borderRadius: '50%',
-                        backgroundColor: '#e5e7eb',
-                        mr: 1,
-                      }}
-                    />
-                    <Typography sx={{ fontWeight: 600, fontSize: '0.9rem' }}>
-                      CHOICERU
-                    </Typography>
-                  </Box>
-                  <Typography
-                    sx={{
-                      fontWeight: 600,
-                      fontSize: '0.85rem',
-                      color: '#1f2937',
-                      mb: 2,
-                    }}
-                  >
-                    VOTES
-                  </Typography>
-                  <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
-                    {[
-                      { name: 'YAMADA TARO', hasHeart: true },
-                      { name: 'TANAKA JIRO', hasHeart: true },
-                      { name: 'SUZUKI HANAKO', hasHeart: true },
-                    ].map((item, idx) => (
-                      <Box
-                        key={idx}
-                        sx={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'space-between',
-                          p: 1,
-                        }}
-                      >
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                          <Box
-                            sx={{
-                              width: 32,
-                              height: 32,
-                              borderRadius: '50%',
-                              backgroundColor: '#e5e7eb',
-                            }}
-                          />
-                          <Typography sx={{ fontSize: '0.8rem' }}>
-                            {item.name}
-                          </Typography>
-                        </Box>
-                        {item.hasHeart && (
-                          <Box
-                            sx={{
-                              width: 20,
-                              height: 20,
-                              borderRadius: '50%',
-                              backgroundColor: '#fecdd3',
-                              display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'center',
-                            }}
-                          >
-                            <Typography sx={{ fontSize: '0.7rem', color: '#dc2626' }}>
-                              ♥
-                            </Typography>
-                          </Box>
-                        )}
-                      </Box>
-                    ))}
-                  </Box>
-                </Box>
-              </PhoneMockup>
+              <ArrowBackIcon sx={{ fontSize: '20px', color: '#6b7280' }} />
+            </IconButton>
+
+            {/* ドットインジケーター */}
+            <Box sx={{ display: 'flex', gap: 1 }}>
+              {Array.from({ length: totalSlides }).map((_, index) => (
+                <Box
+                  key={index}
+                  onClick={() => handleDotClick(index)}
+                  sx={{
+                    width: '8px',
+                    height: '8px',
+                    borderRadius: '50%',
+                    backgroundColor: currentSlide === index ? '#3b82f6' : '#d1d5db',
+                    cursor: 'pointer',
+                    transition: 'background-color 0.2s',
+                    '&:hover': {
+                      backgroundColor: currentSlide === index ? '#3b82f6' : '#9ca3af',
+                    },
+                  }}
+                />
+              ))}
             </Box>
+
+            {/* 右矢印ボタン */}
+            <IconButton
+              onClick={handleNext}
+              disabled={currentSlide === totalSlides - 1}
+              sx={{
+                width: '40px',
+                height: '40px',
+                borderRadius: '50%',
+                '&:hover': {
+                  backgroundColor: '#f9fafb',
+                },
+                '&.Mui-disabled': {
+                  backgroundColor: '#f9fafb',
+                  opacity: 0.5,
+                },
+              }}
+            >
+              <ArrowForwardIcon sx={{ fontSize: '20px', color: '#6b7280' }} />
+            </IconButton>
           </Box>
         </Box>
       </Container>
