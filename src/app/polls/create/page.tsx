@@ -115,9 +115,9 @@ export default function Index() {
       return;
     }
 
-    // 投票期限の必須チェック
+    // 投票受付時間の必須チェック
     if (!deadlineDate || !deadlineTime) {
-      setErrorMessage('投票期限を入力してください。');
+      setErrorMessage('投票受付時間を入力してください。');
       return;
     }
 

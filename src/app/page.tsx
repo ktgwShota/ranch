@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import {
   Box,
   Button,
@@ -19,40 +19,32 @@ import {
 } from '@mui/icons-material';
 import Link from 'next/link';
 
-// 定数
-const HEADER_HEIGHT = '80px';
-
-// モックアップ用の定数
-const MOCK_POLL_TITLE = '歓迎会のお店はどこがいい？';
-const MOCK_RESTAURANT_1 = {
-  name: 'レストランA',
-  url: 'https://tabelog.com/tokyo/...',
-  budgetMin: '8,000',
-  budgetMax: '10,000',
-  description: '会社から徒歩10分 / 個室あり / 駐車場なし',
-  votes: 8,
-  percentage: 80.0,
-};
-const MOCK_RESTAURANT_2 = {
-  name: 'レストランB',
-  url: 'https://tabelog.com/tokyo/...',
-  budgetMin: '8,000',
-  budgetMax: '10,000',
-  description: '会社から徒歩10分 / 個室あり / 駐車場なし',
-  votes: 2,
-  percentage: 20.0,
-};
-const MOCK_TOTAL_VOTES = 10;
-const MOCK_VOTERS = [
-  { name: 'ユーザーA', letter: 'A', votedFor: MOCK_RESTAURANT_1.name },
-  { name: 'ユーザーB', letter: 'B', votedFor: MOCK_RESTAURANT_1.name },
-  { name: 'ユーザーC', letter: 'C', votedFor: MOCK_RESTAURANT_1.name },
-  { name: 'ユーザーD', letter: 'D', votedFor: MOCK_RESTAURANT_2.name },
-  { name: 'ユーザーE', letter: 'E', votedFor: MOCK_RESTAURANT_2.name },
-];
+const HEADER_HEIGHT = 80;
 
 // ヘッダーコンポーネント
 function LandingHeader() {
+  const [isInHeroSection, setIsInHeroSection] = useState(true);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const heroSection = document.getElementById('hero-section');
+      if (!heroSection) return;
+
+      const heroRect = heroSection.getBoundingClientRect();
+      const scrollY = window.scrollY;
+      const heroBottom = heroRect.bottom + scrollY;
+
+      // ヒーローセクション内にいるかどうかを判定
+      setIsInHeroSection(scrollY < heroBottom - HEADER_HEIGHT);
+    };
+
+    // 初期状態を設定
+    handleScroll();
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
   return (
     <Box
       sx={{
@@ -61,8 +53,8 @@ function LandingHeader() {
         left: 0,
         right: 0,
         zIndex: 1000,
-        backdropFilter: 'blur(10px)',
-        borderBottom: '1px solid rgba(255, 255, 255, 0.2)',
+        backgroundColor: 'transparent',
+        transition: 'background-color 0.3s ease, border-color 0.3s ease',
       }}
     >
       <Container maxWidth={false} sx={{ maxWidth: '980px' }}>
@@ -76,22 +68,14 @@ function LandingHeader() {
         >
           {/* ロゴ */}
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-            <Box
+            <Typography
+              variant="h6"
               sx={{
-                width: 32,
-                height: 32,
-                borderRadius: '50%',
-                backgroundColor: 'rgba(59, 130, 246, 0.9)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                color: 'white',
+                fontWeight: 700,
+                color: isInHeroSection ? 'rgba(255, 255, 255, 0.9)' : '#6b7280',
               }}
             >
-              <CheckCircleIcon sx={{ fontSize: 20 }} />
-            </Box>
-            <Typography variant="h6" sx={{ fontWeight: 700, color: 'white' }}>
-              ◎チョイスル
+              チョイスル
             </Typography>
           </Box>
 
@@ -99,58 +83,17 @@ function LandingHeader() {
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 4 }}>
             <Typography
               component="a"
-              href="#features"
+              href="polls/create"
               sx={{
-                color: 'rgba(255, 255, 255, 0.9)',
+                color: isInHeroSection ? 'rgba(255, 255, 255, 0.9)' : '#6b7280',
                 textDecoration: 'none',
                 fontSize: '0.95rem',
-                fontWeight: 500,
-                '&:hover': { color: 'white' },
+                fontWeight: 'bold',
+                '&:hover': { color: isInHeroSection ? 'white' : '#1f2937' },
               }}
             >
-              機能
+              投票ページ作成
             </Typography>
-            <Typography
-              component="a"
-              href="#pricing"
-              sx={{
-                color: 'rgba(255, 255, 255, 0.9)',
-                textDecoration: 'none',
-                fontSize: '0.95rem',
-                fontWeight: 500,
-                '&:hover': { color: 'white' },
-              }}
-            >
-              料金
-            </Typography>
-            <Typography
-              component="a"
-              href="#login"
-              sx={{
-                color: 'rgba(255, 255, 255, 0.9)',
-                textDecoration: 'none',
-                fontSize: '0.95rem',
-                fontWeight: 500,
-                '&:hover': { color: 'white' },
-              }}
-            >
-              ログイン
-            </Typography>
-            <Button
-              variant="contained"
-              sx={{
-                backgroundColor: 'rgba(59, 130, 246, 0.9)',
-                color: 'white',
-                borderRadius: '8px',
-                px: 3,
-                py: 1,
-                textTransform: 'none',
-                fontWeight: 600,
-                '&:hover': { backgroundColor: 'rgba(37, 99, 235, 0.9)' },
-              }}
-            >
-              新規登録
-            </Button>
           </Box>
         </Box>
       </Container>
@@ -162,6 +105,7 @@ function LandingHeader() {
 function HeroSection() {
   return (
     <Box
+      id="hero-section"
       sx={{
         position: 'relative',
         minHeight: '100vh',
@@ -169,7 +113,7 @@ function HeroSection() {
         alignItems: 'center',
         justifyContent: 'center',
         textAlign: 'center',
-        pt: HEADER_HEIGHT,
+        pt: `${HEADER_HEIGHT / 2}px`,
         backgroundImage: 'url(/hero-background.jpg)',
         backgroundSize: 'cover',
         backgroundPosition: 'center',
@@ -589,7 +533,7 @@ function HowItWorksSection() {
                       variant="body1"
                       sx={{ color: '#6b7280', lineHeight: 1.7, fontSize: '1.125rem' }}
                     >
-                      投票期限に達すると投票結果が公開されます。
+                      投票受付時間に達すると投票結果が公開されます。
                     </Typography>
                   </Box>
                   <Box
@@ -704,9 +648,19 @@ function FAQSection() {
         '本サービスは完全無料でご利用いただけます。',
     },
     {
-      question: '利用するにはアカウント登録が必要になりますか？',
+      question: '利用するにはアカウント登録が必要ですか？',
       answer:
-        'アカウントを作成する必要はありません。誰でもすぐにご利用いただけます。',
+        'アカウント登録は必要ありません。誰でもすぐにご利用いただけます。',
+    },
+    {
+      question: '投票者名を後から変更できますか？',
+      answer:
+        '投票ページのメニュー（歯車アイコン）から投票者名を変更できます。',
+    },
+    {
+      question: '投票締切日時よりも前に投票を締め切ることはできますか？',
+      answer:
+        '投票ページのメニュー（歯車アイコン）から任意のタイミングで投票を締め切ることができます。\n投票結果は投票を締め切ると同時に公開されます。',
     }
   ];
 
@@ -773,7 +727,7 @@ function FAQSection() {
                 </Typography>
               </AccordionSummary>
               <AccordionDetails sx={{ px: 3, pb: 3 }}>
-                <Typography sx={{ color: '#6b7280', lineHeight: 1.6 }}>
+                <Typography sx={{ color: '#6b7280', lineHeight: 1.6, whiteSpace: 'pre-line' }}>
                   {item.answer}
                 </Typography>
               </AccordionDetails>

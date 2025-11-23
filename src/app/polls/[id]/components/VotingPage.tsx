@@ -48,7 +48,7 @@ export default function VotingPage({ pollId, initialPoll }: VotingPageProps) {
     );
   }, []);
 
-  // ユーザーが閲覧中に投票期限が切れた場合、強制的にリロードすることで ResultPage を表示
+  // ユーザーが閲覧中に投票受付時間が切れた場合、強制的にリロードすることで ResultPage を表示
   useEffect(() => {
     if (!poll || poll.isClosed === 1 || !poll.endDateTime) {
       return;
