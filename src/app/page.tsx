@@ -19,16 +19,21 @@ import {
 } from '@mui/icons-material';
 import Link from 'next/link';
 
+// 定数
+const HEADER_HEIGHT = '80px';
+
 // ヘッダーコンポーネント
 function LandingHeader() {
   return (
     <Box
       sx={{
-        position: 'sticky',
+        position: 'fixed',
         top: 0,
+        left: 0,
+        right: 0,
         zIndex: 1000,
-        backgroundColor: 'white',
-        borderBottom: '1px solid #e5e7eb',
+        backdropFilter: 'blur(10px)',
+        borderBottom: '1px solid rgba(255, 255, 255, 0.2)',
       }}
     >
       <Container maxWidth={false} sx={{ maxWidth: '1000px' }}>
@@ -37,7 +42,7 @@ function LandingHeader() {
             display: 'flex',
             justifyContent: 'space-between',
             alignItems: 'center',
-            py: 2,
+            height: HEADER_HEIGHT,
           }}
         >
           {/* ロゴ */}
@@ -47,7 +52,7 @@ function LandingHeader() {
                 width: 32,
                 height: 32,
                 borderRadius: '50%',
-                backgroundColor: '#3b82f6',
+                backgroundColor: 'rgba(59, 130, 246, 0.9)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
@@ -56,7 +61,7 @@ function LandingHeader() {
             >
               <CheckCircleIcon sx={{ fontSize: 20 }} />
             </Box>
-            <Typography variant="h6" sx={{ fontWeight: 700, color: '#1f2937' }}>
+            <Typography variant="h6" sx={{ fontWeight: 700, color: 'white' }}>
               ◎チョイスル
             </Typography>
           </Box>
@@ -67,11 +72,11 @@ function LandingHeader() {
               component="a"
               href="#features"
               sx={{
-                color: '#6b7280',
+                color: 'rgba(255, 255, 255, 0.9)',
                 textDecoration: 'none',
                 fontSize: '0.95rem',
                 fontWeight: 500,
-                '&:hover': { color: '#3b82f6' },
+                '&:hover': { color: 'white' },
               }}
             >
               機能
@@ -80,11 +85,11 @@ function LandingHeader() {
               component="a"
               href="#pricing"
               sx={{
-                color: '#6b7280',
+                color: 'rgba(255, 255, 255, 0.9)',
                 textDecoration: 'none',
                 fontSize: '0.95rem',
                 fontWeight: 500,
-                '&:hover': { color: '#3b82f6' },
+                '&:hover': { color: 'white' },
               }}
             >
               料金
@@ -93,11 +98,11 @@ function LandingHeader() {
               component="a"
               href="#login"
               sx={{
-                color: '#6b7280',
+                color: 'rgba(255, 255, 255, 0.9)',
                 textDecoration: 'none',
                 fontSize: '0.95rem',
                 fontWeight: 500,
-                '&:hover': { color: '#3b82f6' },
+                '&:hover': { color: 'white' },
               }}
             >
               ログイン
@@ -105,14 +110,14 @@ function LandingHeader() {
             <Button
               variant="contained"
               sx={{
-                backgroundColor: '#3b82f6',
+                backgroundColor: 'rgba(59, 130, 246, 0.9)',
                 color: 'white',
                 borderRadius: '8px',
                 px: 3,
                 py: 1,
                 textTransform: 'none',
                 fontWeight: 600,
-                '&:hover': { backgroundColor: '#2563eb' },
+                '&:hover': { backgroundColor: 'rgba(37, 99, 235, 0.9)' },
               }}
             >
               新規登録
@@ -130,11 +135,12 @@ function HeroSection() {
     <Box
       sx={{
         position: 'relative',
-        minHeight: 'calc(100vh - 80px)',
+        minHeight: '100vh',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
         textAlign: 'center',
+        pt: HEADER_HEIGHT,
         backgroundImage: 'url(/hero-background.jpg)',
         backgroundSize: 'cover',
         backgroundPosition: 'center',
