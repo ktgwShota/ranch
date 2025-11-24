@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useEffect, useLayoutEffect, useCallback } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import React from 'react';
 import {
   Box,
@@ -12,43 +12,150 @@ import {
   AccordionDetails,
 } from '@mui/material';
 import {
-  CheckCircle as CheckCircleIcon,
   ExpandMore as ExpandMoreIcon,
   KeyboardArrowDown as KeyboardArrowDownIcon,
 } from '@mui/icons-material';
 import Link from 'next/link';
 
 const HEADER_HEIGHT = 80;
+const CONTAINER_MAX_WIDTH = '980px';
 
-// ヘッダーコンポーネント
-function LandingHeader() {
-  const [isInHowItWorksSection, setIsInHowItWorksSection] = useState(false);
-  const [isHeaderVisible, setIsHeaderVisible] = useState(false);
+const ANIMATION_DELAYS = {
+  TITLE_START: 300,
+  SUBTITLE_DELAY: 200,
+  SUBTITLE_ANIMATION: 600,
+  TYPING_COMPLETE_DELAY: 300,
+  ARROW_DELAY: 1100,
+  STEP_STAGGER: 100,
+  FAQ_STAGGER: 100,
+  FAQ_FIRST_ITEM_DELAY: 200,
+} as const;
 
+const TYPING_SPEED = 150;
+const INTERSECTION_THRESHOLD = 0.5;
+const FULL_VISIBILITY_THRESHOLD = 1.0;
+
+type StepData = {
+  step: string;
+  title: string;
+  description: string;
+  imageSrc: string;
+  imageAlt: string;
+};
+
+type FAQItem = {
+  question: string;
+  answer: string;
+};
+
+const useIntersectionObserver = (
+  ref: React.RefObject<HTMLElement | null>,
+  threshold: number,
+  callback: (isIntersecting: boolean, intersectionRatio: number) => void
+) => {
   useEffect(() => {
-    // 説明文と同じタイミングでアニメーションを発動
-    setTimeout(() => {
-      setIsHeaderVisible(true);
-    }, 900);
-  }, []);
+    const element = ref.current;
+    if (!element) return;
 
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        callback(entry.isIntersecting, entry.intersectionRatio);
+      },
+      { threshold }
+    );
+
+    observer.observe(element);
+    return () => observer.unobserve(element);
+  }, [ref, threshold, callback]);
+};
+
+const useScrollPosition = (callback: (scrollY: number) => void) => {
   useEffect(() => {
+    let rafId: number | null = null;
+    let lastScrollY = window.scrollY;
+
     const handleScroll = () => {
-      const howItWorksSection = document.getElementById('how-it-works-section');
-      if (!howItWorksSection) return;
+      if (rafId !== null) {
+        cancelAnimationFrame(rafId);
+      }
 
-      const sectionRect = howItWorksSection.getBoundingClientRect();
-
-      // How to use Choiceruセクションの上端が画面の上部を通過した後（セクション内に入った後）に黒に変更
-      setIsInHowItWorksSection(sectionRect.top < 0);
+      rafId = requestAnimationFrame(() => {
+        const currentScrollY = window.scrollY;
+        if (Math.abs(currentScrollY - lastScrollY) >= 1) {
+          lastScrollY = currentScrollY;
+          callback(currentScrollY);
+        }
+      });
     };
 
-    // 初期状態を設定
     handleScroll();
+    window.addEventListener('scroll', handleScroll, { passive: true });
 
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      if (rafId !== null) {
+        cancelAnimationFrame(rafId);
+      }
+    };
+  }, [callback]);
+};
+
+const sectionTitleStyles = {
+  fontSize: { xs: '1.75rem', md: '2.25rem' },
+  fontWeight: 700,
+  color: '#1f2937',
+  textAlign: 'center' as const,
+  mb: 2,
+};
+
+const sectionSubtitleStyles = {
+  fontWeight: 'bold' as const,
+  fontSize: '1.125rem',
+  color: '#6b7280',
+  textAlign: 'center' as const,
+  mx: 'auto',
+};
+
+const fadeInStyles = (isVisible: boolean, delay = '0s') => ({
+  opacity: isVisible ? 1 : 0,
+  transition: `opacity 1.2s ease ${delay}`,
+});
+
+export default function Index() {
+  const [isScrollEnabled, setIsScrollEnabled] = useState(false);
+  const [isHeaderVisible, setIsHeaderVisible] = useState(false);
+
+  const handleTypingComplete = useCallback(() => {
+    setIsHeaderVisible(true);
+    setTimeout(() => setIsScrollEnabled(true), ANIMATION_DELAYS.ARROW_DELAY);
   }, []);
+
+  return (
+    <Box sx={{ width: '100%' }}>
+      <LandingHeader isHeaderVisible={isHeaderVisible} />
+      <HeroSection
+        isScrollEnabled={isScrollEnabled}
+        onTypingComplete={handleTypingComplete}
+      />
+      <HowItWorksSection />
+      <BottomCTASection />
+      <FAQSection />
+    </Box>
+  );
+}
+
+function LandingHeader({ isHeaderVisible }: { isHeaderVisible: boolean }) {
+  const [isInHowItWorksSection, setIsInHowItWorksSection] = useState(false);
+
+  useScrollPosition(
+    useCallback(() => {
+      const howItWorksSection = document.getElementById('how-it-works-section');
+      if (howItWorksSection) {
+        const sectionRect = howItWorksSection.getBoundingClientRect();
+        setIsInHowItWorksSection(sectionRect.top < 0);
+      }
+    }, [])
+  );
 
   return (
     <Box
@@ -60,10 +167,10 @@ function LandingHeader() {
         zIndex: 1000,
         backgroundColor: 'transparent',
         opacity: isHeaderVisible ? 1 : 0,
-        transition: 'opacity 1s cubic-bezier(0.16, 1, 0.3, 1) 0.3s',
+        transition: 'opacity 1.2s ease 0.3s',
       }}
     >
-      <Container maxWidth={false} sx={{ maxWidth: '980px' }}>
+      <Container maxWidth={false} sx={{ maxWidth: CONTAINER_MAX_WIDTH }}>
         <Box
           sx={{
             display: 'flex',
@@ -72,14 +179,13 @@ function LandingHeader() {
             height: HEADER_HEIGHT,
           }}
         >
-          {/* ロゴ */}
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
             <Typography
               variant="h6"
               sx={{
                 fontWeight: 700,
                 color: isInHowItWorksSection ? '#333333' : '#f9fafb',
-                transition: 'color 1s ease',
+                transition: 'color 1.2s ease',
               }}
             >
               チョイスル
@@ -91,29 +197,59 @@ function LandingHeader() {
   );
 }
 
-// ヒーローセクションコンポーネント
-function HeroSection({ isScrollEnabled }: { isScrollEnabled: boolean }) {
+function HeroSection({
+  isScrollEnabled,
+  onTypingComplete
+}: {
+  isScrollEnabled: boolean;
+  onTypingComplete?: () => void;
+}) {
   const [isTitleVisible, setIsTitleVisible] = useState(false);
   const [isSubtitleVisible, setIsSubtitleVisible] = useState(false);
   const [isOverlayVisible, setIsOverlayVisible] = useState(false);
+  const [displayedText, setDisplayedText] = useState('');
+  const [showCursor, setShowCursor] = useState(true);
+  const fullText = '"幹事の時間" もっと大切に。';
+
+  const startTyping = useCallback(() => {
+    let currentIndex = 0;
+    const typingInterval = setInterval(() => {
+      if (currentIndex < fullText.length) {
+        setDisplayedText(fullText.slice(0, currentIndex + 1));
+        currentIndex++;
+      } else {
+        clearInterval(typingInterval);
+      }
+    }, TYPING_SPEED);
+  }, [fullText]);
 
   useEffect(() => {
-    // ページロード時に順番にアニメーションを発動
     setIsOverlayVisible(true);
     setTimeout(() => {
       setIsTitleVisible(true);
-    }, 300);
-    setTimeout(() => {
-      setIsSubtitleVisible(true);
-    }, 900);
-  }, []);
+      startTyping();
+    }, ANIMATION_DELAYS.TITLE_START);
+  }, [startTyping]);
 
-  const handleScrollToHowItWorks = () => {
-    const howItWorksSection = document.getElementById('how-it-works-section');
-    if (howItWorksSection) {
-      howItWorksSection.scrollIntoView({ behavior: 'smooth' });
+  useEffect(() => {
+    setShowCursor(displayedText.length < fullText.length);
+  }, [displayedText.length, fullText.length]);
+
+  useEffect(() => {
+    if (displayedText.length === fullText.length && displayedText.length > 0) {
+      const timeoutId = setTimeout(() => {
+        setIsSubtitleVisible(true);
+        onTypingComplete?.();
+      }, ANIMATION_DELAYS.TYPING_COMPLETE_DELAY);
+
+      return () => clearTimeout(timeoutId);
     }
-  };
+  }, [displayedText.length, fullText.length, onTypingComplete]);
+
+  const handleScrollToHowItWorks = useCallback(() => {
+    const howItWorksSection = document.getElementById('how-it-works-section');
+    howItWorksSection?.scrollIntoView({ behavior: 'smooth' });
+  }, []);
 
   return (
     <Box
@@ -141,14 +277,14 @@ function HeroSection({ isScrollEnabled }: { isScrollEnabled: boolean }) {
           backgroundColor: 'rgba(0, 0, 0, 0.5)',
           zIndex: 1,
           opacity: isOverlayVisible ? 1 : 0,
-          transition: 'opacity 1.2s ease-out',
+          transition: 'opacity 1.2s ease',
         },
       }}
     >
       <Container
         maxWidth={false}
         sx={{
-          maxWidth: '980px',
+          maxWidth: CONTAINER_MAX_WIDTH,
           position: 'relative',
           zIndex: 2,
         }}
@@ -165,10 +301,24 @@ function HeroSection({ isScrollEnabled }: { isScrollEnabled: boolean }) {
             transform: isTitleVisible
               ? 'translateY(0) scale(1)'
               : 'translateY(50px) scale(0.9)',
-            transition: 'opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1), transform 0.6s cubic-bezier(0.16, 1, 0.3, 1)',
+            transition: 'opacity 0.6s ease, transform 0.6s ease',
+            minHeight: { xs: '3.6rem', md: '4.32rem' },
           }}
         >
-          "幹事の時間" もっと大切に。
+          {displayedText}
+          {showCursor && (
+            <Box
+              component="span"
+              sx={{
+                display: 'inline-block',
+                width: '2px',
+                height: { xs: '2.5rem', md: '3rem' },
+                backgroundColor: 'white',
+                marginLeft: '2px',
+                verticalAlign: 'bottom',
+              }}
+            />
+          )}
         </Typography>
         <Typography
           variant="body1"
@@ -182,7 +332,7 @@ function HeroSection({ isScrollEnabled }: { isScrollEnabled: boolean }) {
             lineHeight: 1.6,
             textShadow: '0 1px 4px rgba(0, 0, 0, 0.7)',
             opacity: isSubtitleVisible ? 1 : 0,
-            transition: 'opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.2s',
+            transition: 'opacity 0.6s ease 0.2s',
           }}
         >
           店決めに悩む時代はもう終わり。行く店はみんなで決める。
@@ -191,193 +341,53 @@ function HeroSection({ isScrollEnabled }: { isScrollEnabled: boolean }) {
         </Typography>
       </Container>
 
-      {/* 下矢印アイコン */}
-      {isScrollEnabled && (
-        <Box
-          onClick={handleScrollToHowItWorks}
-          sx={{
-            position: 'absolute',
-            bottom: 40,
-            left: '50%',
-            transform: 'translateX(-50%)',
-            zIndex: 3,
-            cursor: 'pointer',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            gap: 1,
-            opacity: 0,
-            animation: 'fadeInUp 0.6s ease-out 0.2s forwards',
-            '@keyframes fadeInUp': {
-              '0%': {
-                opacity: 0,
-                transform: 'translateX(-50%) translateY(-10px)',
-              },
-              '100%': {
-                opacity: 1,
-                transform: 'translateX(-50%) translateY(0)',
-              },
-            },
-            '&:hover': {
-              transform: 'translateX(-50%) translateY(5px)',
-              transition: 'transform 0.3s ease',
-            },
-          }}
-        >
-          <KeyboardArrowDownIcon
-            sx={{
-              color: 'rgba(255, 255, 255, 0.9)',
-              fontSize: '2.5rem',
-              textShadow: '0 1px 4px rgba(0, 0, 0, 0.7)',
-              animation: 'bounce 2s infinite',
-              '@keyframes bounce': {
-                '0%, 100%': {
-                  transform: 'translateY(0)',
-                },
-                '50%': {
-                  transform: 'translateY(10px)',
-                },
-              },
-            }}
-          />
-        </Box>
-      )}
-    </Box>
-  );
-}
-
-// スマートフォンモックアップコンポーネント
-function PhoneMockup({ children, bgColor }: { children: React.ReactNode; bgColor: string }) {
-  return (
-    <Box
-      sx={{
-        width: { xs: '100%', md: '440px' },
-        height: { xs: 'auto', md: '450px' },
-        maxWidth: '100%',
-        backgroundColor: 'transparent',
-        borderRadius: '12px',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        py: 2,
-        px: 0,
-      }}
-    >
       <Box
+        onClick={handleScrollToHowItWorks}
         sx={{
-          width: '100%',
-          height: '100%',
-          backgroundColor: 'white',
-          borderRadius: '8px',
-          overflow: 'hidden',
+          position: 'absolute',
+          bottom: 40,
+          left: '50%',
+          transform: 'translateX(-50%)',
+          zIndex: 3,
+          cursor: isScrollEnabled ? 'pointer' : 'default',
           display: 'flex',
           flexDirection: 'column',
+          alignItems: 'center',
+          gap: 1,
+          opacity: isScrollEnabled ? 1 : 0,
+          transition: 'opacity 0.6s ease',
+          pointerEvents: isScrollEnabled ? 'auto' : 'none',
+          '&:hover': {
+            transform: isScrollEnabled ? 'translateX(-50%) translateY(5px)' : 'translateX(-50%)',
+            transition: 'transform 0.3s ease',
+          },
         }}
       >
-        {/* Macウィンドウのタイトルバー */}
-        <Box
+        <KeyboardArrowDownIcon
           sx={{
-            backgroundColor: '#f5f5f5',
-            borderBottom: '1px solid #e0e0e0',
-            px: 1.5,
-            py: 0.75,
-            display: 'flex',
-            alignItems: 'center',
-            gap: 0.75,
-            flexShrink: 0,
+            color: 'rgba(255, 255, 255, 0.9)',
+            fontSize: '2.5rem',
+            textShadow: '0 1px 4px rgba(0, 0, 0, 0.7)',
+            animation: 'bounce 2s infinite',
+            '@keyframes bounce': {
+              '0%, 100%': {
+                transform: 'translateY(0)',
+              },
+              '50%': {
+                transform: 'translateY(10px)',
+              },
+            },
           }}
-        >
-          {/* ウィンドウコントロールボタン */}
-          <Box sx={{ display: 'flex', gap: 0.5, flexShrink: 0 }}>
-            <Box
-              sx={{
-                width: '10px',
-                height: '10px',
-                borderRadius: '50%',
-                backgroundColor: '#ff5f57',
-              }}
-            />
-            <Box
-              sx={{
-                width: '10px',
-                height: '10px',
-                borderRadius: '50%',
-                backgroundColor: '#ffbd2e',
-              }}
-            />
-            <Box
-              sx={{
-                width: '10px',
-                height: '10px',
-                borderRadius: '50%',
-                backgroundColor: '#28ca42',
-              }}
-            />
-          </Box>
-          {/* URLバー */}
-          <Box
-            sx={{
-              ml: 'auto',
-              backgroundColor: 'white',
-              border: '1px solid #d0d0d0',
-              borderRadius: '4px',
-              px: 1,
-              py: 0.25,
-              display: 'flex',
-              alignItems: 'center',
-              maxWidth: '60%',
-              flexShrink: 0,
-            }}
-          >
-            <Typography
-              sx={{
-                fontSize: '0.65rem',
-                color: '#666',
-                fontWeight: 400,
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
-                whiteSpace: 'nowrap',
-              }}
-            >
-              localhost:3000/polls/create
-            </Typography>
-          </Box>
-        </Box>
-        {/* アプリ画面 */}
-        <Box
-          sx={{
-            flex: 1,
-            overflow: 'hidden',
-            display: 'flex',
-            flexDirection: 'column',
-            backgroundColor: '#f5f5f5',
-            p: 1.5,
-          }}
-        >
-          <Box
-            sx={{
-              width: '100%',
-              height: '100%',
-              backgroundColor: 'white',
-              borderRadius: '8px',
-              overflow: 'hidden',
-              display: 'flex',
-              flexDirection: 'column',
-            }}
-          >
-            {children}
-          </Box>
-        </Box>
+        />
       </Box>
     </Box>
   );
 }
 
-// ステップアイテムコンポーネント（アニメーション付き）
 const StepItem = React.forwardRef<
   HTMLDivElement,
   {
-    step: { step: string; title: string; description: string; imageSrc: string; imageAlt: string };
+    step: StepData;
     index: number;
     isVisible?: boolean;
   }
@@ -386,39 +396,22 @@ const StepItem = React.forwardRef<
   const stepRef = useRef<HTMLDivElement>(null);
   const isEven = index % 2 === 0;
 
-  // 親から制御される場合（ステップ1）と、自分で監視する場合（ステップ2, 3）を分ける
   const shouldUseParentControl = parentIsVisible !== undefined;
   const finalIsVisible = shouldUseParentControl ? parentIsVisible : isVisible;
 
-  useEffect(() => {
-    if (shouldUseParentControl) {
-      return;
-    }
-
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting && entry.intersectionRatio >= 0.5) {
+  useIntersectionObserver(
+    stepRef,
+    INTERSECTION_THRESHOLD,
+    useCallback(
+      (isIntersecting, intersectionRatio) => {
+        if (!shouldUseParentControl && isIntersecting && intersectionRatio >= INTERSECTION_THRESHOLD) {
           setIsVisible(true);
         }
       },
-      {
-        threshold: 0.5
-      }
-    );
+      [shouldUseParentControl]
+    )
+  );
 
-    const currentRef = (ref as React.RefObject<HTMLDivElement>)?.current || stepRef.current;
-    if (currentRef) {
-      observer.observe(currentRef);
-    }
-
-    return () => {
-      if (currentRef) {
-        observer.unobserve(currentRef);
-      }
-    };
-  }, [shouldUseParentControl, ref]);
-
-  // refをマージ
   const mergedRef = useCallback(
     (node: HTMLDivElement | null) => {
       if (ref) {
@@ -433,8 +426,8 @@ const StepItem = React.forwardRef<
     [ref]
   );
 
-  // 左右からフェードイン（偶数は左から、奇数は右から）
   const translateX = isEven ? (finalIsVisible ? 0 : -50) : (finalIsVisible ? 0 : 50);
+  const delay = index === 0 ? '0.2s' : `${index * 0.1}s`;
 
   return (
     <Box
@@ -446,10 +439,9 @@ const StepItem = React.forwardRef<
         gap: 6,
         opacity: finalIsVisible ? 1 : 0,
         transform: `translateX(${translateX}px)`,
-        transition: `opacity 0.5s ease-out ${index === 0 ? '0.2s' : `${index * 0.1}s`}, transform 0.5s ease-out ${index === 0 ? '0.2s' : `${index * 0.1}s`}`,
+        transition: `opacity 0.5s ease ${delay}, transform 0.5s ease ${delay}`,
       }}
     >
-      {/* テキスト部分 */}
       <Box
         sx={{
           flex: 1,
@@ -488,7 +480,6 @@ const StepItem = React.forwardRef<
         </Typography>
       </Box>
 
-      {/* 画像部分 */}
       <Box
         sx={{
           flex: 1,
@@ -517,69 +508,47 @@ const StepItem = React.forwardRef<
 
 StepItem.displayName = 'StepItem';
 
-// How it Works セクションコンポーネント
+const STEPS: StepData[] = [
+  {
+    step: 'ステップ1',
+    title: '投票を作成',
+    description: '候補となる店舗の URL を入力して投票を作成しましょう。店舗名や画像は自動的に入力されます。',
+    imageSrc: 'https://placehold.co/440x600/fed7aa/ffffff?text=Step+1',
+    imageAlt: '投票作成画面',
+  },
+  {
+    step: 'ステップ2',
+    title: '投票ページを共有',
+    description: '作成した投票ページを LINE や Slack などの SNS で共有して、参加者の投票が終わるまで待ちます。',
+    imageSrc: 'https://placehold.co/440x600/ccfbf1/ffffff?text=Step+2',
+    imageAlt: '投票ページ共有画面',
+  },
+  {
+    step: 'ステップ3',
+    title: 'お店が決定',
+    description: '投票受付時間に達すると投票結果が公開されます。',
+    imageSrc: 'https://placehold.co/440x600/ccfbf1/ffffff?text=Step+3',
+    imageAlt: '投票結果画面',
+  },
+];
+
 function HowItWorksSection() {
   const [isTitleVisible, setIsTitleVisible] = useState(false);
   const [isSubtitleVisible, setIsSubtitleVisible] = useState(false);
   const [isStep1Visible, setIsStep1Visible] = useState(false);
-  const titleRef = useRef<HTMLDivElement>(null);
-  const subtitleRef = useRef<HTMLDivElement>(null);
   const step1Ref = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    const step1Observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting && entry.intersectionRatio >= 0.5) {
-          // ステップ1の位置に来たら、3つを順番に表示
-          // How to use Choiceru（0秒）
-          setIsTitleVisible(true);
-          // チョイスルの使い方（0.1秒後）
-          setTimeout(() => {
-            setIsSubtitleVisible(true);
-          }, 100);
-          // ステップ1（0.2秒後）
-          setTimeout(() => {
-            setIsStep1Visible(true);
-          }, 200);
-        }
-      },
-      { threshold: 0.5 }
-    );
-
-    if (step1Ref.current) {
-      step1Observer.observe(step1Ref.current);
-    }
-
-    return () => {
-      if (step1Ref.current) {
-        step1Observer.unobserve(step1Ref.current);
+  useIntersectionObserver(
+    step1Ref,
+    INTERSECTION_THRESHOLD,
+    useCallback((isIntersecting, intersectionRatio) => {
+      if (isIntersecting && intersectionRatio >= INTERSECTION_THRESHOLD) {
+        setIsTitleVisible(true);
+        setTimeout(() => setIsSubtitleVisible(true), ANIMATION_DELAYS.STEP_STAGGER);
+        setTimeout(() => setIsStep1Visible(true), ANIMATION_DELAYS.STEP_STAGGER * 2);
       }
-    };
-  }, []);
-
-  const steps = [
-    {
-      step: 'ステップ1',
-      title: '投票を作成',
-      description: '候補となる店舗の URL を入力して投票を作成しましょう。店舗名や画像は自動的に入力されます。',
-      imageSrc: 'https://placehold.co/440x600/fed7aa/ffffff?text=Step+1',
-      imageAlt: '投票作成画面',
-    },
-    {
-      step: 'ステップ2',
-      title: '投票ページを共有',
-      description: '作成した投票ページを LINE や Slack などの SNS で共有して、参加者の投票が終わるまで待ちます。',
-      imageSrc: 'https://placehold.co/440x600/ccfbf1/ffffff?text=Step+2',
-      imageAlt: '投票ページ共有画面',
-    },
-    {
-      step: 'ステップ3',
-      title: 'お店が決定',
-      description: '投票受付時間に達すると投票結果が公開されます。',
-      imageSrc: 'https://placehold.co/440x600/ccfbf1/ffffff?text=Step+3',
-      imageAlt: '投票結果画面',
-    },
-  ];
+    }, [])
+  );
 
   return (
     <Box
@@ -587,46 +556,27 @@ function HowItWorksSection() {
       sx={{
         pt: { xs: 8, md: 10 },
         pb: { xs: 8, md: 10 },
-        backgroundColor: '#f9fafb',
+        backgroundColor: '#ffffff',
       }}
     >
-      <Container maxWidth={false} sx={{ maxWidth: '980px' }}>
-        <Typography
-          ref={titleRef}
-          variant="h2"
-          sx={{
-            fontSize: { xs: '1.75rem', md: '2.25rem' },
-            fontWeight: 700,
-            color: '#1f2937',
-            textAlign: 'center',
-            mb: 2,
-            opacity: isTitleVisible ? 1 : 0,
-            transition: 'opacity 1.2s ease-out',
-          }}
-        >
+      <Container maxWidth={false} sx={{ maxWidth: CONTAINER_MAX_WIDTH }}>
+        <Typography variant="h2" sx={{ ...sectionTitleStyles, ...fadeInStyles(isTitleVisible) }}>
           How to use Choiceru
         </Typography>
         <Typography
-          ref={subtitleRef}
           variant="body1"
           sx={{
-            fontWeight: 'bold',
-            fontSize: '1.125rem',
-            color: '#6b7280',
-            textAlign: 'center',
+            ...sectionSubtitleStyles,
             maxWidth: '600px',
-            mx: 'auto',
             mb: 6,
-            opacity: isSubtitleVisible ? 1 : 0,
-            transition: 'opacity 1.2s ease-out',
+            ...fadeInStyles(isSubtitleVisible),
           }}
         >
           チョイスルの使い方
         </Typography>
 
-        {/* ステップを縦に並べる */}
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: { xs: 8, md: 12 } }}>
-          {steps.map((step, index) => (
+          {STEPS.map((step, index) => (
             <StepItem
               key={index}
               step={step}
@@ -641,126 +591,89 @@ function HowItWorksSection() {
   );
 }
 
-// FAQ セクションコンポーネント
+const FAQ_ITEMS: FAQItem[] = [
+  {
+    question: '利用料金はかかりますか？',
+    answer: '無料でご利用いただけます。',
+  },
+  {
+    question: '利用するにはアカウント登録が必要ですか？',
+    answer: 'アカウント登録は不要です。',
+  },
+  {
+    question: '対応しているブラウザを教えてくれますか？',
+    answer:
+      '本アプリは最新バージョンの Google Chrome / Safari のみをサポートしております。古いバージョンの Google Chrome / Safari または その他のブラウザ（Microsoft Edge / Firefox など）はサポート外です。',
+  },
+  {
+    question: 'シークレットモード / プライベートモード に対応していますか？',
+    answer:
+      'シークレットモード / プライベートモード には対応していません。必ず標準モードをご利用ください。',
+  },
+];
+
 function FAQSection() {
   const [isTitleVisible, setIsTitleVisible] = useState(false);
   const [isSubtitleVisible, setIsSubtitleVisible] = useState(false);
   const [isFirstItemVisible, setIsFirstItemVisible] = useState(false);
   const [visibleItems, setVisibleItems] = useState<Set<number>>(new Set());
-  const sectionRef = useRef<HTMLDivElement>(null);
-  const titleRef = useRef<HTMLDivElement>(null);
-  const subtitleRef = useRef<HTMLDivElement>(null);
-  const firstItemRef = useRef<HTMLDivElement>(null);
+  const secondItemRef = useRef<HTMLDivElement>(null);
   const itemRefs = useRef<(HTMLDivElement | null)[]>([]);
 
-  const faqItems = [
-    {
-      question: '利用料金はかかりますか？',
-      answer:
-        '無料でご利用いただけます。',
-    },
-    {
-      question: '利用するにはアカウント登録が必要ですか？',
-      answer:
-        'アカウント登録は不要です。',
-    },
-    {
-      question: '対応しているブラウザを教えてくれますか？',
-      answer:
-        '本アプリは最新バージョンの Google Chrome / Safari のみをサポートしております。古いバージョンの Google Chrome / Safari または その他のブラウザ（Microsoft Edge / Firefox など）はサポート外です。',
-    },
-    {
-      question: 'シークレットモード / プライベートモード に対応していますか？',
-      answer:
-        'シークレットモード / プライベートモード には対応していません。必ず標準モードをご利用ください。',
-    },
-  ];
-
-  useEffect(() => {
-    // 最初のFAQアイテムをトリガーとして、タイトル、サブタイトル、最初のFAQアイテムを順番に表示
-    const firstItemObserver = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting && entry.intersectionRatio >= 0.5) {
+  useIntersectionObserver(
+    secondItemRef,
+    INTERSECTION_THRESHOLD,
+    useCallback(
+      (isIntersecting, intersectionRatio) => {
+        if (isIntersecting && intersectionRatio >= INTERSECTION_THRESHOLD) {
           setIsTitleVisible(true);
-          setTimeout(() => {
-            setIsSubtitleVisible(true);
-          }, 100);
+          setTimeout(() => setIsSubtitleVisible(true), ANIMATION_DELAYS.FAQ_STAGGER);
           setTimeout(() => {
             setIsFirstItemVisible(true);
             setVisibleItems((prev) => new Set([...prev, 0]));
 
-            // 1つ目のアイテム表示をトリガーに、残りのアイテムを順番に表示
-            for (let index = 1; index < faqItems.length; index++) {
+            for (let index = 1; index < FAQ_ITEMS.length; index++) {
               setTimeout(() => {
                 setVisibleItems((prev) => new Set([...prev, index]));
-              }, 200 + index * 100);
+              }, ANIMATION_DELAYS.FAQ_FIRST_ITEM_DELAY + index * ANIMATION_DELAYS.FAQ_STAGGER);
             }
-          }, 200);
+          }, ANIMATION_DELAYS.FAQ_STAGGER * 2);
         }
       },
-      { threshold: 0.5 }
-    );
-
-    if (firstItemRef.current) {
-      firstItemObserver.observe(firstItemRef.current);
-    }
-
-    return () => {
-      if (firstItemRef.current) {
-        firstItemObserver.unobserve(firstItemRef.current);
-      }
-    };
-  }, [faqItems]);
+      []
+    )
+  );
 
   return (
     <Box
-      ref={sectionRef}
       sx={{
         pt: { xs: 8, md: 10 },
         pb: { xs: 4, md: 5 },
         backgroundColor: 'white',
       }}
     >
-      <Container maxWidth={false} sx={{ maxWidth: '980px' }}>
-        <Typography
-          ref={titleRef}
-          variant="h2"
-          sx={{
-            fontSize: { xs: '1.75rem', md: '2.25rem' },
-            fontWeight: 700,
-            color: '#1f2937',
-            textAlign: 'center',
-            mb: 2,
-            opacity: isTitleVisible ? 1 : 0,
-            transition: 'opacity 1.2s ease-out',
-          }}
-        >
+      <Container maxWidth={false} sx={{ maxWidth: CONTAINER_MAX_WIDTH }}>
+        <Typography variant="h2" sx={{ ...sectionTitleStyles, ...fadeInStyles(isTitleVisible) }}>
           Frequently Asked Questions
         </Typography>
         <Typography
-          ref={subtitleRef}
           variant="body1"
           sx={{
-            fontWeight: 'bold',
-            fontSize: '1.125rem',
-            color: '#6b7280',
-            textAlign: 'center',
-            mx: 'auto',
+            ...sectionSubtitleStyles,
             mb: 4,
-            opacity: isSubtitleVisible ? 1 : 0,
-            transition: 'opacity 1.2s ease-out',
+            ...fadeInStyles(isSubtitleVisible),
           }}
         >
           よくある質問
         </Typography>
 
         <Box sx={{ maxWidth: '800px', mx: 'auto' }}>
-          {faqItems.map((item, idx) => (
+          {FAQ_ITEMS.map((item, idx) => (
             <Accordion
               key={idx}
               ref={(node) => {
-                if (idx === 0) {
-                  (firstItemRef as React.MutableRefObject<HTMLDivElement | null>).current = node;
+                if (idx === 1) {
+                  (secondItemRef as React.MutableRefObject<HTMLDivElement | null>).current = node;
                 } else {
                   itemRefs.current[idx] = node;
                 }
@@ -772,10 +685,18 @@ function FAQSection() {
                 boxShadow: 'none',
                 '&:before': { display: 'none' },
                 opacity: idx === 0 ? (isFirstItemVisible ? 1 : 0) : (visibleItems.has(idx) ? 1 : 0),
-                transform: idx === 0 ? (isFirstItemVisible ? 'translateY(0)' : 'translateY(20px)') : (visibleItems.has(idx) ? 'translateY(0)' : 'translateY(20px)'),
-                transition: idx === 0
-                  ? `opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.2s, transform 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.2s`
-                  : `opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1) ${idx * 0.1}s, transform 0.6s cubic-bezier(0.16, 1, 0.3, 1) ${idx * 0.1}s`,
+                transform:
+                  idx === 0
+                    ? isFirstItemVisible
+                      ? 'translateY(0)'
+                      : 'translateY(20px)'
+                    : visibleItems.has(idx)
+                      ? 'translateY(0)'
+                      : 'translateY(20px)',
+                transition:
+                  idx === 0
+                    ? 'opacity 0.6s ease 0.2s, transform 0.6s ease 0.2s'
+                    : `opacity 0.6s ease ${idx * 0.1}s, transform 0.6s ease ${idx * 0.1}s`,
               }}
             >
               <AccordionSummary
@@ -812,228 +733,105 @@ function FAQSection() {
   );
 }
 
-// ボトムCTA セクションコンポーネント
 function BottomCTASection() {
-  const [isHeightExpanded, setIsHeightExpanded] = useState(false);
+  const [isBackgroundVisible, setIsBackgroundVisible] = useState(false);
   const [isTitleVisible, setIsTitleVisible] = useState(false);
   const [isDescriptionVisible, setIsDescriptionVisible] = useState(false);
   const [isButtonVisible, setIsButtonVisible] = useState(false);
   const sectionRef = useRef<HTMLDivElement>(null);
-  const contentRef = useRef<HTMLDivElement>(null);
-  const actualHeightRef = useRef<number>(0);
-  const measureRef = useRef<HTMLDivElement>(null);
 
-  // 実際の高さを測定（非表示要素で測定）
-  useLayoutEffect(() => {
-    if (measureRef.current) {
-      actualHeightRef.current = measureRef.current.offsetHeight;
-    }
-  }, []);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      if (!sectionRef.current || actualHeightRef.current === 0) return;
-
-      const sectionRect = sectionRef.current.getBoundingClientRect();
-      const viewportHeight = window.innerHeight;
-
-      // セクションの上端位置
-      const sectionTop = sectionRect.top;
-
-      // 展開後のセクションの中点位置（展開後の高さの半分）
-      const expandedSectionMidpoint = sectionTop + actualHeightRef.current / 2;
-
-      // 展開後の高さの半分がビューポートに入る位置（セクションの中点がビューポートの下端に到達）
-      const shouldExpand = expandedSectionMidpoint <= viewportHeight && sectionTop >= 0;
-
-      if (shouldExpand && !isHeightExpanded) {
-        setIsHeightExpanded(true);
-        // 高さを展開したと同時に文字を表示開始
+  useIntersectionObserver(
+    sectionRef,
+    FULL_VISIBILITY_THRESHOLD,
+    useCallback((isIntersecting, intersectionRatio) => {
+      if (isIntersecting && intersectionRatio >= FULL_VISIBILITY_THRESHOLD) {
+        setIsBackgroundVisible(true);
         setIsTitleVisible(true);
-        setTimeout(() => {
-          setIsDescriptionVisible(true);
-        }, 200);
-        setTimeout(() => {
-          setIsButtonVisible(true);
-        }, 400);
+        setTimeout(() => setIsDescriptionVisible(true), ANIMATION_DELAYS.SUBTITLE_DELAY);
+        setTimeout(() => setIsButtonVisible(true), ANIMATION_DELAYS.SUBTITLE_DELAY * 2);
       }
-    };
-
-    // 初期チェック
-    handleScroll();
-
-    window.addEventListener('scroll', handleScroll);
-    window.addEventListener('resize', handleScroll);
-
-    return () => {
-      window.removeEventListener('scroll', handleScroll);
-      window.removeEventListener('resize', handleScroll);
-    };
-  }, [isHeightExpanded]);
-
-  return (
-    <>
-      {/* 高さ測定用の非表示要素 */}
-      <Box
-        ref={measureRef}
-        sx={{
-          position: 'absolute',
-          visibility: 'hidden',
-          height: 'auto',
-          width: '100%',
-          pointerEvents: 'none',
-          background: 'linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%)',
-        }}
-      >
-        <Box sx={{ pt: 6 }}>
-          <Container maxWidth={false} sx={{ maxWidth: '980px' }}>
-            <Box sx={{ textAlign: 'center' }}>
-              <Typography
-                variant="h2"
-                sx={{
-                  fontSize: '1.75rem',
-                  fontWeight: 700,
-                  color: 'white',
-                  mb: 3,
-                }}
-              >
-                意思決定 = ストレスフリー
-              </Typography>
-              <Typography
-                variant="body1"
-                sx={{
-                  fontSize: '1.125rem',
-                  color: 'rgba(255, 255, 255, 0.9)',
-                  maxWidth: '800px',
-                  mx: 'auto',
-                  lineHeight: 1.6,
-                }}
-              >
-                テストテキストテストテキストテストテキスト<br />
-                『簡単3ステップ』で全員が納得するお店を決めましょう！
-              </Typography>
-              <Button
-                component={Link}
-                href="/polls/create"
-                variant="contained"
-                sx={{
-                  backgroundColor: 'white',
-                  color: '#3b82f6',
-                  borderRadius: '8px',
-                  mt: 3,
-                  mb: 4,
-                  px: 2,
-                  py: 1.5,
-                  fontSize: '15px',
-                  textTransform: 'none',
-                  boxShadow: 'none',
-                  fontWeight: 600,
-                }}
-              >
-                無料で始める
-              </Button>
-            </Box>
-          </Container>
-        </Box>
-      </Box>
-
-      <Box
-        ref={sectionRef}
-        sx={{
-          background: 'linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%)',
-          maxHeight: isHeightExpanded ? `${actualHeightRef.current}px` : '0px',
-          overflow: 'hidden',
-          transition: 'max-height 1.6s cubic-bezier(0.16, 1, 0.3, 1)',
-        }}
-      >
-        <Box ref={contentRef} sx={{ pt: 6 }}>
-          <Container maxWidth={false} sx={{ maxWidth: '980px' }}>
-            <Box sx={{ textAlign: 'center' }}>
-              <Typography
-                variant="h2"
-                sx={{
-                  fontSize: '1.75rem',
-                  fontWeight: 700,
-                  color: 'white',
-                  mb: 3,
-                  opacity: isTitleVisible ? 1 : 0,
-                  transform: isTitleVisible ? 'translateY(0) scale(1)' : 'translateY(30px) scale(0.95)',
-                  transition: 'opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1)',
-                }}
-              >
-                意思決定 = ストレスフリー
-              </Typography>
-              <Typography
-                variant="body1"
-                sx={{
-                  fontSize: '1.125rem',
-                  color: 'rgba(255, 255, 255, 0.9)',
-                  maxWidth: '800px',
-                  mx: 'auto',
-                  lineHeight: 1.6,
-                  opacity: isDescriptionVisible ? 1 : 0,
-                  transform: isDescriptionVisible ? 'translateY(0)' : 'translateY(20px)',
-                  transition: 'opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.2s, transform 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.2s',
-                }}
-              >
-                テストテキストテストテキストテストテキスト<br />
-                『簡単3ステップ』で全員が納得するお店を決めましょう！
-              </Typography>
-              <Button
-                component={Link}
-                href="/polls/create"
-                variant="contained"
-                sx={{
-                  backgroundColor: 'white',
-                  color: '#3b82f6',
-                  opacity: isButtonVisible ? 1 : 0,
-                  transform: isButtonVisible ? 'translateY(0) scale(1)' : 'translateY(15px) scale(0.95)',
-                  transition: 'opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.4s, transform 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.4s',
-                  borderRadius: '8px',
-                  mt: 3,
-                  mb: 4,
-                  px: 2,
-                  py: 1.5,
-                  fontSize: '15px',
-                  textTransform: 'none',
-                  boxShadow: 'none',
-                  fontWeight: 600,
-                  '&:hover': { backgroundColor: '#f3f4f6' },
-                }}
-              >
-                無料で始める
-              </Button>
-            </Box>
-          </Container>
-        </Box>
-      </Box>
-    </>
+    }, [])
   );
-}
-
-// メインコンポーネント
-export default function HomePage() {
-  const [isScrollEnabled, setIsScrollEnabled] = useState(false);
-
-  useEffect(() => {
-    // アニメーションが完了したら下矢印アイコンを表示（説明文のアニメーション: 900ms開始 + 200ms遅延 + 600ms duration = 1700ms）
-    const animationDuration = 900 + 200 + 600;
-    const timeoutId = setTimeout(() => {
-      setIsScrollEnabled(true);
-    }, animationDuration);
-
-    return () => {
-      clearTimeout(timeoutId);
-    };
-  }, []);
 
   return (
-    <Box sx={{ width: '100%' }}>
-      <LandingHeader />
-      <HeroSection isScrollEnabled={isScrollEnabled} />
-      <HowItWorksSection />
-      <BottomCTASection />
-      <FAQSection />
+    <Box
+      ref={sectionRef}
+      sx={{
+        position: 'relative',
+        backgroundColor: 'white',
+        pt: 6,
+        '&::before': {
+          content: '""',
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: 'linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%)',
+          opacity: isBackgroundVisible ? 1 : 0,
+          transition: 'opacity 1.2s ease',
+          zIndex: 0,
+        },
+      }}
+    >
+      <Container maxWidth={false} sx={{ maxWidth: CONTAINER_MAX_WIDTH, position: 'relative', zIndex: 1 }}>
+        <Box sx={{ textAlign: 'center' }}>
+          <Typography
+            variant="h2"
+            sx={{
+              fontSize: '1.75rem',
+              fontWeight: 700,
+              color: 'white',
+              mb: 3,
+              opacity: isTitleVisible ? 1 : 0,
+              transform: isTitleVisible ? 'translateY(0) scale(1)' : 'translateY(30px) scale(0.95)',
+              transition: 'opacity 0.8s ease, transform 0.8s ease',
+            }}
+          >
+            意思決定 = ストレスフリー
+          </Typography>
+          <Typography
+            variant="body1"
+            sx={{
+              fontSize: '1.125rem',
+              color: 'rgba(255, 255, 255, 0.9)',
+              maxWidth: '800px',
+              mx: 'auto',
+              lineHeight: 1.6,
+              opacity: isDescriptionVisible ? 1 : 0,
+              transform: isDescriptionVisible ? 'translateY(0)' : 'translateY(20px)',
+              transition: 'opacity 0.7s ease 0.2s, transform 0.7s ease 0.2s',
+            }}
+          >
+            テストテキストテストテキストテストテキスト<br />
+            『簡単3ステップ』で全員が納得するお店を決めましょう！
+          </Typography>
+          <Button
+            component={Link}
+            href="/polls/create"
+            variant="contained"
+            sx={{
+              backgroundColor: 'white',
+              color: '#3b82f6',
+              opacity: isButtonVisible ? 1 : 0,
+              transform: isButtonVisible ? 'translateY(0) scale(1)' : 'translateY(15px) scale(0.95)',
+              transition: 'opacity 0.6s ease 0.4s, transform 0.6s ease 0.4s',
+              borderRadius: '8px',
+              mt: 3,
+              mb: 4,
+              px: 2,
+              py: 1.5,
+              fontSize: '15px',
+              textTransform: 'none',
+              boxShadow: 'none',
+              fontWeight: 600,
+              '&:hover': { backgroundColor: '#f3f4f6' },
+            }}
+          >
+            無料で始める
+          </Button>
+        </Box>
+      </Container>
     </Box>
   );
 }
