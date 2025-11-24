@@ -118,7 +118,7 @@ export function Header({
           component="h1"
           fontWeight="700"
           sx={{
-            color: '#111827',
+            color: 'text.primary',
             fontSize: '20px',
             lineHeight: 1.3,
             flex: 1,
@@ -176,14 +176,14 @@ export function Header({
                 onClick={handleClick}
                 sx={{
                   p: 1,
-                  color: '#6b7280',
+                  color: 'text.secondary',
                   border: '1px solid #e5e7eb',
                   borderRadius: 1.5,
                   backgroundColor: '#ffffff',
                   '&:hover': {
                     backgroundColor: '#f9fafb',
                     borderColor: '#d1d5db',
-                    color: '#374151',
+                    color: 'text.primary',
                   },
                 }}
               >
@@ -239,7 +239,7 @@ export function Header({
                     primaryTypographyProps={{
                       fontSize: '14px',
                       fontWeight: 500,
-                      color: '#374151',
+                      color: 'text.primary',
                     }}
                   />
                 </MenuItem>

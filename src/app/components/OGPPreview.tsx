@@ -187,7 +187,7 @@ export function OGPPreview({ url, size = 'small', onDataLoaded }: OGPPreviewProp
           variant="body1"
           sx={{
             fontWeight: 600,
-            color: hasError ? '#dc2626' : '#374151',
+            color: hasError ? '#dc2626' : 'text.primary',
             overflow: 'hidden',
             textOverflow: 'ellipsis',
             display: '-webkit-box',
@@ -201,7 +201,7 @@ export function OGPPreview({ url, size = 'small', onDataLoaded }: OGPPreviewProp
           <Typography
             variant="caption"
             sx={{
-              color: '#6b7280',
+              color: 'text.secondary',
               fontSize: '0.75rem',
               mt: 0.5,
               overflow: 'hidden',

@@ -137,7 +137,7 @@ function useElementVisibility(ref: React.RefObject<HTMLElement | null>, threshol
 const sectionTitleStyles = {
   fontSize: { xs: '1.75rem', md: '2.25rem' },
   fontWeight: 700,
-  color: '#1f2937',
+  color: 'text.primary',
   textAlign: 'center' as const,
   mb: 2,
 };
@@ -145,7 +145,7 @@ const sectionTitleStyles = {
 const sectionSubtitleStyles = {
   fontWeight: 'bold' as const,
   fontSize: '1.125rem',
-  color: '#6b7280',
+  color: 'text.secondary',
   textAlign: 'center' as const,
   mx: 'auto',
 };
@@ -446,7 +446,7 @@ const StepItem = React.forwardRef<
             variant="h4"
             sx={{
               fontWeight: 700,
-              color: '#1f2937',
+              color: 'text.primary',
               fontSize: '1.75rem',
             }}
           >
@@ -455,7 +455,7 @@ const StepItem = React.forwardRef<
         </Box>
         <Typography
           variant="body1"
-          sx={{ color: '#6b7280', lineHeight: 1.7, fontSize: '1.125rem' }}
+          sx={{ color: 'text.secondary', lineHeight: 1.7, fontSize: '1.125rem' }}
         >
           {step.description}
         </Typography>
@@ -701,12 +701,12 @@ function FAQSection() {
                   },
                 }}
               >
-                <Typography sx={{ fontWeight: 600, color: '#1f2937' }}>
+                <Typography sx={{ fontWeight: 600, color: 'text.primary' }}>
                   {item.question}
                 </Typography>
               </AccordionSummary>
               <AccordionDetails sx={{ px: 3, pb: 3 }}>
-                <Typography sx={{ color: '#6b7280', lineHeight: 1.6, whiteSpace: 'pre-line' }}>
+                <Typography sx={{ color: 'text.secondary', lineHeight: 1.6, whiteSpace: 'pre-line' }}>
                   {item.answer}
                 </Typography>
               </AccordionDetails>
@@ -762,7 +762,7 @@ function BottomCTASection() {
             sx={{
               fontSize: { xs: '1.75rem', md: '2.25rem' },
               fontWeight: 700,
-              color: '#1f2937',
+              color: 'text.primary',
               mb: 3,
               lineHeight: 1.2,
             }}
@@ -774,7 +774,7 @@ function BottomCTASection() {
             variant="body1"
             sx={{
               fontSize: { xs: '1rem', md: '1.125rem' },
-              color: '#6b7280',
+              color: 'text.secondary',
               maxWidth: '700px',
               mx: 'auto',
               lineHeight: 1.7,
@@ -839,7 +839,7 @@ function BottomCTASection() {
                   display: 'flex',
                   alignItems: 'center',
                   gap: 0.5,
-                  color: '#6b7280',
+                  color: 'text.secondary',
                 }}
               >
                 <CheckCircleIcon sx={{ fontSize: '1rem', color: '#3b82f6' }} />

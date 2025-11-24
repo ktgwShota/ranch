@@ -16,6 +16,12 @@ export const theme = createTheme({
       default: '#f5f5f5',
       paper: '#ffffff',
     },
+    text: {
+      // Material Design基準のテキストカラー（ライトテーマ）
+      primary: 'rgba(0, 0, 0, 0.87)',    // 高い強調度（87% opacity）
+      secondary: 'rgba(0, 0, 0, 0.6)',   // 中程度の強調度（60% opacity）
+      disabled: 'rgba(0, 0, 0, 0.38)',  // 無効なテキスト（38% opacity）
+    },
   },
   typography: {
     fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',

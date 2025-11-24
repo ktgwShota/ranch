@@ -19,7 +19,7 @@ export function DescriptionText({ description }: DescriptionTextProps) {
       <Typography
         variant="body1"
         sx={{
-          color: '#6b7280',
+          color: 'text.secondary',
           fontSize: '14px',
           lineHeight: 1.5,
           overflow: 'hidden',
@@ -40,7 +40,7 @@ export function DescriptionText({ description }: DescriptionTextProps) {
             p: 0,
             minWidth: 'auto',
             fontSize: '12px',
-            color: '#6b7280',
+            color: 'text.secondary',
             textTransform: 'none',
             '&:hover': {
               background: 'transparent',

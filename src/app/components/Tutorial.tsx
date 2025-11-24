@@ -148,11 +148,11 @@ export function Tutorial() {
       >
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
           <Box sx={{ width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <Typography variant="h6" fontWeight={700} sx={{ color: '#111827' }}>
+            <Typography variant="h6" fontWeight={700} sx={{ color: 'text.primary' }}>
               {currentStep.title}
             </Typography>
             {totalSteps > 1 && (
-              <Typography variant="caption" sx={{ mr: 0.5, color: '#6b7280' }}>
+              <Typography variant="caption" sx={{ mr: 0.5, color: 'text.secondary' }}>
                 {currentStepIndex + 1} / {totalSteps}
               </Typography>
             )}
@@ -161,7 +161,7 @@ export function Tutorial() {
         <Typography
           variant="body1"
           sx={{
-            color: '#6b7280',
+            color: 'text.secondary',
             mb: 2,
             lineHeight: 1.6,
             whiteSpace: 'pre-line',

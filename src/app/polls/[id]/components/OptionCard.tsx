@@ -159,7 +159,7 @@ export function OptionCard({
             variant="body1"
             fontWeight="700"
             sx={{
-              color: '#111827',
+              color: 'text.primary',
               fontSize: '18px',
               lineHeight: 1.4,
               mb: 1.5,
@@ -186,7 +186,7 @@ export function OptionCard({
             <Typography
               variant="body1"
               sx={{
-                color: '#6b7280',
+                color: 'text.secondary',
                 fontSize: '14px',
                 lineHeight: 1.5,
               }}
@@ -236,7 +236,7 @@ export function OptionCard({
               }),
               ...(!isVoted && {
                 background: '#f3f4f6',
-                color: '#374151',
+                color: 'text.primary',
                 border: '1px solid #d1d5db',
                 '&:hover': {
                   background: '#e5e7eb',

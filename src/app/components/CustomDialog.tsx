@@ -59,7 +59,7 @@ export function CustomDialog({
         sx={{
           fontSize: '1.125rem',
           fontWeight: 600,
-          color: '#111827',
+          color: 'text.primary',
           pt: 3,
           px: 3,
           pb: 2,
@@ -72,7 +72,7 @@ export function CustomDialog({
           {description && (
             <DialogContentText
               sx={{
-                color: '#6b7280',
+                color: 'text.secondary',
                 fontSize: '0.875rem',
               }}
             >
@@ -99,7 +99,7 @@ export function CustomDialog({
                 px: 2,
                 py: 1,
                 borderColor: '#d1d5db',
-                color: '#374151',
+                color: 'text.primary',
                 '&:hover': {
                   borderColor: '#9ca3af',
                   backgroundColor: '#f9fafb',

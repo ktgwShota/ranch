@@ -13,7 +13,7 @@ export function ResultDisplay({ votes, percentage }: ResultDisplayProps) {
           <Typography
             variant="h6"
             sx={{
-              color: '#111827',
+              color: 'text.primary',
               fontWeight: 700,
               fontSize: '20px',
               lineHeight: 1.2,
@@ -24,7 +24,7 @@ export function ResultDisplay({ votes, percentage }: ResultDisplayProps) {
           <Typography
             variant="body1"
             sx={{
-              color: '#6b7280',
+              color: 'text.secondary',
               fontSize: '14px',
               fontWeight: 500,
             }}
@@ -35,7 +35,7 @@ export function ResultDisplay({ votes, percentage }: ResultDisplayProps) {
         <Typography
           variant="body1"
           sx={{
-            color: '#111827',
+            color: 'text.primary',
             fontWeight: 600,
             fontSize: '18px',
           }}

@@ -93,11 +93,7 @@ export function VotingDeadline({
         </Box>
         <Typography
           variant="body1"
-          sx={{
-            color: '#6c757d',
-            fontSize: '0.95rem',
-            lineHeight: 1.6,
-          }}
+          color="text.secondary"
         >
           指定日時に投票結果が自動的に公開されます。
         </Typography>

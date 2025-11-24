@@ -11,7 +11,7 @@ export function VoterList({ voters }: VoterListProps) {
       <Typography
         variant="caption"
         sx={{
-          color: '#6b7280',
+          color: 'text.secondary',
           fontSize: '14px',
           mb: 1,
           display: 'block',
@@ -59,7 +59,7 @@ export function VoterList({ voters }: VoterListProps) {
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                color: '#6b7280',
+                color: 'text.secondary',
                 fontSize: '14px',
                 fontWeight: 600,
                 border: '2px solid white',

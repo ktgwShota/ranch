@@ -176,7 +176,7 @@ export default function VotingPage({ pollId, initialPoll }: VotingPageProps) {
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            color: '#6b7280',
+            color: 'text.secondary',
             fontSize: '14px',
           }}
         >
