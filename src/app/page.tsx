@@ -157,16 +157,13 @@ const fadeInStyles = (isVisible: boolean, delay = '0s') => ({
 
 export default function Index() {
   const [isScrollEnabled, setIsScrollEnabled] = useState(false);
-  const [isHeaderVisible, setIsHeaderVisible] = useState(false);
 
   const handleTypingComplete = useCallback(() => {
-    setIsHeaderVisible(true);
     setTimeout(() => setIsScrollEnabled(true), ANIMATION_DELAYS.ARROW_DELAY);
   }, []);
 
   return (
     <Box sx={{ width: '100%' }}>
-      <LandingHeader isHeaderVisible={isHeaderVisible} />
       <HeroSection
         isScrollEnabled={isScrollEnabled}
         onTypingComplete={handleTypingComplete}
@@ -174,59 +171,6 @@ export default function Index() {
       <HowItWorksSection />
       <BottomCTASection />
       <FAQSection />
-    </Box>
-  );
-}
-
-function LandingHeader({ isHeaderVisible }: { isHeaderVisible: boolean }) {
-  const [isInHowItWorksSection, setIsInHowItWorksSection] = useState(false);
-
-  useScrollPosition(
-    useCallback(() => {
-      const howItWorksSection = document.getElementById('how-it-works-section');
-      if (howItWorksSection) {
-        const sectionRect = howItWorksSection.getBoundingClientRect();
-        setIsInHowItWorksSection(sectionRect.top < 0);
-      }
-    }, [])
-  );
-
-  return (
-    <Box
-      sx={{
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        right: 0,
-        zIndex: 1000,
-        backgroundColor: 'transparent',
-        opacity: isHeaderVisible ? 1 : 0,
-        transition: 'opacity 1.2s ease 0.3s',
-      }}
-    >
-      <Container maxWidth={false} sx={{ maxWidth: CONTAINER_MAX_WIDTH }}>
-        <Box
-          sx={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            height: HEADER_HEIGHT,
-          }}
-        >
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-            <Typography
-              variant="h6"
-              sx={{
-                fontWeight: 700,
-                color: isInHowItWorksSection ? '#333333' : '#f9fafb',
-                transition: 'color 1.2s ease',
-              }}
-            >
-              チョイスル
-            </Typography>
-          </Box>
-        </Box>
-      </Container>
     </Box>
   );
 }
@@ -281,7 +225,7 @@ function HeroSection({
   }, [displayedText.length, fullText.length, onTypingComplete]);
 
   const handleScrollToHowItWorks = useCallback(() => {
-    const howItWorksSection = document.getElementById('how-it-works-section');
+    const howItWorksSection = document.getElementById('hot-to-use');
     howItWorksSection?.scrollIntoView({ behavior: 'smooth' });
   }, []);
 
@@ -592,7 +536,7 @@ function HowItWorksSection() {
 
   return (
     <Box
-      id="how-it-works-section"
+      id="hot-to-use"
       sx={{
         pt: { xs: 8, md: 10 },
         pb: { xs: 8, md: 10 },
@@ -686,6 +630,7 @@ function FAQSection() {
 
   return (
     <Box
+      id="faq"
       sx={{
         pt: { xs: 8, md: 10 },
         pb: { xs: 4, md: 5 },

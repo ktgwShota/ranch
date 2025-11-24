@@ -119,7 +119,7 @@ export function Header({
           fontWeight="700"
           sx={{
             color: '#111827',
-            fontSize: { xs: '20px', sm: '24px' },
+            fontSize: '20px',
             lineHeight: 1.3,
             flex: 1,
             minWidth: 0,
