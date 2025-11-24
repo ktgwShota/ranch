@@ -26,21 +26,30 @@ export function AddOptionButton({ onClick }: { onClick: () => void }) {
       sx={{
         mb: 3,
         borderRadius: 0.5,
-        border: '1px solid',
+        border: '2px dashed',
         borderColor: '#ddd',
         backgroundColor: 'white',
         cursor: 'pointer',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        gap: 1,
+        gap: 1.5,
         height: '90px',
         position: 'relative',
         zIndex: 10,
         pointerEvents: 'auto',
+        transition: 'all 0.3s ease',
         '&:hover': {
           borderColor: '#1976d2',
-          backgroundColor: '#fafafa',
+          backgroundColor: '#f5f9ff',
+          transform: 'translateY(-2px)',
+          boxShadow: '0 4px 12px rgba(25, 118, 210, 0.15)',
+          '& .add-icon': {
+            transform: 'rotate(90deg)',
+          },
+        },
+        '&:active': {
+          transform: 'translateY(0)',
         },
         '&:focus': {
           outline: '2px solid #1976d2',
@@ -48,12 +57,21 @@ export function AddOptionButton({ onClick }: { onClick: () => void }) {
         },
       }}
     >
-      <AddIcon sx={{ color: '#1976d2', fontSize: '1.5rem', pointerEvents: 'none' }} />
+      <AddIcon
+        className="add-icon"
+        sx={{
+          color: '#1976d2',
+          fontSize: '1.75rem',
+          pointerEvents: 'none',
+          transition: 'transform 0.3s ease',
+        }}
+      />
       <Typography
         variant="body1"
         sx={{
           color: '#1976d2',
-          fontWeight: 500,
+          fontWeight: 600,
+          fontSize: '1rem',
           pointerEvents: 'none',
         }}
       >
