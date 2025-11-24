@@ -184,7 +184,7 @@ export function OGPPreview({ url, size = 'small', onDataLoaded }: OGPPreviewProp
       )}
       <Box sx={{ flex: 1, minWidth: 0 }}>
         <Typography
-          variant="body2"
+          variant="body1"
           sx={{
             fontWeight: 600,
             color: hasError ? '#dc2626' : '#374151',

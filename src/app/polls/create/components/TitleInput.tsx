@@ -10,9 +10,9 @@ export function TitleInput({
   return (
     <Box>
       <Typography
-        variant="subtitle1"
+        variant="h6"
         gutterBottom
-        sx={{ fontWeight: 600, color: 'text.primary', mb: 2 }}
+        sx={{ fontWeight: 600, color: 'text.primary', mb: 1.5 }}
       >
         タイトル <span style={{ color: '#f44336' } as React.CSSProperties}>*</span>
       </Typography>

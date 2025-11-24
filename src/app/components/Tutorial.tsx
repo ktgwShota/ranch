@@ -159,7 +159,7 @@ export function Tutorial() {
           </Box>
         </Box>
         <Typography
-          variant="body2"
+          variant="body1"
           sx={{
             color: '#6b7280',
             mb: 2,

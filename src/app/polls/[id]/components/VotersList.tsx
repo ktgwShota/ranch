@@ -35,7 +35,7 @@ export function VotersList({ poll }: VotersListProps) {
               {(voter.name && voter.name.length > 0 ? voter.name.charAt(0) : '?').toUpperCase()}
             </Avatar>
             <Box sx={{ flex: 1, minWidth: 0 }}>
-              <Typography variant="body2" fontWeight={600} sx={{ color: '#111827' }}>
+              <Typography variant="body1" fontWeight={600} sx={{ color: '#111827' }}>
                 {voter.name || '匿名'}
               </Typography>
               <Typography

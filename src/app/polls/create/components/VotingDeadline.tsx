@@ -30,14 +30,14 @@ export function VotingDeadline({
       }}
     >
       <Typography
-        variant="subtitle1"
+        variant="h6"
         sx={{
-          mb: 2,
+          mb: 1.5,
           color: 'text.primary',
           fontWeight: 600,
         }}
       >
-        投票締切日時<span style={{ color: '#f44336' } as React.CSSProperties}>*</span>
+        投票締切日時 <span style={{ color: '#f44336' } as React.CSSProperties}>*</span>
       </Typography>
       <Box display="flex" flexDirection="column" gap={3}>
         <Box display="flex" alignItems="center" gap={3} flexWrap="wrap">
@@ -65,8 +65,6 @@ export function VotingDeadline({
                 },
               },
             }}
-            label="締切日"
-            InputLabelProps={{ shrink: true }}
             inputProps={{ min: todayDate, max: maxDate }}
           />
           <TextField
@@ -88,15 +86,13 @@ export function VotingDeadline({
                 },
               },
             }}
-            label="締切時刻"
-            InputLabelProps={{ shrink: true }}
             inputProps={{
               min: endDate === todayDate ? currentTimeString : '00:00',
             }}
           />
         </Box>
         <Typography
-          variant="body2"
+          variant="body1"
           sx={{
             color: '#6c757d',
             fontSize: '0.95rem',

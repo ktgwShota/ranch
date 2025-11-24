@@ -117,7 +117,7 @@ export function ResultPage({ poll, totalVotes, winningOption }: ResultPageProps)
                       {/* 予算の表示 */}
                       {option.budgetMin || option.budgetMax ? (
                         <Typography
-                          variant="body2"
+                          variant="body1"
                           sx={{
                             color: '#6b7280',
                             fontSize: '14px',
@@ -148,7 +148,7 @@ export function ResultPage({ poll, totalVotes, winningOption }: ResultPageProps)
                       {option.description && (
                         <Box sx={{ mb: 1.5 }}>
                           <Typography
-                            variant="body2"
+                            variant="body1"
                             sx={{
                               color: '#6b7280',
                               fontSize: '14px',
@@ -171,7 +171,7 @@ export function ResultPage({ poll, totalVotes, winningOption }: ResultPageProps)
                         >
                           {option.votes.toLocaleString()}
                         </Typography>
-                        <Typography variant="body2" sx={{ color: '#6b7280', fontSize: '14px' }}>
+                        <Typography variant="body1" sx={{ color: '#6b7280', fontSize: '14px' }}>
                           票
                         </Typography>
                         <Typography
@@ -240,7 +240,7 @@ export function ResultPage({ poll, totalVotes, winningOption }: ResultPageProps)
               >
                 {totalVotes.toLocaleString()}
               </Typography>
-              <Typography variant="body2" sx={{ color: '#6b7280', fontSize: '14px' }}>
+              <Typography variant="body1" sx={{ color: '#6b7280', fontSize: '14px' }}>
                 票
               </Typography>
             </Box>

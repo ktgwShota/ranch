@@ -124,7 +124,7 @@ export function OptionCard({
               }}
             />
             <Typography
-              variant="body2"
+              variant="body1"
               color="text.secondary"
               sx={{
                 fontWeight: 500,
@@ -184,7 +184,7 @@ export function OptionCard({
         {option.description && (
           <Box sx={{ mb: 1.5 }}>
             <Typography
-              variant="body2"
+              variant="body1"
               sx={{
                 color: '#6b7280',
                 fontSize: '14px',

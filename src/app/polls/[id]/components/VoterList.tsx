@@ -72,7 +72,7 @@ export function VoterList({ voters }: VoterListProps) {
         </Box>
       ) : (
         <Typography
-          variant="body2"
+          variant="body1"
           sx={{
             height: 32,
             display: 'flex',

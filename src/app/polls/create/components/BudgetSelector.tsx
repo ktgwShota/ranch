@@ -15,11 +15,9 @@ export function BudgetSelector({
     <Box sx={{ mb: 3 }}>
       <Box>
         <Typography
-          variant="body2"
+          variant="body1"
           sx={{
-            fontSize: '0.85rem',
-            color: 'text.secondary',
-            mb: 1,
+            mb: 1.5,
             fontWeight: 600,
           }}
         >

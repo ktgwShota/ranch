@@ -22,7 +22,7 @@ export function ResultDisplay({ votes, percentage }: ResultDisplayProps) {
             {votes}
           </Typography>
           <Typography
-            variant="body2"
+            variant="body1"
             sx={{
               color: '#6b7280',
               fontSize: '14px',

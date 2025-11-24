@@ -48,7 +48,7 @@ export function CustomBudgetInput({
             },
           }}
         />
-        <Typography variant="body2" sx={{ color: 'text.secondary', px: 0.5 }}>
+        <Typography variant="body1" sx={{ color: 'text.secondary', px: 0.5 }}>
           〜
         </Typography>
         <TextField
@@ -84,7 +84,7 @@ export function CustomBudgetInput({
             },
           }}
         />
-        <Typography variant="body2" sx={{ color: 'text.secondary', ml: 0.5 }}>
+        <Typography variant="body1" sx={{ color: 'text.secondary', ml: 0.5 }}>
           円
         </Typography>
       </Box>

@@ -9,7 +9,7 @@ interface DescriptionTextProps {
 
 export function DescriptionText({ description }: DescriptionTextProps) {
   const [isExpanded, setIsExpanded] = useState(false);
-  
+
   // 説明が2行を超えるかどうかを判定（簡易的な方法）
   const descriptionLines = description ? description.split('\n').length : 0;
   const shouldShowExpandButton = description && (description.length > 100 || descriptionLines > 2);
@@ -17,7 +17,7 @@ export function DescriptionText({ description }: DescriptionTextProps) {
   return (
     <Box>
       <Typography
-        variant="body2"
+        variant="body1"
         sx={{
           color: '#6b7280',
           fontSize: '14px',

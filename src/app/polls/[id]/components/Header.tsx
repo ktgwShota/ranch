@@ -156,7 +156,7 @@ export function Header({
                 投票受付:
               </Typography>
               <Typography
-                variant="body2"
+                variant="body1"
                 sx={{
                   color: '#1e40af',
                   fontSize: '13px',

@@ -190,15 +190,15 @@ export default function Index() {
           <Box sx={{ position: 'relative' }}>
             <Box mb={2.5}>
               <Typography
-                variant="subtitle1"
+                variant="h6"
                 sx={{ fontWeight: 600, color: 'text.primary', mb: 1 }}
               >
                 店舗情報 <span style={{ color: '#f44336' } as React.CSSProperties}>*</span>
               </Typography>
-              <Typography variant="body2" color="text.secondary" sx={{ mb: 0.5 }}>
+              <Typography variant="body1" color="text.secondary" sx={{ mb: 0.5 }}>
                 候補となるお店の情報を入力してください。
               </Typography>
-              <Typography variant="body2" color="text.secondary">
+              <Typography variant="body1" color="text.secondary">
                 <a href="https://tabelog.com/" target="_blank" rel="noopener noreferrer" style={{ color: '#1976d2', textDecoration: 'none' }}>食べログ</a> または <a href="https://www.gnavi.co.jp/" target="_blank" rel="noopener noreferrer" style={{ color: '#1976d2', textDecoration: 'none' }}>ぐるなび</a> で取得した URL の使用をすると予算が自動入力されます。
               </Typography>
             </Box>
@@ -259,7 +259,7 @@ export default function Index() {
               }
               label={
                 <Typography
-                  variant="body2"
+                  variant="body1"
                   color="text.secondary"
                   sx={{ fontWeight: 500, position: 'relative', top: '0.5px' }}
                 >

@@ -59,7 +59,7 @@ export default function Footer() {
               チョイスル
             </Typography>
             <Typography
-              variant="body2"
+              variant="body1"
               sx={{
                 color: 'rgba(255, 255, 255, 0.7)',
                 fontSize: '0.85rem',
@@ -82,7 +82,7 @@ export default function Footer() {
             {/* ABOUT */}
             <Box textAlign={isMobile ? 'center' : 'left'}>
               <Typography
-                variant="subtitle1"
+                variant="h6"
                 fontWeight="600"
                 sx={{
                   color: 'white',
@@ -127,7 +127,7 @@ export default function Footer() {
 
         {/* コピーライト */}
         <Typography
-          variant="body2"
+          variant="body1"
           sx={{
             color: 'rgba(255, 255, 255, 0.6)',
             fontWeight: 400,
