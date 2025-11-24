@@ -13,10 +13,11 @@ export function CustomBudgetInput({
   onBudgetMaxChange: (value: string) => void;
 }) {
   return (
-    <Box>
-      <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
+    <Box sx={{ mb: 3 }}>
+      <Box sx={{ display: 'flex', gap: 1, alignItems: 'flex-start' }}>
         <TextField
-          size="small"
+          variant="outlined"
+          label="予算下限"
           placeholder="8,000"
           type="text"
           inputMode="numeric"
@@ -40,11 +41,18 @@ export function CustomBudgetInput({
               e.preventDefault();
             }
           }}
+          InputLabelProps={{
+            shrink: true,
+            sx: {
+              fontSize: '1rem',
+              backgroundColor: 'white',
+              px: 0.5,
+            },
+          }}
           sx={{
             flex: 1,
             '& .MuiOutlinedInput-root': {
               borderRadius: 0.5,
-              backgroundColor: '#fafafa',
               fontSize: '0.875rem',
             },
             '& .MuiInputBase-input::placeholder': {
@@ -52,11 +60,12 @@ export function CustomBudgetInput({
             },
           }}
         />
-        <Typography variant="body1" sx={{ color: 'text.secondary', px: 0.5, fontSize: '0.875rem' }}>
+        <Typography variant="body1" sx={{ color: 'text.secondary', px: 0.5, fontSize: '0.875rem', alignSelf: 'center' }}>
           〜
         </Typography>
         <TextField
-          size="small"
+          variant="outlined"
+          label="予算上限"
           placeholder="10,000"
           type="text"
           inputMode="numeric"
@@ -80,11 +89,18 @@ export function CustomBudgetInput({
               e.preventDefault();
             }
           }}
+          InputLabelProps={{
+            shrink: true,
+            sx: {
+              fontSize: '1rem',
+              backgroundColor: 'white',
+              px: 0.5,
+            },
+          }}
           sx={{
             flex: 1,
             '& .MuiOutlinedInput-root': {
               borderRadius: 0.5,
-              backgroundColor: '#fafafa',
               fontSize: '0.875rem',
             },
             '& .MuiInputBase-input::placeholder': {
@@ -92,7 +108,7 @@ export function CustomBudgetInput({
             },
           }}
         />
-        <Typography variant="body1" sx={{ color: 'text.secondary', ml: 0.5, fontSize: '0.875rem' }}>
+        <Typography variant="body1" sx={{ color: 'text.secondary', ml: 0.5, fontSize: '0.875rem', alignSelf: 'center' }}>
           円
         </Typography>
       </Box>

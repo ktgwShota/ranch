@@ -14,13 +14,23 @@ export function UrlInput({
     <TextField
       fullWidth
       type="url"
+      variant="outlined"
+      label="URL"
+      required
       value={value}
       onChange={(e) => onChange(e.target.value)}
       placeholder="https://tabelog.com/tokyo/..."
-      variant="outlined"
-      size="small"
       error={!!error}
       helperText={error || ''}
+      InputLabelProps={{
+        shrink: true,
+        sx: {
+          fontSize: '1rem',
+          '& .MuiFormLabel-asterisk': {
+            color: '#f44336',
+          },
+        },
+      }}
       FormHelperTextProps={{
         sx: { fontSize: '0.875rem', fontWeight: 500 },
       }}
@@ -55,12 +65,12 @@ export function UrlInput({
         '& .MuiOutlinedInput-root': {
           paddingRight: 0,
           borderRadius: 0.5,
+
           fontSize: '0.875rem',
         },
         '& .MuiInputBase-input::placeholder': {
           fontSize: '0.875rem',
         },
-        backgroundColor: '#fafafa',
       }}
     />
   );

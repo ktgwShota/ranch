@@ -14,19 +14,9 @@ export function BudgetSelector({
   return (
     <Box sx={{ mb: 2 }}>
       <Box>
-        <Typography
-          variant="body1"
-          sx={{
-            mb: 1.5,
-            fontWeight: 600,
-            fontSize: '0.875rem',
-          }}
-        >
-          予算
-        </Typography>
         {/* ぐるなびの予算オプションがある場合は表示 */}
         {budgetOptions.length > 0 && (
-          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, alignItems: 'center', mb: 1.5 }}>
+          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, alignItems: 'center', mb: 3 }}>
             {budgetOptions.map((budget) => (
               <Chip
                 key={budget.label}

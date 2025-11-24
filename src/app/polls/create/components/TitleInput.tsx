@@ -26,7 +26,7 @@ export function TitleInput({
           mb: 3,
           '& .MuiOutlinedInput-root': {
             borderRadius: 0.5,
-            backgroundColor: '#fafafa',
+
             fontSize: '1rem',
             '&:hover .MuiOutlinedInput-notchedOutline': {
               borderColor: '#1976d2',

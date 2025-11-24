@@ -1,4 +1,4 @@
-import { Box, TextField, Typography } from '@mui/material';
+import { Box, TextField } from '@mui/material';
 
 export function DescriptionInput({
   value,
@@ -8,61 +8,45 @@ export function DescriptionInput({
   onChange: (value: string) => void;
 }) {
   return (
-    <Box>
-      <Box>
-        <Box
-          sx={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            mb: 1.5,
-          }}
-        >
-          <Typography
-            variant="body1"
-            sx={{
-              fontWeight: 600,
-              fontSize: '0.875rem',
-            }}
-          >
-            備考
-          </Typography>
-          <Typography
-            variant="caption"
-            sx={{
-              fontSize: '0.75rem',
-              color: 'text.secondary',
-            }}
-          >
-            {value.length}/50
-          </Typography>
-        </Box>
-        <TextField
-          fullWidth
-          size="small"
-          placeholder="会社から徒歩10分 / 個室あり / 駐車場なし"
-          value={value}
-          onChange={(e) => {
-            const newValue = e.target.value;
-            if (newValue.length <= 50) {
-              onChange(newValue);
-            }
-          }}
-          inputProps={{
-            maxLength: 50,
-          }}
-          sx={{
-            '& .MuiOutlinedInput-root': {
-              borderRadius: 0.5,
-              backgroundColor: '#fafafa',
-              fontSize: '0.875rem',
-            },
-            '& .MuiInputBase-input::placeholder': {
-              fontSize: '0.875rem',
-            },
-          }}
-        />
-      </Box>
+    <Box sx={{ mb: 0 }}>
+      <TextField
+        fullWidth
+        variant="outlined"
+        label="備考"
+        placeholder="会社から徒歩10分 / 個室あり / 駐車場なし"
+        value={value}
+        onChange={(e) => {
+          const newValue = e.target.value;
+          if (newValue.length <= 50) {
+            onChange(newValue);
+          }
+        }}
+        inputProps={{
+          maxLength: 50,
+        }}
+        InputLabelProps={{
+          shrink: true,
+          sx: {
+            fontSize: '1rem',
+          },
+        }}
+        FormHelperTextProps={{
+          sx: {
+            textAlign: 'right',
+            fontSize: '0.75rem',
+          },
+        }}
+        helperText={`${value.length}/50`}
+        sx={{
+          '& .MuiOutlinedInput-root': {
+            borderRadius: 0.5,
+            fontSize: '0.875rem',
+          },
+          '& .MuiInputBase-input::placeholder': {
+            fontSize: '0.875rem',
+          },
+        }}
+      />
     </Box>
   );
 }
