@@ -18,7 +18,7 @@ export default function Footer() {
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
   const aboutLinks = [
-    { label: 'サイト名について', href: '/about', icon: <InfoIcon fontSize="small" /> },
+    { label: 'チョイスルについて', href: '/about', icon: <InfoIcon fontSize="small" /> },
     { label: '利用規約', href: '/terms', icon: <GavelIcon fontSize="small" /> },
     { label: 'プライバシーポリシー', href: '/privacy', icon: <PrivacyIcon fontSize="small" /> },
     { label: 'お問い合わせ', href: '/contact', icon: <ContactIcon fontSize="small" /> },
@@ -57,7 +57,7 @@ export default function Footer() {
                 letterSpacing: '-0.02em',
               }}
             >
-              サイト名
+              チョイスル
             </Typography>
             <Typography
               variant="body2"
@@ -174,7 +174,7 @@ export default function Footer() {
             textAlign: 'center',
           }}
         >
-          © 2025 サイト名. All rights reserved.
+          © 2025 チョイスル. All rights reserved.
         </Typography>
       </Container>
     </Box>

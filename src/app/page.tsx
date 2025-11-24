@@ -38,7 +38,7 @@ const ANIMATION_DELAYS = {
 
 const TYPING_SPEED = 150;
 const INTERSECTION_THRESHOLD = 0.5;
-const FULL_VISIBILITY_THRESHOLD = 1.0;
+const FULL_VISIBILITY_THRESHOLD = 0.8;
 
 type StepData = {
   step: string;
@@ -105,6 +105,34 @@ const useScrollPosition = (callback: (scrollY: number) => void) => {
     };
   }, [callback]);
 };
+
+function useElementVisibility(ref: React.RefObject<HTMLElement | null>, threshold: number) {
+  const [isVisible, setIsVisible] = useState(false);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting && entry.intersectionRatio >= threshold) {
+          setIsVisible(true);
+          observer.unobserve(entry.target);
+        }
+      },
+      { threshold }
+    );
+
+    if (ref.current) {
+      observer.observe(ref.current);
+    }
+
+    return () => {
+      if (ref.current) {
+        observer.unobserve(ref.current);
+      }
+    };
+  }, [ref, threshold]);
+
+  return isVisible;
+}
 
 const sectionTitleStyles = {
   fontSize: { xs: '1.75rem', md: '2.25rem' },
@@ -752,85 +780,46 @@ function BottomCTASection() {
   const [isButtonVisible, setIsButtonVisible] = useState(false);
   const sectionRef = useRef<HTMLDivElement>(null);
 
-  useIntersectionObserver(
-    sectionRef,
-    FULL_VISIBILITY_THRESHOLD,
-    useCallback((isIntersecting, intersectionRatio) => {
-      if (isIntersecting && intersectionRatio >= FULL_VISIBILITY_THRESHOLD) {
-        setIsBackgroundVisible(true);
-        setIsTitleVisible(true);
-        setTimeout(() => setIsDescriptionVisible(true), ANIMATION_DELAYS.SUBTITLE_DELAY);
-        setTimeout(() => setIsButtonVisible(true), ANIMATION_DELAYS.SUBTITLE_DELAY * 2);
-      }
-    }, [])
-  );
+  const isSectionVisible = useElementVisibility(sectionRef, FULL_VISIBILITY_THRESHOLD);
+
+  useEffect(() => {
+    if (isSectionVisible) {
+      setIsBackgroundVisible(true);
+      setIsTitleVisible(true);
+      setTimeout(() => setIsDescriptionVisible(true), ANIMATION_DELAYS.SUBTITLE_DELAY);
+      setTimeout(() => setIsButtonVisible(true), ANIMATION_DELAYS.SUBTITLE_DELAY * 2);
+    }
+  }, [isSectionVisible]);
 
   return (
     <Box
       ref={sectionRef}
       sx={{
         position: 'relative',
-        backgroundColor: 'white',
         pt: { xs: 10, md: 14 },
         pb: { xs: 10, md: 14 },
-        overflow: 'hidden',
-        '&::before': {
-          content: '""',
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          background: 'linear-gradient(135deg, #1e40af 0%, #3b82f6 40%, #60a5fa 70%, #93c5fd 100%)',
-          opacity: isBackgroundVisible ? 1 : 0,
-          transition: 'opacity 1.2s ease',
-          zIndex: 0,
-        },
-        '&::after': {
-          content: '""',
-          position: 'absolute',
-          top: '-30%',
-          left: '-10%',
-          width: '800px',
-          height: '800px',
-          borderRadius: '50%',
-          background: 'radial-gradient(circle, rgba(59, 130, 246, 0.4) 0%, rgba(59, 130, 246, 0.1) 50%, transparent 100%)',
-          filter: 'blur(100px)',
-          zIndex: 1,
-          opacity: isBackgroundVisible ? 1 : 0,
-          transition: 'opacity 1.2s ease 0.3s',
-        },
+        background: 'linear-gradient(180deg, #dbeafe 0%, #bfdbfe 50%, #93c5fd 100%)',
+        opacity: isBackgroundVisible ? 1 : 0,
+        transition: 'opacity 1.2s ease',
       }}
     >
-      <Box
-        sx={{
-          position: 'absolute',
-          bottom: '-20%',
-          right: '10%',
-          width: '600px',
-          height: '600px',
-          borderRadius: '50%',
-          background: 'radial-gradient(circle, rgba(96, 165, 250, 0.3) 0%, rgba(96, 165, 250, 0.05) 50%, transparent 100%)',
-          filter: 'blur(120px)',
-          zIndex: 1,
-          opacity: isBackgroundVisible ? 1 : 0,
-          transition: 'opacity 1.2s ease 0.5s',
-        }}
-      />
-      <Container maxWidth={false} sx={{ maxWidth: CONTAINER_MAX_WIDTH, position: 'relative', zIndex: 2 }}>
-        <Box sx={{ textAlign: 'center', position: 'relative' }}>
+      <Container maxWidth={false} sx={{ maxWidth: CONTAINER_MAX_WIDTH }}>
+        <Box
+          sx={{
+            textAlign: 'center',
+            opacity: isTitleVisible ? 1 : 0,
+            transform: isTitleVisible ? 'translateY(0)' : 'translateY(30px)',
+            transition: 'opacity 0.8s ease 0.1s, transform 0.8s ease 0.1s',
+          }}
+        >
           <Typography
             variant="h2"
             sx={{
               fontSize: { xs: '1.75rem', md: '2.25rem' },
               fontWeight: 700,
-              color: 'white',
+              color: '#1f2937',
               mb: 3,
               lineHeight: 1.2,
-              textShadow: '0 2px 8px rgba(0, 0, 0, 0.3), 0 0 20px rgba(96, 165, 250, 0.3)',
-              opacity: isTitleVisible ? 1 : 0,
-              transform: isTitleVisible ? 'translateY(0) scale(1)' : 'translateY(30px) scale(0.95)',
-              transition: 'opacity 0.8s ease 0.1s, transform 0.8s ease 0.1s',
             }}
           >
             意思決定 = ストレスフリー
@@ -840,36 +829,49 @@ function BottomCTASection() {
             variant="body1"
             sx={{
               fontSize: { xs: '1rem', md: '1.125rem' },
-              color: 'rgba(255, 255, 255, 0.95)',
+              color: '#6b7280',
               maxWidth: '700px',
               mx: 'auto',
               lineHeight: 1.7,
               mb: 4,
-              textShadow: '0 1px 4px rgba(0, 0, 0, 0.25), 0 0 12px rgba(96, 165, 250, 0.2)',
-              opacity: isDescriptionVisible ? 1 : 0,
-              transform: isDescriptionVisible ? 'translateY(0)' : 'translateY(20px)',
-              transition: 'opacity 0.7s ease 0.3s, transform 0.7s ease 0.3s',
             }}
           >
             店決めに悩む時間を、もっと大切なことに使えます。
             <br />
-            『簡単3ステップ』で全員が納得するお店を決めましょう。
-
+            <Box component="span" sx={{ color: '#3b82f6', fontWeight: 600 }}>
+              『簡単3ステップ』
+            </Box>
+            で全員が納得するお店を決めましょう。
           </Typography>
+
           <Button
             component={Link}
             href="/polls/create"
             variant="contained"
-            endIcon={<KeyboardArrowDownIcon />}
+            endIcon={<ArrowForwardIcon />}
             sx={{
-              backgroundColor: 'white',
-              color: '#3b82f6',
-              borderRadius: '12px',
-              px: 2,
+              backgroundColor: '#3b82f6',
+              color: '#ffffff',
+              borderRadius: '8px',
+              px: 4,
               py: 1.5,
               fontSize: '15px',
-              boxShadow: 'none',
               fontWeight: 600,
+              textTransform: 'none',
+              boxShadow: 'none',
+              opacity: isButtonVisible ? 1 : 0,
+              transform: isButtonVisible ? 'translateY(0)' : 'translateY(15px)',
+              transition: 'opacity 0.6s ease 0.5s, transform 0.6s ease 0.5s',
+              '&:hover': {
+                backgroundColor: '#2563eb',
+                boxShadow: '0 4px 12px rgba(59, 130, 246, 0.3)',
+              },
+              '& .MuiButton-endIcon': {
+                transition: 'transform 0.3s ease',
+              },
+              '&:hover .MuiButton-endIcon': {
+                transform: 'translateX(4px)',
+              },
             }}
           >
             今すぐ始める
@@ -892,11 +894,10 @@ function BottomCTASection() {
                   display: 'flex',
                   alignItems: 'center',
                   gap: 0.5,
-                  color: 'rgba(255, 255, 255, 0.9)',
-                  fontSize: '0.875rem',
+                  color: '#6b7280',
                 }}
               >
-                <CheckCircleIcon sx={{ fontSize: '1rem', opacity: 0.8 }} />
+                <CheckCircleIcon sx={{ fontSize: '1rem', color: '#3b82f6' }} />
                 <Typography sx={{ fontSize: '0.875rem', fontWeight: 500 }}>
                   {feature}
                 </Typography>
