@@ -23,7 +23,7 @@ import {
 import Link from 'next/link';
 
 const HEADER_HEIGHT = 80;
-const CONTAINER_MAX_WIDTH = '980px';
+const CONTAINER_MAX_WIDTH = '960px';
 
 const ANIMATION_DELAYS = {
   TITLE_START: 300,
@@ -545,7 +545,7 @@ function HowItWorksSection() {
     >
       <Container maxWidth={false} sx={{ maxWidth: CONTAINER_MAX_WIDTH }}>
         <Typography variant="h2" sx={{ ...sectionTitleStyles, ...fadeInStyles(isTitleVisible) }}>
-          How to use Choiceru
+          How To Use
         </Typography>
         <Typography
           variant="body1"
@@ -556,7 +556,7 @@ function HowItWorksSection() {
             ...fadeInStyles(isSubtitleVisible),
           }}
         >
-          チョイスルの使い方
+          利用方法
         </Typography>
 
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: { xs: 8, md: 12 } }}>

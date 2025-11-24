@@ -12,10 +12,9 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { LAYOUT_CONSTANTS } from '@/config/constants';
 import NavigationLinks from './NavigationLinks';
-import NavigationLinksHome from './NavigationLinksHome';
 
 const HEADER_HEIGHT = 80;
-const CONTAINER_MAX_WIDTH = '980px';
+const CONTAINER_MAX_WIDTH = '960px';
 
 // スクロール位置を監視するカスタムフック
 const useScrollPosition = (callback: (scrollY: number) => void) => {
@@ -169,16 +168,13 @@ export default function Header({ isHeaderVisible: propIsHeaderVisible }: HeaderP
           </Link>
 
           {/* ナビゲーション */}
-          {isHomePage ? (
-            <NavigationLinksHome
-              textColor={navTextColor}
-              opacity={navOpacity}
-              onHowToUseClick={handleScrollToHowItWorks}
-              onFaqClick={handleScrollToFaq}
-            />
-          ) : (
-            <NavigationLinks textColor={navTextColor} />
-          )}
+          <NavigationLinks
+            textColor={navTextColor}
+            opacity={navOpacity}
+            onHowToUseClick={isHomePage ? handleScrollToHowItWorks : undefined}
+            onFaqClick={isHomePage ? handleScrollToFaq : undefined}
+            isHomePage={isHomePage}
+          />
         </Toolbar>
       </Container>
     </AppBar>
