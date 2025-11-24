@@ -79,6 +79,40 @@ export default function Footer() {
             justifyContent={isMobile ? 'center' : 'flex-end'}
             flexWrap="nowrap"
           >
+            {/* SERVICE */}
+            <Box textAlign={isMobile ? 'center' : 'left'}>
+              <Typography
+                variant="subtitle1"
+                fontWeight="600"
+                sx={{
+                  color: 'white',
+                  mb: 2,
+                  fontSize: '1rem',
+                }}
+              >
+                SERVICE
+              </Typography>
+              <Box display="flex" flexDirection="column" gap={1.5}>
+                <Link
+                  href="http://localhost:3000/polls/create"
+                  sx={{
+                    color: 'rgba(255, 255, 255, 0.7)',
+                    textDecoration: 'none',
+                    fontWeight: 500,
+                    fontSize: '0.85rem',
+                    transition: 'all 0.2s ease',
+                    justifyContent: isMobile ? 'center' : 'flex-start',
+                    '&:hover': {
+                      color: 'white',
+                      textDecoration: 'underline',
+                    },
+                  }}
+                >
+                  投票を作成
+                </Link>
+              </Box>
+            </Box>
+
             {/* ABOUT */}
             <Box textAlign={isMobile ? 'center' : 'left'}>
               <Typography

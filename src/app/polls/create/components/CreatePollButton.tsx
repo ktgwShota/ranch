@@ -37,7 +37,7 @@ export function CreatePollButton({
           作成中...
         </Box>
       ) : (
-        'ページを作成'
+        '投票を作成'
       )}
     </Button>
   );
