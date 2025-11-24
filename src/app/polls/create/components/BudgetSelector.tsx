@@ -12,7 +12,7 @@ export function BudgetSelector({
   const budgetOptions = option.budgetOptions || [];
 
   return (
-    <Box sx={{ mb: 3 }}>
+    <Box sx={{ mb: 2 }}>
       <Box>
         <Typography
           variant="body1"
