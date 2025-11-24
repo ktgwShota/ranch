@@ -14,6 +14,11 @@ import {
 import {
   ExpandMore as ExpandMoreIcon,
   KeyboardArrowDown as KeyboardArrowDownIcon,
+  ArrowForward as ArrowForwardIcon,
+  CheckCircle as CheckCircleIcon,
+  Create as CreateIcon,
+  Share as ShareIcon,
+  Restaurant as RestaurantIcon,
 } from '@mui/icons-material';
 import Link from 'next/link';
 
@@ -41,6 +46,7 @@ type StepData = {
   description: string;
   imageSrc: string;
   imageAlt: string;
+  icon: React.ReactNode;
 };
 
 type FAQItem = {
@@ -303,6 +309,8 @@ function HeroSection({
               : 'translateY(50px) scale(0.9)',
             transition: 'opacity 0.6s ease, transform 0.6s ease',
             minHeight: { xs: '3.6rem', md: '4.32rem' },
+            display: 'inline-flex',
+            alignItems: 'center',
           }}
         >
           {displayedText}
@@ -315,7 +323,6 @@ function HeroSection({
                 height: { xs: '2.5rem', md: '3rem' },
                 backgroundColor: 'white',
                 marginLeft: '2px',
-                verticalAlign: 'bottom',
               }}
             />
           )}
@@ -461,17 +468,19 @@ const StepItem = React.forwardRef<
         >
           {step.step}
         </Typography>
-        <Typography
-          variant="h4"
-          sx={{
-            fontWeight: 700,
-            color: '#1f2937',
-            mb: 2,
-            fontSize: '1.75rem',
-          }}
-        >
-          {step.title}
-        </Typography>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 2 }}>
+          {step.icon}
+          <Typography
+            variant="h4"
+            sx={{
+              fontWeight: 700,
+              color: '#1f2937',
+              fontSize: '1.75rem',
+            }}
+          >
+            {step.title}
+          </Typography>
+        </Box>
         <Typography
           variant="body1"
           sx={{ color: '#6b7280', lineHeight: 1.7, fontSize: '1.125rem' }}
@@ -511,10 +520,11 @@ StepItem.displayName = 'StepItem';
 const STEPS: StepData[] = [
   {
     step: 'ステップ1',
-    title: '投票を作成',
-    description: '候補となる店舗の URL を入力して投票を作成しましょう。店舗名や画像は自動的に入力されます。',
+    title: '投票作成',
+    description: '候補となる店舗の URL を入力して投票作成しましょう。店舗名や画像は自動的に入力されます。',
     imageSrc: 'https://placehold.co/440x600/fed7aa/ffffff?text=Step+1',
     imageAlt: '投票作成画面',
+    icon: <CreateIcon sx={{ fontSize: '1.5rem', color: '#3b82f6' }} />,
   },
   {
     step: 'ステップ2',
@@ -522,6 +532,7 @@ const STEPS: StepData[] = [
     description: '作成した投票ページを LINE や Slack などの SNS で共有して、参加者の投票が終わるまで待ちます。',
     imageSrc: 'https://placehold.co/440x600/ccfbf1/ffffff?text=Step+2',
     imageAlt: '投票ページ共有画面',
+    icon: <ShareIcon sx={{ fontSize: '1.5rem', color: '#3b82f6' }} />,
   },
   {
     step: 'ステップ3',
@@ -529,6 +540,7 @@ const STEPS: StepData[] = [
     description: '投票受付時間に達すると投票結果が公開されます。',
     imageSrc: 'https://placehold.co/440x600/ccfbf1/ffffff?text=Step+3',
     imageAlt: '投票結果画面',
+    icon: <RestaurantIcon sx={{ fontSize: '1.5rem', color: '#3b82f6' }} />,
   },
 ];
 
@@ -759,7 +771,9 @@ function BottomCTASection() {
       sx={{
         position: 'relative',
         backgroundColor: 'white',
-        pt: 6,
+        pt: { xs: 10, md: 14 },
+        pb: { xs: 10, md: 14 },
+        overflow: 'hidden',
         '&::before': {
           content: '""',
           position: 'absolute',
@@ -767,69 +781,128 @@ function BottomCTASection() {
           left: 0,
           right: 0,
           bottom: 0,
-          background: 'linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%)',
+          background: 'linear-gradient(135deg, #1e40af 0%, #3b82f6 40%, #60a5fa 70%, #93c5fd 100%)',
           opacity: isBackgroundVisible ? 1 : 0,
           transition: 'opacity 1.2s ease',
           zIndex: 0,
         },
+        '&::after': {
+          content: '""',
+          position: 'absolute',
+          top: '-30%',
+          left: '-10%',
+          width: '800px',
+          height: '800px',
+          borderRadius: '50%',
+          background: 'radial-gradient(circle, rgba(59, 130, 246, 0.4) 0%, rgba(59, 130, 246, 0.1) 50%, transparent 100%)',
+          filter: 'blur(100px)',
+          zIndex: 1,
+          opacity: isBackgroundVisible ? 1 : 0,
+          transition: 'opacity 1.2s ease 0.3s',
+        },
       }}
     >
-      <Container maxWidth={false} sx={{ maxWidth: CONTAINER_MAX_WIDTH, position: 'relative', zIndex: 1 }}>
-        <Box sx={{ textAlign: 'center' }}>
+      <Box
+        sx={{
+          position: 'absolute',
+          bottom: '-20%',
+          right: '10%',
+          width: '600px',
+          height: '600px',
+          borderRadius: '50%',
+          background: 'radial-gradient(circle, rgba(96, 165, 250, 0.3) 0%, rgba(96, 165, 250, 0.05) 50%, transparent 100%)',
+          filter: 'blur(120px)',
+          zIndex: 1,
+          opacity: isBackgroundVisible ? 1 : 0,
+          transition: 'opacity 1.2s ease 0.5s',
+        }}
+      />
+      <Container maxWidth={false} sx={{ maxWidth: CONTAINER_MAX_WIDTH, position: 'relative', zIndex: 2 }}>
+        <Box sx={{ textAlign: 'center', position: 'relative' }}>
           <Typography
             variant="h2"
             sx={{
-              fontSize: '1.75rem',
+              fontSize: { xs: '1.75rem', md: '2.25rem' },
               fontWeight: 700,
               color: 'white',
               mb: 3,
+              lineHeight: 1.2,
+              textShadow: '0 2px 8px rgba(0, 0, 0, 0.3), 0 0 20px rgba(96, 165, 250, 0.3)',
               opacity: isTitleVisible ? 1 : 0,
               transform: isTitleVisible ? 'translateY(0) scale(1)' : 'translateY(30px) scale(0.95)',
-              transition: 'opacity 0.8s ease, transform 0.8s ease',
+              transition: 'opacity 0.8s ease 0.1s, transform 0.8s ease 0.1s',
             }}
           >
             意思決定 = ストレスフリー
           </Typography>
+
           <Typography
             variant="body1"
             sx={{
-              fontSize: '1.125rem',
-              color: 'rgba(255, 255, 255, 0.9)',
-              maxWidth: '800px',
+              fontSize: { xs: '1rem', md: '1.125rem' },
+              color: 'rgba(255, 255, 255, 0.95)',
+              maxWidth: '700px',
               mx: 'auto',
-              lineHeight: 1.6,
+              lineHeight: 1.7,
+              mb: 4,
+              textShadow: '0 1px 4px rgba(0, 0, 0, 0.25), 0 0 12px rgba(96, 165, 250, 0.2)',
               opacity: isDescriptionVisible ? 1 : 0,
               transform: isDescriptionVisible ? 'translateY(0)' : 'translateY(20px)',
-              transition: 'opacity 0.7s ease 0.2s, transform 0.7s ease 0.2s',
+              transition: 'opacity 0.7s ease 0.3s, transform 0.7s ease 0.3s',
             }}
           >
-            テストテキストテストテキストテストテキスト<br />
-            『簡単3ステップ』で全員が納得するお店を決めましょう！
+            店決めに悩む時間を、もっと大切なことに使えます。
+            <br />
+            『簡単3ステップ』で全員が納得するお店を決めましょう。
+
           </Typography>
           <Button
             component={Link}
             href="/polls/create"
             variant="contained"
+            endIcon={<KeyboardArrowDownIcon />}
             sx={{
               backgroundColor: 'white',
               color: '#3b82f6',
-              opacity: isButtonVisible ? 1 : 0,
-              transform: isButtonVisible ? 'translateY(0) scale(1)' : 'translateY(15px) scale(0.95)',
-              transition: 'opacity 0.6s ease 0.4s, transform 0.6s ease 0.4s',
-              borderRadius: '8px',
-              mt: 3,
-              mb: 4,
+              borderRadius: '12px',
               px: 2,
               py: 1.5,
               fontSize: '15px',
-              textTransform: 'none',
               boxShadow: 'none',
               fontWeight: 600,
-              '&:hover': { backgroundColor: '#f3f4f6' },
             }}
           >
-            無料で始める
+            今すぐ始める
           </Button>
+
+          <Box
+            sx={{
+              display: 'flex',
+              justifyContent: 'center',
+              gap: 3,
+              mt: 4,
+              opacity: isButtonVisible ? 1 : 0,
+              transition: 'opacity 0.6s ease 0.7s',
+            }}
+          >
+            {['完全無料', 'アカウント不要'].map((feature, index) => (
+              <Box
+                key={index}
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 0.5,
+                  color: 'rgba(255, 255, 255, 0.9)',
+                  fontSize: '0.875rem',
+                }}
+              >
+                <CheckCircleIcon sx={{ fontSize: '1rem', opacity: 0.8 }} />
+                <Typography sx={{ fontSize: '0.875rem', fontWeight: 500 }}>
+                  {feature}
+                </Typography>
+              </Box>
+            ))}
+          </Box>
         </Box>
       </Container>
     </Box>
