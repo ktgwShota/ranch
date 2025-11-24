@@ -69,12 +69,12 @@ export function OptionCard({
         const responseData = await response.json().catch(() => null);
         if (!responseData) return;
 
-        const data = responseData as {
+        const data: {
           title?: string;
           budgetMin?: string;
           budgetMax?: string;
           budgetOptions?: Array<{ label: string; min: string; max: string }>;
-        };
+        } = responseData;
 
         const updates: Partial<PollOption> = {};
 

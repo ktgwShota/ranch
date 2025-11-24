@@ -112,7 +112,7 @@ export default function NavigationLinks({
       ) : (
         <Link
           href="/#hot-to-use"
-          style={{ textDecoration: 'none' } as React.CSSProperties}
+          style={{ textDecoration: 'none' }}
         >
           <Typography sx={howToUseLinkStyle}>利用方法</Typography>
         </Link>
@@ -134,7 +134,7 @@ export default function NavigationLinks({
       ) : (
         <Link
           href="/#faq"
-          style={{ textDecoration: 'none' } as React.CSSProperties}
+          style={{ textDecoration: 'none' }}
         >
           <Typography sx={faqLinkStyle}>よくある質問</Typography>
         </Link>

@@ -81,7 +81,7 @@ export function VoterNameDialog({
           });
 
           if (!response.ok) {
-            const errorData = (await response.json().catch(() => ({}))) as { error?: string };
+            const errorData: { error?: string } = await response.json().catch(() => ({}));
             throw new Error(errorData.error || '名前の更新に失敗しました');
           }
         } catch (e) {

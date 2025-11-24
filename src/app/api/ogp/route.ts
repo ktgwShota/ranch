@@ -131,10 +131,11 @@ async function fetchOGPData(url: string) {
       const content = match[2];
       // 既に存在する場合は配列に変換
       if (allMetaTags[property]) {
-        if (Array.isArray(allMetaTags[property])) {
-          (allMetaTags[property] as string[]).push(content);
+        const existingValue = allMetaTags[property];
+        if (Array.isArray(existingValue)) {
+          existingValue.push(content);
         } else {
-          allMetaTags[property] = [allMetaTags[property] as string, content];
+          allMetaTags[property] = [existingValue, content];
         }
       } else {
         allMetaTags[property] = content;
@@ -357,7 +358,7 @@ export async function POST(request: NextRequest) {
   console.log('OGP API called');
   let url: string | null = null;
   try {
-    const body = (await request.json()) as { url?: string };
+    const body: { url?: string } = await request.json();
     url = body.url || null;
     console.log('Request URL:', url);
 

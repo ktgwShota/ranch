@@ -1,16 +1,14 @@
 import { getCloudflareContext } from '@opennextjs/cloudflare';
-import { votePoll } from '../../../../../services/db/poll';
+import { createContact } from '../../../services/db/contact';
+import { contactSchema } from '@/lib/schemas/contact';
 
-export async function POST(req: Request, context: { params: Promise<{ id: string }> }) {
+export async function POST(req: Request) {
   try {
-    const params = await context.params;
-
-    // @opennextjs/cloudflareが提供するgetCloudflareContext()を使用
+    // Cloudflare contextを取得
     let env: { DB: D1Database };
     try {
-      const cloudflareContext = getCloudflareContext();
-      env = cloudflareContext.env;
-      console.log('Environment retrieved for POST votes:', !!env?.DB);
+      const context = getCloudflareContext();
+      env = context.env;
     } catch (contextError) {
       console.error('Error getting Cloudflare context:', contextError);
       return new Response(
@@ -26,7 +24,6 @@ export async function POST(req: Request, context: { params: Promise<{ id: string
     }
 
     if (!env || !env.DB) {
-      console.error('DB not found in context');
       return new Response(
         JSON.stringify({
           error: 'DB not found in context',
@@ -38,17 +35,17 @@ export async function POST(req: Request, context: { params: Promise<{ id: string
       );
     }
 
-    const body: {
-      optionId?: number;
-      voterId?: string;
-      voterName?: string;
-    } = await req.json();
-    const { optionId, voterId, voterName } = body;
+    const body = await req.json();
 
-    if (!optionId || !voterId || !voterName) {
+    // Zodスキーマでバリデーション
+    const validationResult = contactSchema.safeParse(body);
+
+    if (!validationResult.success) {
+      const firstError = validationResult.error.issues[0];
       return new Response(
         JSON.stringify({
-          error: 'optionId, voterId, and voterName are required',
+          error: firstError?.message || 'バリデーションエラー',
+          details: validationResult.error.issues,
         }),
         {
           status: 400,
@@ -57,12 +54,13 @@ export async function POST(req: Request, context: { params: Promise<{ id: string
       );
     }
 
-    const result = await votePoll(
+    // バリデーション済みデータを使用
+    const result = await createContact(
       {
-        pollId: params.id,
-        optionId,
-        voterId,
-        voterName,
+        name: validationResult.data.name.trim(),
+        email: validationResult.data.email.trim(),
+        subject: validationResult.data.subject.trim(),
+        message: validationResult.data.message.trim(),
       },
       env
     );
@@ -70,10 +68,10 @@ export async function POST(req: Request, context: { params: Promise<{ id: string
     if (!result.success) {
       return new Response(
         JSON.stringify({
-          error: result.error || 'Failed to vote',
+          error: result.error || 'Failed to create contact',
         }),
         {
-          status: result.error === 'Option not found' ? 404 : 400,
+          status: 500,
           headers: { 'Content-Type': 'application/json' },
         }
       );
@@ -82,14 +80,14 @@ export async function POST(req: Request, context: { params: Promise<{ id: string
     return new Response(
       JSON.stringify({
         success: true,
-        data: result.data,
+        contact: result.data,
       }),
       {
         headers: { 'Content-Type': 'application/json' },
       }
     );
   } catch (error) {
-    console.error('Error in POST /api/polls/[id]/votes:', error);
+    console.error('Error in POST /api/contact:', error);
     return new Response(
       JSON.stringify({
         error: error instanceof Error ? error.message : 'Unknown error',
@@ -101,3 +99,4 @@ export async function POST(req: Request, context: { params: Promise<{ id: string
     );
   }
 }
+

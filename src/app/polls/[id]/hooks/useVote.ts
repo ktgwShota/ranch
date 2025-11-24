@@ -119,7 +119,7 @@ export function useVote(
     try {
       const response = await fetch(`/api/polls/${poll.id}`);
       if (response.ok) {
-        const updatedPoll = (await response.json()) as Poll;
+        const updatedPoll: Poll = await response.json();
         setPoll(updatedPoll);
       }
     } catch (error) {

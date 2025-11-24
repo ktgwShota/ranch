@@ -37,7 +37,7 @@ export function VotingDeadline({
           fontWeight: 600,
         }}
       >
-        投票締切日時 <span style={{ color: '#f44336' } as React.CSSProperties}>*</span>
+        投票締切日時 <span style={{ color: '#f44336' }}>*</span>
       </Typography>
       <Box display="flex" flexDirection="column" gap={3}>
         <Box display="flex" alignItems="center" gap={3} flexWrap="wrap">

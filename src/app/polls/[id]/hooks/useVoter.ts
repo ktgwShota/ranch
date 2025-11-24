@@ -17,7 +17,7 @@ export function useVoter(pollId: string) {
 
     if (storedInfo) {
       try {
-        const userInfo = JSON.parse(storedInfo) as Voter;
+        const userInfo: Voter = JSON.parse(storedInfo);
         setVoter(userInfo);
       } catch (error) {
         console.error('Error parsing stored user info:', error);

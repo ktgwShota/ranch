@@ -3,6 +3,7 @@
 import { Box, Container, Paper, Typography } from '@mui/material';
 import { LAYOUT_CONSTANTS } from '@/config/constants';
 import PageHeader from '@/app/components/PageHeader';
+import StyledList from '@/app/components/StyledList';
 
 export default function AboutPage() {
   return (
@@ -27,11 +28,8 @@ export default function AboutPage() {
             サービス概要
           </Typography>
           <Typography variant="body1" color="text.secondary" sx={{ mb: 2, lineHeight: 1.8 }}>
-            チョイスルは、ランチのお店選びに特化したログイン不要・無料で使用できる投票ツールです。
+            チョイスルは、飲み会や食事会のお店選びに特化したログイン不要・無料で使用できる投票ツールです。
             主要なグルメサイトに対応し、URLを貼るだけで写真付きのアンケートを簡単に作成・共有できます。
-          </Typography>
-          <Typography variant="body1" color="text.secondary" sx={{ lineHeight: 1.8 }}>
-            幹事の時間を大切にし、メンバー全員が納得できるお店選びをサポートします。
           </Typography>
         </Box>
 
@@ -42,18 +40,12 @@ export default function AboutPage() {
           >
             主な機能
           </Typography>
-          <Typography variant="body1" color="text.secondary" sx={{ mb: 1.5, lineHeight: 1.8 }}>
-            • グルメサイトのURLから自動で店舗情報を取得
-          </Typography>
-          <Typography variant="body1" color="text.secondary" sx={{ mb: 1.5, lineHeight: 1.8 }}>
-            • 写真付きの投票ページを簡単に作成
-          </Typography>
-          <Typography variant="body1" color="text.secondary" sx={{ mb: 1.5, lineHeight: 1.8 }}>
-            • ログイン不要で誰でも投票可能
-          </Typography>
-          <Typography variant="body1" color="text.secondary" sx={{ lineHeight: 1.8 }}>
-            • リアルタイムで投票結果を確認
-          </Typography>
+          <StyledList items={[
+            'グルメサイトのURLから自動で店舗情報を取得',
+            '写真付きの投票ページを簡単に作成',
+            'ログイン不要で誰でも投票可能',
+            'リアルタイムで投票結果を確認',
+          ]} />
         </Box>
 
         <Box sx={{ mb: 4 }}>
@@ -63,12 +55,7 @@ export default function AboutPage() {
           >
             対応グルメサイト
           </Typography>
-          <Typography variant="body1" color="text.secondary" sx={{ mb: 1.5, lineHeight: 1.8 }}>
-            • 食べログ
-          </Typography>
-          <Typography variant="body1" color="text.secondary" sx={{ lineHeight: 1.8 }}>
-            • ぐるなび
-          </Typography>
+          <StyledList items={['食べログ', 'ぐるなび']} />
         </Box>
       </Paper>
     </Container>

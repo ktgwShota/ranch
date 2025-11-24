@@ -40,23 +40,23 @@ export async function POST(req: Request) {
       );
     }
 
-    const body = (await req.json()) as {
-      title: string;
-      options:
-      | string[]
-      | Array<{
-        url: string;
-        title?: string;
-        description?: string;
-        image?: string;
-        budgetMin?: string;
-        budgetMax?: string;
-      }>;
+    const body: {
+      title?: string;
+      options?:
+        | string[]
+        | Array<{
+            url: string;
+            title?: string;
+            description?: string;
+            image?: string;
+            budgetMin?: string;
+            budgetMax?: string;
+          }>;
       duration?: number;
       endDate?: string | null;
       endTime?: string | null;
       createdBy?: string;
-    };
+    } = await req.json();
 
     if (!body.title || !body.options || body.options.length < 2) {
       return new Response(

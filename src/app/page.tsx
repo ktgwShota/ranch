@@ -396,8 +396,8 @@ const StepItem = React.forwardRef<
       if (ref) {
         if (typeof ref === 'function') {
           ref(node);
-        } else {
-          (ref as React.MutableRefObject<HTMLDivElement | null>).current = node;
+        } else if ('current' in ref) {
+          ref.current = node;
         }
       }
       stepRef.current = node;
@@ -658,7 +658,7 @@ function FAQSection() {
               key={idx}
               ref={(node) => {
                 if (idx === 1) {
-                  (secondItemRef as React.MutableRefObject<HTMLDivElement | null>).current = node;
+                  secondItemRef.current = node;
                 } else {
                   itemRefs.current[idx] = node;
                 }

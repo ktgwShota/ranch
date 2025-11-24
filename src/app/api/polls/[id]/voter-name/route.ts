@@ -38,7 +38,23 @@ export async function PUT(req: Request, context: { params: Promise<{ id: string 
       );
     }
 
-    const body = (await req.json()) as { voterId: string; voterName: string };
+    const body: {
+      voterId?: string;
+      voterName?: string;
+    } = await req.json();
+    
+    if (!body.voterId || !body.voterName) {
+      return new Response(
+        JSON.stringify({
+          error: 'voterId and voterName are required',
+        }),
+        {
+          status: 400,
+          headers: { 'Content-Type': 'application/json' },
+        }
+      );
+    }
+    
     const { voterId, voterName } = body;
 
     if (!voterId || !voterName) {

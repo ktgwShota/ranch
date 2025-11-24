@@ -156,7 +156,7 @@ export default function Index() {
         throw new Error('多数決の作成に失敗しました');
       }
 
-      const result = (await response.json()) as { poll?: { id: string } };
+      const result: { poll?: { id?: string } } = await response.json();
       console.log('投票作成レスポンス:', result);
 
       if (result.poll && result.poll.id) {
@@ -193,7 +193,7 @@ export default function Index() {
                 variant="h6"
                 sx={{ fontWeight: 600, color: 'text.primary', mb: 1 }}
               >
-                店舗情報 <span style={{ color: '#f44336' } as React.CSSProperties}>*</span>
+                店舗情報 <span style={{ color: '#f44336' }}>*</span>
               </Typography>
               <Typography variant="body1" color="text.secondary" sx={{ mb: 0.5 }}>
                 候補となるお店の情報を入力してください。
@@ -270,7 +270,7 @@ export default function Index() {
                         color: '#1976d2',
                         textDecoration: 'none',
                         paddingLeft: 4,
-                      } as React.CSSProperties
+                      }
                     }
                   >
                     利用規約

@@ -10,51 +10,48 @@ import {
   Typography,
 } from '@mui/material';
 import { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { LAYOUT_CONSTANTS } from '@/config/constants';
 import PageHeader from '@/app/components/PageHeader';
+import { contactSchema, type ContactFormData } from '@/lib/schemas/contact';
 
 export default function ContactPage() {
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [subject, setSubject] = useState('');
-  const [message, setMessage] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState<'success' | 'error' | null>(null);
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+    reset,
+    setError,
+  } = useForm<ContactFormData>({
+    resolver: zodResolver(contactSchema),
+  });
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSubmitting(true);
+  const onSubmit = async (data: ContactFormData) => {
     setSubmitStatus(null);
-
-    // バリデーション
-    if (!name.trim() || !email.trim() || !subject.trim() || !message.trim()) {
-      setSubmitStatus('error');
-      setIsSubmitting(false);
-      return;
-    }
-
-    // メールアドレスの簡易バリデーション
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      setSubmitStatus('error');
-      setIsSubmitting(false);
-      return;
-    }
-
     try {
-      // ここで実際のAPI呼び出しを行う
-      // 現在はモック実装
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      const response = await fetch('/api/contact', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      });
+
+      if (!response.ok) {
+        const errorData: { error?: string } = await response.json();
+        throw new Error(errorData.error || '送信に失敗しました');
+      }
 
       setSubmitStatus('success');
-      setName('');
-      setEmail('');
-      setSubject('');
-      setMessage('');
+      reset();
     } catch (error) {
+      console.error('Error submitting contact form:', error);
       setSubmitStatus('error');
-    } finally {
-      setIsSubmitting(false);
+      setError('root', {
+        message: error instanceof Error ? error.message : '送信に失敗しました',
+      });
     }
   };
 
@@ -72,19 +69,20 @@ export default function ContactPage() {
       >
         <PageHeader title="お問い合わせ" />
 
-        <Box component="form" onSubmit={handleSubmit}>
+        <Box component="form" onSubmit={handleSubmit(onSubmit)}>
           <Box sx={{ mb: 2.5 }}>
             <Typography
               variant="h6"
               sx={{ fontWeight: 600, color: 'text.primary', mb: 1 }}
             >
-              お名前 <span style={{ color: '#f44336' } as React.CSSProperties}>*</span>
+              お名前 <span style={{ color: '#f44336' }}>*</span>
             </Typography>
             <TextField
               fullWidth
               variant="outlined"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
+              {...register('name')}
+              error={!!errors.name}
+              helperText={errors.name?.message}
               placeholder="山田 太郎"
               sx={{
                 '& .MuiOutlinedInput-root': {
@@ -99,14 +97,15 @@ export default function ContactPage() {
               variant="h6"
               sx={{ fontWeight: 600, color: 'text.primary', mb: 1 }}
             >
-              メールアドレス <span style={{ color: '#f44336' } as React.CSSProperties}>*</span>
+              メールアドレス <span style={{ color: '#f44336' }}>*</span>
             </Typography>
             <TextField
               fullWidth
               type="email"
               variant="outlined"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              {...register('email')}
+              error={!!errors.email}
+              helperText={errors.email?.message}
               placeholder="example@email.com"
               sx={{
                 '& .MuiOutlinedInput-root': {
@@ -121,13 +120,14 @@ export default function ContactPage() {
               variant="h6"
               sx={{ fontWeight: 600, color: 'text.primary', mb: 1 }}
             >
-              件名 <span style={{ color: '#f44336' } as React.CSSProperties}>*</span>
+              件名 <span style={{ color: '#f44336' }}>*</span>
             </Typography>
             <TextField
               fullWidth
               variant="outlined"
-              value={subject}
-              onChange={(e) => setSubject(e.target.value)}
+              {...register('subject')}
+              error={!!errors.subject}
+              helperText={errors.subject?.message}
               placeholder="お問い合わせの件名"
               sx={{
                 '& .MuiOutlinedInput-root': {
@@ -142,15 +142,16 @@ export default function ContactPage() {
               variant="h6"
               sx={{ fontWeight: 600, color: 'text.primary', mb: 1 }}
             >
-              お問い合わせ内容 <span style={{ color: '#f44336' } as React.CSSProperties}>*</span>
+              お問い合わせ内容 <span style={{ color: '#f44336' }}>*</span>
             </Typography>
             <TextField
               fullWidth
               multiline
               rows={8}
               variant="outlined"
-              value={message}
-              onChange={(e) => setMessage(e.target.value)}
+              {...register('message')}
+              error={!!errors.message}
+              helperText={errors.message?.message}
               placeholder="お問い合わせ内容をご記入ください"
               sx={{
                 '& .MuiOutlinedInput-root': {
@@ -177,7 +178,7 @@ export default function ContactPage() {
             </Alert>
           )}
 
-          {submitStatus === 'error' && (
+          {(submitStatus === 'error' || errors.root) && (
             <Alert
               severity="error"
               sx={{
@@ -190,7 +191,7 @@ export default function ContactPage() {
                 },
               }}
             >
-              入力内容に誤りがあります。再度ご確認ください。
+              {errors.root?.message || '入力内容に誤りがあります。再度ご確認ください。'}
             </Alert>
           )}
 
@@ -198,7 +199,7 @@ export default function ContactPage() {
             <Button
               type="submit"
               variant="contained"
-              disabled={isSubmitting}
+              disabled={isSubmitting || submitStatus === 'success'}
               sx={{
                 backgroundColor: '#f97316',
                 color: '#fff',

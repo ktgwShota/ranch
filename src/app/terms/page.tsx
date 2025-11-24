@@ -3,6 +3,7 @@
 import { Box, Container, Paper, Typography } from '@mui/material';
 import { LAYOUT_CONSTANTS } from '@/config/constants';
 import PageHeader from '@/app/components/PageHeader';
+import StyledList from '@/app/components/StyledList';
 
 export default function TermsPage() {
   return (
@@ -55,21 +56,13 @@ export default function TermsPage() {
           <Typography variant="body1" color="text.secondary" sx={{ mb: 1.5, lineHeight: 1.8 }}>
             ユーザーは、当サービスの利用にあたり、以下の行為をしてはなりません。
           </Typography>
-          <Typography variant="body1" color="text.secondary" sx={{ mb: 1.5, lineHeight: 1.8 }}>
-            • 法令または公序良俗に違反する行為
-          </Typography>
-          <Typography variant="body1" color="text.secondary" sx={{ mb: 1.5, lineHeight: 1.8 }}>
-            • 犯罪行為に関連する行為
-          </Typography>
-          <Typography variant="body1" color="text.secondary" sx={{ mb: 1.5, lineHeight: 1.8 }}>
-            • 当サービスの内容等、当サービスに含まれる著作権、商標権ほか知的財産権を侵害する行為
-          </Typography>
-          <Typography variant="body1" color="text.secondary" sx={{ mb: 1.5, lineHeight: 1.8 }}>
-            • 当サービス、ほかのユーザー、またはその他第三者のサーバーまたはネットワークの機能を破壊したり、妨害したりする行為
-          </Typography>
-          <Typography variant="body1" color="text.secondary" sx={{ lineHeight: 1.8 }}>
-            • 当サービスによって得られた情報を商業的に利用する行為
-          </Typography>
+          <StyledList items={[
+            '法令または公序良俗に違反する行為',
+            '犯罪行為に関連する行為',
+            '当サービスの内容等、当サービスに含まれる著作権、商標権ほか知的財産権を侵害する行為',
+            '当サービス、ほかのユーザー、またはその他第三者のサーバーまたはネットワークの機能を破壊したり、妨害したりする行為',
+            '当サービスによって得られた情報を商業的に利用する行為',
+          ]} />
         </Box>
 
         <Box sx={{ mb: 4 }}>
@@ -82,15 +75,11 @@ export default function TermsPage() {
           <Typography variant="body1" color="text.secondary" sx={{ mb: 1.5, lineHeight: 1.8 }}>
             当サービスは、以下のいずれかの事由があると判断した場合、ユーザーに事前に通知することなく当サービスの全部または一部の提供を停止または中断することができるものとします。
           </Typography>
-          <Typography variant="body1" color="text.secondary" sx={{ mb: 1.5, lineHeight: 1.8 }}>
-            • 当サービスにかかるコンピュータシステムの保守点検または更新を行う場合
-          </Typography>
-          <Typography variant="body1" color="text.secondary" sx={{ mb: 1.5, lineHeight: 1.8 }}>
-            • 地震、落雷、火災、停電または天災などの不可抗力により、当サービスの提供が困難となった場合
-          </Typography>
-          <Typography variant="body1" color="text.secondary" sx={{ lineHeight: 1.8 }}>
-            • その他、当サービスが提供の停止または中断を必要と判断した場合
-          </Typography>
+          <StyledList items={[
+            '当サービスにかかるコンピュータシステムの保守点検または更新を行う場合',
+            '地震、落雷、火災、停電または天災などの不可抗力により、当サービスの提供が困難となった場合',
+            'その他、当サービスが提供の停止または中断を必要と判断した場合',
+          ]} />
         </Box>
 
         <Box sx={{ mb: 4 }}>

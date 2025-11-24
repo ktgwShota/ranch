@@ -71,7 +71,7 @@ export function OGPPreview({ url, size = 'small', onDataLoaded }: OGPPreviewProp
         }));
 
         // エラー時でもデータを設定してカードを表示
-        const data = responseData as OGPData;
+        const data: OGPData = responseData;
         console.log('🔍 OGP Preview - Full data received:', JSON.stringify(data, null, 2));
         setOgpData(data);
         onDataLoadedRef.current?.(data);

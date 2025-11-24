@@ -150,7 +150,7 @@ export default function Header({ isHeaderVisible: propIsHeaderVisible }: HeaderP
           {/* ロゴとタイトル */}
           <Link
             href="/"
-            style={{ textDecoration: 'none', color: 'inherit' } as React.CSSProperties}
+            style={{ textDecoration: 'none', color: 'inherit' }}
           >
             <Typography
               variant="h6"
