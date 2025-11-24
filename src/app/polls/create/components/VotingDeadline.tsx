@@ -32,14 +32,22 @@ export function VotingDeadline({
       <Typography
         variant="h6"
         sx={{
-          mb: 1.5,
+          mb: 1,
           color: 'text.primary',
           fontWeight: 600,
+          fontSize: '1rem',
         }}
       >
         投票締切日時 <span style={{ color: '#f44336' }}>*</span>
       </Typography>
-      <Box display="flex" flexDirection="column" gap={3}>
+
+      <Typography
+        variant="body1"
+        color="text.secondary"
+        sx={{ mb: 2, fontSize: '0.875rem' }}
+      >
+        指定日時に投票結果が自動的に公開されます。
+      </Typography>      <Box display="flex" flexDirection="column" gap={3}>
         <Box display="flex" alignItems="center" gap={3} flexWrap="wrap">
           <TextField
             type="date"
@@ -55,6 +63,7 @@ export function VotingDeadline({
               '& .MuiOutlinedInput-root': {
                 borderRadius: 0.5,
                 backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                fontSize: '1rem',
                 '&:hover .MuiOutlinedInput-notchedOutline': {
                   borderColor: '#667eea',
                   borderWidth: 2,
@@ -76,6 +85,7 @@ export function VotingDeadline({
               '& .MuiOutlinedInput-root': {
                 borderRadius: 0.5,
                 backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                fontSize: '1rem',
                 '&:hover .MuiOutlinedInput-notchedOutline': {
                   borderColor: '#667eea',
                   borderWidth: 2,
@@ -91,12 +101,6 @@ export function VotingDeadline({
             }}
           />
         </Box>
-        <Typography
-          variant="body1"
-          color="text.secondary"
-        >
-          指定日時に投票結果が自動的に公開されます。
-        </Typography>
       </Box>
     </Box>
   );

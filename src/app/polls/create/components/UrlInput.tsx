@@ -55,6 +55,10 @@ export function UrlInput({
         '& .MuiOutlinedInput-root': {
           paddingRight: 0,
           borderRadius: 0.5,
+          fontSize: '0.875rem',
+        },
+        '& .MuiInputBase-input::placeholder': {
+          fontSize: '0.875rem',
         },
         backgroundColor: '#fafafa',
       }}

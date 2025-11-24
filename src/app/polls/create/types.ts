@@ -1,6 +1,7 @@
 export interface PollOption {
   id: number;
   url: string;
+  title?: string;
   budget?: string;
   budgetMin?: string;
   budgetMax?: string;

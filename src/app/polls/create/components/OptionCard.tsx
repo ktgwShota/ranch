@@ -7,6 +7,7 @@ import { PollOption } from '../types';
 import { UrlInput } from './UrlInput';
 import { BudgetSelector } from './BudgetSelector';
 import { DescriptionInput } from './DescriptionInput';
+import { TitleDisplay } from './TitleDisplay';
 import { validateUrl } from '@/utils/url';
 
 export function OptionCard({
@@ -38,7 +39,10 @@ export function OptionCard({
     // URLが空、またはバリデーションエラーがある場合は取得しない
     if (!option.url.trim() || validateUrl(option.url) !== null) {
       const updates: Partial<PollOption> = {};
-      // URLが空になった場合は、budgetOptionsをクリア
+      // URLが空になった場合は、タイトルとbudgetOptionsをクリア
+      if (!option.url.trim() && optionRef.current.title) {
+        updates.title = undefined;
+      }
       if (optionRef.current.budgetOptions) {
         updates.budgetOptions = undefined;
         // ぐるなびのオプションから選択した予算もクリア
@@ -77,6 +81,11 @@ export function OptionCard({
         } = responseData;
 
         const updates: Partial<PollOption> = {};
+
+        // タイトルを更新（値が実際に変更された場合のみ）
+        if (data.title && data.title !== optionRef.current.title) {
+          updates.title = data.title;
+        }
 
         // budgetOptionsを更新（値が実際に変更された場合のみ）
         const budgetOptionsChanged = JSON.stringify(optionRef.current.budgetOptions) !== JSON.stringify(data.budgetOptions);
@@ -180,6 +189,11 @@ export function OptionCard({
       </Box>
 
       <Divider sx={{ my: 3, }} />
+
+      <TitleDisplay
+        value={option.title || ''}
+        onChange={(value) => onOptionChange({ title: value })}
+      />
 
       <BudgetSelector option={option} onOptionChange={onOptionChange} />
 

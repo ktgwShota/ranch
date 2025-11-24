@@ -45,10 +45,14 @@ export function CustomBudgetInput({
             '& .MuiOutlinedInput-root': {
               borderRadius: 0.5,
               backgroundColor: '#fafafa',
+              fontSize: '0.875rem',
+            },
+            '& .MuiInputBase-input::placeholder': {
+              fontSize: '0.875rem',
             },
           }}
         />
-        <Typography variant="body1" sx={{ color: 'text.secondary', px: 0.5 }}>
+        <Typography variant="body1" sx={{ color: 'text.secondary', px: 0.5, fontSize: '0.875rem' }}>
           〜
         </Typography>
         <TextField
@@ -81,10 +85,14 @@ export function CustomBudgetInput({
             '& .MuiOutlinedInput-root': {
               borderRadius: 0.5,
               backgroundColor: '#fafafa',
+              fontSize: '0.875rem',
+            },
+            '& .MuiInputBase-input::placeholder': {
+              fontSize: '0.875rem',
             },
           }}
         />
-        <Typography variant="body1" sx={{ color: 'text.secondary', ml: 0.5 }}>
+        <Typography variant="body1" sx={{ color: 'text.secondary', ml: 0.5, fontSize: '0.875rem' }}>
           円
         </Typography>
       </Box>

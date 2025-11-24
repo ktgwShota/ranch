@@ -75,11 +75,13 @@ export async function POST(req: Request) {
     const options = await Promise.all(
       body.options.map(async (opt) => {
         const url = typeof opt === 'string' ? opt : opt.url;
+        // フロントから送られたタイトルをそのまま使用（必須）
+        const title = typeof opt === 'string' ? url : (opt.title || url);
         const manualBudgetMin = typeof opt === 'string' ? undefined : opt.budgetMin;
         const manualBudgetMax = typeof opt === 'string' ? undefined : opt.budgetMax;
         const customDescription = typeof opt === 'string' ? undefined : opt.description;
 
-        // OGPデータを取得
+        // OGPデータを取得（画像と予算情報のみ使用、タイトルは使用しない）
         try {
           const ogpData = await fetchOGPData(url);
 
@@ -87,21 +89,9 @@ export async function POST(req: Request) {
           const budgetMin = manualBudgetMin || ogpData.budgetMin;
           const budgetMax = manualBudgetMax || ogpData.budgetMax;
 
-          if (ogpData.error) {
-            // エラーの場合でも、URLをタイトルとして保存
-            return {
-              url,
-              title: ogpData.title || url,
-              description: customDescription || undefined,
-              image: undefined,
-              budgetMin,
-              budgetMax,
-            };
-          }
-
           return {
             url,
-            title: ogpData.title || url,
+            title, // フロントから送られたタイトルをそのまま使用
             description: customDescription || undefined,
             image: ogpData.image || undefined,
             budgetMin,
@@ -109,10 +99,10 @@ export async function POST(req: Request) {
           };
         } catch (error) {
           console.error('Error fetching OGP data for URL:', url, error);
-          // エラー時はURLをタイトルとして保存
+          // エラー時もフロントから送られたタイトルをそのまま使用
           return {
             url,
-            title: url,
+            title, // フロントから送られたタイトルをそのまま使用
             description: customDescription || undefined,
             image: undefined,
             budgetMin: manualBudgetMin,

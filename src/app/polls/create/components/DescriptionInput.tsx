@@ -22,6 +22,7 @@ export function DescriptionInput({
             variant="body1"
             sx={{
               fontWeight: 600,
+              fontSize: '0.875rem',
             }}
           >
             備考
@@ -54,6 +55,10 @@ export function DescriptionInput({
             '& .MuiOutlinedInput-root': {
               borderRadius: 0.5,
               backgroundColor: '#fafafa',
+              fontSize: '0.875rem',
+            },
+            '& .MuiInputBase-input::placeholder': {
+              fontSize: '0.875rem',
             },
           }}
         />

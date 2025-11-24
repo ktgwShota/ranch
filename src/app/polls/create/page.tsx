@@ -104,6 +104,13 @@ export default function Index() {
       return;
     }
 
+    // 各選択肢のタイトルが必須
+    const hasEmptyTitles = validOptions.some((option) => !option.title || option.title.trim() === '');
+    if (hasEmptyTitles) {
+      setErrorMessage('すべての選択肢にタイトルを入力してください。');
+      return;
+    }
+
     // URLバリデーションエラーをチェック
     const hasInvalidUrls = validOptions.some((option) => {
       const validationError = validateUrl(option.url);
@@ -143,6 +150,7 @@ export default function Index() {
           title: pollTitle.trim(),
           options: validOptions.map((option) => ({
             url: option.url.trim(),
+            title: option.title?.trim() || '',
             budgetMin: option.budgetMin || undefined,
             budgetMax: option.budgetMax || undefined,
             description: option.description || undefined,
@@ -188,18 +196,18 @@ export default function Index() {
           <TitleInput title={pollTitle} onChange={setPollTitle} />
 
           <Box sx={{ position: 'relative' }}>
-            <Box mb={2.5}>
+            <Box mb={2}>
               <Typography
                 variant="h6"
-                sx={{ fontWeight: 600, color: 'text.primary', mb: 1 }}
+                sx={{ fontWeight: 600, color: 'text.primary', mb: 1, fontSize: '1rem' }}
               >
                 店舗情報 <span style={{ color: '#f44336' }}>*</span>
               </Typography>
-              <Typography variant="body1" color="text.secondary" sx={{ mb: 0.5 }}>
+              <Typography variant="body1" color="text.secondary" sx={{ mb: 0.5, fontSize: '0.875rem' }}>
                 候補となるお店の情報を入力してください。
               </Typography>
-              <Typography variant="body1" color="text.secondary">
-                <a href="https://tabelog.com/" target="_blank" rel="noopener noreferrer" style={{ color: '#1976d2', textDecoration: 'none' }}>食べログ</a> または <a href="https://www.gnavi.co.jp/" target="_blank" rel="noopener noreferrer" style={{ color: '#1976d2', textDecoration: 'none' }}>ぐるなび</a> で取得した URL の使用をすると予算が自動入力されます。
+              <Typography variant="body1" color="text.secondary" sx={{ fontSize: '0.875rem' }}>
+                <a href="https://tabelog.com/" target="_blank" rel="noopener noreferrer" style={{ color: '#1976d2', textDecoration: 'none' }}>食べログ</a> または <a href="https://www.gnavi.co.jp/" target="_blank" rel="noopener noreferrer" style={{ color: '#1976d2', textDecoration: 'none' }}>ぐるなび</a> で取得した URL の使用を入力するとタイトルと予算を自動取得します。
               </Typography>
             </Box>
 
@@ -261,7 +269,7 @@ export default function Index() {
                 <Typography
                   variant="body1"
                   color="text.secondary"
-                  sx={{ fontWeight: 500, position: 'relative', top: '0.5px' }}
+                  sx={{ fontWeight: 500, position: 'relative', top: '0.5px', fontSize: '0.875rem' }}
                 >
                   <a
                     href="/terms"

@@ -19,6 +19,7 @@ export function BudgetSelector({
           sx={{
             mb: 1.5,
             fontWeight: 600,
+            fontSize: '0.875rem',
           }}
         >
           予算

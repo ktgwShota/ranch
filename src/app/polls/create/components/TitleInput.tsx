@@ -12,7 +12,7 @@ export function TitleInput({
       <Typography
         variant="h6"
         gutterBottom
-        sx={{ fontWeight: 600, color: 'text.primary', mb: 1.5 }}
+        sx={{ fontWeight: 600, color: 'text.primary', mb: 1.5, fontSize: '1rem' }}
       >
         タイトル <span style={{ color: '#f44336' }}>*</span>
       </Typography>
@@ -27,6 +27,7 @@ export function TitleInput({
           '& .MuiOutlinedInput-root': {
             borderRadius: 0.5,
             backgroundColor: '#fafafa',
+            fontSize: '1rem',
             '&:hover .MuiOutlinedInput-notchedOutline': {
               borderColor: '#1976d2',
             },
@@ -34,6 +35,9 @@ export function TitleInput({
               borderColor: '#1976d2',
               borderWidth: 2,
             },
+          },
+          '& .MuiInputBase-input::placeholder': {
+            fontSize: '0.875rem',
           },
         }}
       />

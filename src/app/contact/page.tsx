@@ -70,92 +70,112 @@ export default function ContactPage() {
         <PageHeader title="お問い合わせ" />
 
         <Box component="form" onSubmit={handleSubmit(onSubmit)}>
-          <Box sx={{ mb: 2.5 }}>
-            <Typography
-              variant="h6"
-              sx={{ fontWeight: 600, color: 'text.primary', mb: 1 }}
-            >
-              お名前 <span style={{ color: '#f44336' }}>*</span>
-            </Typography>
+          <Box sx={{ mb: 3 }}>
             <TextField
               fullWidth
               variant="outlined"
+              label="お名前"
+              required
               {...register('name')}
               error={!!errors.name}
               helperText={errors.name?.message}
               placeholder="山田 太郎"
-              sx={{
-                '& .MuiOutlinedInput-root': {
-                  fontSize: '0.875rem',
+              InputLabelProps={{
+                shrink: true,
+                sx: {
+                  fontSize: '1rem',
+                  '& .MuiFormLabel-asterisk': {
+                    color: '#f44336',
+                  },
                 },
               }}
-            />
-          </Box>
-
-          <Box sx={{ mb: 2.5 }}>
-            <Typography
-              variant="h6"
-              sx={{ fontWeight: 600, color: 'text.primary', mb: 1 }}
-            >
-              メールアドレス <span style={{ color: '#f44336' }}>*</span>
-            </Typography>
-            <TextField
-              fullWidth
-              type="email"
-              variant="outlined"
-              {...register('email')}
-              error={!!errors.email}
-              helperText={errors.email?.message}
-              placeholder="example@email.com"
               sx={{
                 '& .MuiOutlinedInput-root': {
-                  fontSize: '0.875rem',
-                },
-              }}
-            />
-          </Box>
-
-          <Box sx={{ mb: 2.5 }}>
-            <Typography
-              variant="h6"
-              sx={{ fontWeight: 600, color: 'text.primary', mb: 1 }}
-            >
-              件名 <span style={{ color: '#f44336' }}>*</span>
-            </Typography>
-            <TextField
-              fullWidth
-              variant="outlined"
-              {...register('subject')}
-              error={!!errors.subject}
-              helperText={errors.subject?.message}
-              placeholder="お問い合わせの件名"
-              sx={{
-                '& .MuiOutlinedInput-root': {
-                  fontSize: '0.875rem',
+                  borderRadius: 0.5,
                 },
               }}
             />
           </Box>
 
           <Box sx={{ mb: 3 }}>
-            <Typography
-              variant="h6"
-              sx={{ fontWeight: 600, color: 'text.primary', mb: 1 }}
-            >
-              お問い合わせ内容 <span style={{ color: '#f44336' }}>*</span>
-            </Typography>
+            <TextField
+              fullWidth
+              type="email"
+              variant="outlined"
+              label="メールアドレス"
+              required
+              {...register('email')}
+              error={!!errors.email}
+              helperText={errors.email?.message}
+              placeholder="example@email.com"
+              InputLabelProps={{
+                shrink: true,
+                sx: {
+                  fontSize: '1rem',
+                  '& .MuiFormLabel-asterisk': {
+                    color: '#f44336',
+                  },
+                },
+              }}
+              sx={{
+                '& .MuiOutlinedInput-root': {
+                  borderRadius: 0.5,
+                },
+              }}
+            />
+          </Box>
+
+          <Box sx={{ mb: 3 }}>
+            <TextField
+              fullWidth
+              variant="outlined"
+              label="件名"
+              required
+              {...register('subject')}
+              error={!!errors.subject}
+              helperText={errors.subject?.message}
+              placeholder="お問い合わせの件名"
+              InputLabelProps={{
+                shrink: true,
+                sx: {
+                  fontSize: '1rem',
+                  '& .MuiFormLabel-asterisk': {
+                    color: '#f44336',
+                  },
+                },
+              }}
+              sx={{
+                '& .MuiOutlinedInput-root': {
+                  borderRadius: 0.5,
+                },
+              }}
+            />
+          </Box>
+
+          <Box sx={{ mb: 3 }}>
             <TextField
               fullWidth
               multiline
               rows={8}
               variant="outlined"
+              label="お問い合わせ内容"
+              required
               {...register('message')}
               error={!!errors.message}
               helperText={errors.message?.message}
               placeholder="お問い合わせ内容をご記入ください"
+              InputLabelProps={{
+                shrink: true,
+                sx: {
+                  fontSize: '1rem',
+                  '& .MuiFormLabel-asterisk': {
+                    color: '#f44336',
+                  },
+                },
+              }}
               sx={{
                 '& .MuiOutlinedInput-root': {
-                  fontSize: '0.875rem',
+                  borderRadius: 0.5,
                 },
               }}
             />
@@ -169,7 +189,6 @@ export default function ContactPage() {
                 border: '1px solid #c8e6c9',
                 backgroundColor: '#e8f5e9',
                 '& .MuiAlert-message': {
-                  fontSize: '0.875rem',
                   fontWeight: 500,
                 },
               }}
@@ -186,7 +205,6 @@ export default function ContactPage() {
                 border: '1px solid #ffebee',
                 backgroundColor: '#ffebee',
                 '& .MuiAlert-message': {
-                  fontSize: '0.875rem',
                   fontWeight: 500,
                 },
               }}
