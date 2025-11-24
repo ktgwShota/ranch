@@ -1,11 +1,16 @@
 import { Box, TextField } from '@mui/material';
+import { UseFormRegisterReturn } from 'react-hook-form';
 
 export function TitleDisplay({
   value,
   onChange,
+  register,
+  error,
 }: {
   value: string;
   onChange: (value: string) => void;
+  register: UseFormRegisterReturn;
+  error?: string;
 }) {
   return (
     <Box sx={{ mb: 3 }}>
@@ -14,9 +19,15 @@ export function TitleDisplay({
         variant="outlined"
         label="店名"
         required
+        {...register}
         value={value || ''}
-        onChange={(e) => onChange(e.target.value)}
+        onChange={(e) => {
+          register.onChange(e);
+          onChange(e.target.value);
+        }}
         placeholder="レストラン A"
+        error={!!error}
+        helperText={error}
         InputLabelProps={{
           shrink: true,
           sx: {

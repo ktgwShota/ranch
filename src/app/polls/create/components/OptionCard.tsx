@@ -3,6 +3,8 @@
 import { useEffect, useRef } from 'react';
 import { Delete as DeleteIcon } from '@mui/icons-material';
 import { Box, Divider, IconButton } from '@mui/material';
+import { Control, FieldErrors, UseFormRegister } from 'react-hook-form';
+import { PollFormData } from '@/lib/schemas/poll';
 import { PollOption } from '../types';
 import { UrlInput } from './UrlInput';
 import { BudgetSelector } from './BudgetSelector';
@@ -17,6 +19,9 @@ export function OptionCard({
   canRemove,
   onOptionChange,
   onRemove,
+  register,
+  control,
+  errors,
 }: {
   option: PollOption;
   index: number;
@@ -24,6 +29,9 @@ export function OptionCard({
   canRemove: boolean;
   onOptionChange: (updates: Partial<PollOption>) => void;
   onRemove: () => void;
+  register: UseFormRegister<PollFormData>;
+  control: Control<PollFormData>;
+  errors?: FieldErrors<PollFormData['options'][0]>;
 }) {
   const onOptionChangeRef = useRef(onOptionChange);
   const optionRef = useRef(option);
@@ -163,7 +171,8 @@ export function OptionCard({
           <UrlInput
             value={option.url}
             onChange={(value) => onOptionChange({ url: value })}
-            error={urlError}
+            error={urlError || errors?.url?.message}
+            register={register(`options.${index}.url`)}
           />
         </Box>
         {canRemove && (
@@ -193,13 +202,23 @@ export function OptionCard({
       <TitleDisplay
         value={option.title || ''}
         onChange={(value) => onOptionChange({ title: value })}
+        register={register(`options.${index}.title`)}
+        error={errors?.title?.message}
       />
 
-      <BudgetSelector option={option} onOptionChange={onOptionChange} />
+      <BudgetSelector
+        option={option}
+        onOptionChange={onOptionChange}
+        registerMin={register(`options.${index}.budgetMin`)}
+        registerMax={register(`options.${index}.budgetMax`)}
+        errors={errors}
+      />
 
       <DescriptionInput
         value={option.description || ''}
         onChange={(value) => onOptionChange({ description: value })}
+        register={register(`options.${index}.description`)}
+        error={errors?.description?.message}
       />
     </Box >
   );

@@ -1,13 +1,20 @@
-import { Box, Chip, Typography } from '@mui/material';
+import { Box, Chip } from '@mui/material';
+import { FieldErrors, UseFormRegisterReturn } from 'react-hook-form';
 import { PollOption } from '../types';
 import { CustomBudgetInput } from './CustomBudgetInput';
 
 export function BudgetSelector({
   option,
   onOptionChange,
+  registerMin,
+  registerMax,
+  errors,
 }: {
   option: PollOption;
   onOptionChange: (updates: Partial<PollOption>) => void;
+  registerMin: UseFormRegisterReturn;
+  registerMax: UseFormRegisterReturn;
+  errors?: FieldErrors<{ budgetMin?: string; budgetMax?: string }>;
 }) {
   const budgetOptions = option.budgetOptions || [];
 
@@ -63,6 +70,8 @@ export function BudgetSelector({
         budgetMax={option.budgetMax || ''}
         onBudgetMinChange={(value) => onOptionChange({ budgetMin: value })}
         onBudgetMaxChange={(value) => onOptionChange({ budgetMax: value })}
+        registerMin={registerMin}
+        registerMax={registerMax}
       />
     </Box>
   );

@@ -1,4 +1,6 @@
 import { Box, TextField, Typography } from '@mui/material';
+import { FieldErrors, UseFormRegister } from 'react-hook-form';
+import { PollFormData } from '@/lib/schemas/poll';
 
 export function VotingDeadline({
   endDate,
@@ -8,6 +10,8 @@ export function VotingDeadline({
   currentTimeString,
   onEndDateChange,
   onEndTimeChange,
+  register,
+  errors,
 }: {
   endDate: string;
   endTime: string;
@@ -16,6 +20,8 @@ export function VotingDeadline({
   currentTimeString: string;
   onEndDateChange: (value: string) => void;
   onEndTimeChange: (value: string) => void;
+  register: UseFormRegister<PollFormData>;
+  errors?: FieldErrors<PollFormData>;
 }) {
   return (
     <Box
@@ -51,13 +57,16 @@ export function VotingDeadline({
         <Box display="flex" alignItems="center" gap={3} flexWrap="wrap">
           <TextField
             type="date"
-            value={endDate}
-            onChange={(e) => {
-              onEndDateChange(e.target.value);
-              if (e.target.value === todayDate && endTime && endTime < currentTimeString) {
-                onEndTimeChange('');
-              }
-            }}
+            {...register('endDate', {
+              onChange: (e) => {
+                onEndDateChange(e.target.value);
+                if (e.target.value === todayDate && endTime && endTime < currentTimeString) {
+                  onEndTimeChange('');
+                }
+              },
+            })}
+            error={!!errors?.endDate}
+            helperText={errors?.endDate?.message}
             sx={{
               minWidth: 180,
               '& .MuiOutlinedInput-root': {
@@ -78,8 +87,11 @@ export function VotingDeadline({
           />
           <TextField
             type="time"
-            value={endTime}
-            onChange={(e) => onEndTimeChange(e.target.value)}
+            {...register('endTime', {
+              onChange: (e) => onEndTimeChange(e.target.value),
+            })}
+            error={!!errors?.endTime}
+            helperText={errors?.endTime?.message}
             sx={{
               minWidth: 150,
               '& .MuiOutlinedInput-root': {

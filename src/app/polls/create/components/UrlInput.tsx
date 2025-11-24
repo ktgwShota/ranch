@@ -1,14 +1,17 @@
 import { InputAdornment, TextField } from '@mui/material';
+import { UseFormRegisterReturn } from 'react-hook-form';
 import { getServiceLabel } from '../../../../utils/url';
 
 export function UrlInput({
   value,
   onChange,
   error,
+  register,
 }: {
   value: string;
   onChange: (value: string) => void;
   error?: string;
+  register: UseFormRegisterReturn;
 }) {
   return (
     <TextField
@@ -17,8 +20,12 @@ export function UrlInput({
       variant="outlined"
       label="URL"
       required
+      {...register}
       value={value}
-      onChange={(e) => onChange(e.target.value)}
+      onChange={(e) => {
+        register.onChange(e);
+        onChange(e.target.value);
+      }}
       placeholder="https://tabelog.com/tokyo/..."
       error={!!error}
       helperText={error || ''}

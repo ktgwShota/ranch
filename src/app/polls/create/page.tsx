@@ -7,12 +7,15 @@ import {
   Container,
   FormControlLabel,
   Paper,
+  TextField,
   Typography,
 } from '@mui/material';
-import { useState, useMemo } from 'react';
+import { useEffect, useState } from 'react';
+import { useForm, useFieldArray } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { pollSchema, type PollFormData } from '@/lib/schemas/poll';
 import { PollOption } from './types';
 import { validateUrl } from '../../../utils/url';
-import { TitleInput } from './components/TitleInput';
 import { OptionCard } from './components/OptionCard';
 import { AddOptionButton } from './components/AddOptionButton';
 import { VotingDeadline } from './components/VotingDeadline';
@@ -23,14 +26,6 @@ const MAX_OPTIONS = 6;
 const MIN_OPTIONS = 2;
 
 export default function Index() {
-  const [pollTitle, setPollTitle] = useState('');
-  const [pollOptions, setPollOptions] = useState<PollOption[]>([
-    { id: 1, url: '', showCustomBudget: false },
-    { id: 2, url: '', showCustomBudget: false },
-  ]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [errorMessage, setErrorMessage] = useState('');
-  const [hasAgreedToTerms, setHasAgreedToTerms] = useState(true);
   // 今日の日付を取得（YYYY-MM-DD形式）
   const todayDate = new Date().toISOString().split('T')[0];
   // 現在時刻を取得（HH:MM形式）
@@ -48,30 +43,78 @@ export default function Index() {
   oneMonthLater.setMonth(oneMonthLater.getMonth() + 1);
   const maxEndDate = oneMonthLater.toISOString().split('T')[0];
 
-  const [deadlineDate, setDeadlineDate] = useState<string>(defaultEndDate);
-  const [deadlineTime, setDeadlineTime] = useState<string>(defaultEndTime);
+  const {
+    register,
+    control,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+    watch,
+    setValue,
+    setError,
+    clearErrors,
+  } = useForm<PollFormData>({
+    resolver: zodResolver(pollSchema),
+    defaultValues: {
+      title: '',
+      options: [
+        { url: '', title: '', budgetMin: '', budgetMax: '', description: '' },
+        { url: '', title: '', budgetMin: '', budgetMax: '', description: '' },
+      ],
+      endDate: defaultEndDate,
+      endTime: defaultEndTime,
+      hasAgreedToTerms: false,
+    },
+  });
 
-  // URLエラーは計算可能な値なので derived state に
-  const optionUrlErrors = useMemo(() => {
-    const errors: { [key: number]: string } = {};
-    pollOptions.forEach((option) => {
-      if (option.url.trim()) {
-        const error = validateUrl(option.url);
-        if (error) {
-          errors[option.id] = error;
-        }
-      }
+  const { fields, append, remove } = useFieldArray({
+    control,
+    name: 'options',
+  });
+
+  const watchedOptions = watch('options');
+  const watchedEndDate = watch('endDate');
+  const watchedEndTime = watch('endTime');
+
+  // 内部状態としてPollOptionを管理（OGP取得などのロジック用）
+  const [pollOptions, setPollOptions] = useState<PollOption[]>([
+    { id: 1, url: '', showCustomBudget: false },
+    { id: 2, url: '', showCustomBudget: false },
+  ]);
+
+  // react-hook-formの値と内部状態を同期
+  useEffect(() => {
+    const formOptions = watchedOptions || [];
+    setPollOptions((prev: PollOption[]) => {
+      const newOptions = formOptions.map((formOption, index) => {
+        const existing = prev[index];
+        return {
+          id: existing?.id || Date.now() + index,
+          url: formOption.url || '',
+          title: formOption.title || '',
+          budgetMin: formOption.budgetMin || '',
+          budgetMax: formOption.budgetMax || '',
+          description: formOption.description || '',
+          showCustomBudget: existing?.showCustomBudget || false,
+          budgetOptions: existing?.budgetOptions,
+        };
+      });
+      return newOptions;
     });
-    return errors;
-  }, [pollOptions]);
+  }, [watchedOptions]);
 
   const handleAddOption = () => {
-    if (pollOptions.length < MAX_OPTIONS) {
-      const newOptionId = Date.now();
+    if (fields.length < MAX_OPTIONS) {
+      append({
+        url: '',
+        title: '',
+        budgetMin: '',
+        budgetMax: '',
+        description: '',
+      });
       setPollOptions([
         ...pollOptions,
         {
-          id: newOptionId,
+          id: Date.now(),
           url: '',
           budget: '',
           budgetMin: '',
@@ -83,80 +126,60 @@ export default function Index() {
     }
   };
 
-  const updateOption = (optionId: number, updates: Partial<PollOption>) => {
-    setPollOptions(
-      pollOptions.map((option) =>
-        option.id === optionId ? { ...option, ...updates } : option
-      )
-    );
-  };
-
-  const handleRemoveOption = (optionId: number) => {
-    if (pollOptions.length > MIN_OPTIONS) {
-      setPollOptions(pollOptions.filter((option) => option.id !== optionId));
+  const updateOption = (index: number, updates: Partial<PollOption>) => {
+    const option = pollOptions[index];
+    if (option) {
+      const updatedOption = { ...option, ...updates };
+      setPollOptions(
+        pollOptions.map((opt: PollOption, i: number) => (i === index ? updatedOption : opt))
+      );
+      // react-hook-formの値も更新
+      if (updates.url !== undefined) {
+        setValue(`options.${index}.url`, updates.url);
+      }
+      if (updates.title !== undefined) {
+        setValue(`options.${index}.title`, updates.title);
+      }
+      if (updates.budgetMin !== undefined) {
+        setValue(`options.${index}.budgetMin`, updates.budgetMin || '');
+      }
+      if (updates.budgetMax !== undefined) {
+        setValue(`options.${index}.budgetMax`, updates.budgetMax || '');
+      }
+      if (updates.description !== undefined) {
+        setValue(`options.${index}.description`, updates.description || '');
+      }
     }
   };
 
-  const handleCreatePoll = async () => {
-    const validOptions = pollOptions.filter((option) => option.url.trim() !== '');
-    if (pollTitle.trim() === '' || validOptions.length < MIN_OPTIONS) {
-      setErrorMessage('タイトルと最低2つの選択肢を入力してください。');
-      return;
+  const handleRemoveOption = (index: number) => {
+    if (fields.length > MIN_OPTIONS) {
+      remove(index);
+      setPollOptions(pollOptions.filter((_: PollOption, i: number) => i !== index));
     }
+  };
 
-    // 各選択肢のタイトルが必須
-    const hasEmptyTitles = validOptions.some((option) => !option.title || option.title.trim() === '');
-    if (hasEmptyTitles) {
-      setErrorMessage('すべての選択肢にタイトルを入力してください。');
-      return;
-    }
-
-    // URLバリデーションエラーをチェック
-    const hasInvalidUrls = validOptions.some((option) => {
-      const validationError = validateUrl(option.url);
-      return validationError !== null;
-    });
-
-    if (hasInvalidUrls) {
-      setErrorMessage('正しいURLを入力してください。');
-      return;
-    }
-
-    // 投票受付時間の必須チェック
-    if (!deadlineDate || !deadlineTime) {
-      setErrorMessage('投票受付時間を入力してください。');
-      return;
-    }
-
-    // 締切日時のバリデーション
-    const selectedDateTime = new Date(`${deadlineDate}T${deadlineTime}`);
-    const now = new Date();
-
-    if (selectedDateTime <= now) {
-      setErrorMessage('締切日時は現在時刻より後の日時を選択してください');
-      return;
-    }
-
-    setIsLoading(true);
-    setErrorMessage('');
-
+  const onSubmit = async (data: PollFormData) => {
     try {
+      // 空のURLを持つオプションを除外
+      const validOptions = data.options.filter((option) => option.url.trim() !== '');
+
       const response = await fetch('/api/polls', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          title: pollTitle.trim(),
+          title: data.title.trim(),
           options: validOptions.map((option) => ({
             url: option.url.trim(),
-            title: option.title?.trim() || '',
+            title: option.title.trim(),
             budgetMin: option.budgetMin || undefined,
             budgetMax: option.budgetMax || undefined,
             description: option.description || undefined,
           })),
-          endDate: deadlineDate,
-          endTime: deadlineTime,
+          endDate: data.endDate,
+          endTime: data.endTime,
         }),
       });
 
@@ -174,9 +197,9 @@ export default function Index() {
       }
     } catch (error) {
       console.error('Error creating poll:', error);
-      setErrorMessage('多数決の作成に失敗しました。もう一度お試しください。');
-    } finally {
-      setIsLoading(false);
+      setError('root', {
+        message: error instanceof Error ? error.message : '多数決の作成に失敗しました。もう一度お試しください。',
+      });
     }
   };
 
@@ -192,8 +215,44 @@ export default function Index() {
           backgroundColor: 'white',
         }}
       >
-        <Box component="form" onSubmit={(e) => e.preventDefault()} >
-          <TitleInput title={pollTitle} onChange={setPollTitle} />
+        <Box component="form" onSubmit={handleSubmit(onSubmit)}>
+          <Box>
+            <Typography
+              variant="h6"
+              gutterBottom
+              sx={{ fontWeight: 600, color: 'text.primary', mb: 1.5, fontSize: '1rem' }}
+            >
+              タイトル <span style={{ color: '#f44336' }}>*</span>
+            </Typography>
+            <TextField
+              fullWidth
+              placeholder="歓迎会のお店はどこがいい？"
+              value={watch('title')}
+              onChange={(e) => {
+                setValue('title', e.target.value);
+              }}
+              variant="outlined"
+              error={!!errors.title}
+              helperText={errors.title?.message}
+              sx={{
+                mb: 3,
+                '& .MuiOutlinedInput-root': {
+                  borderRadius: 0.5,
+                  fontSize: '1rem',
+                  '&:hover .MuiOutlinedInput-notchedOutline': {
+                    borderColor: '#1976d2',
+                  },
+                  '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                    borderColor: '#1976d2',
+                    borderWidth: 2,
+                  },
+                },
+                '& .MuiInputBase-input::placeholder': {
+                  fontSize: '0.875rem',
+                },
+              }}
+            />
+          </Box>
 
           <Box sx={{ position: 'relative' }}>
             <Box mb={2}>
@@ -211,34 +270,43 @@ export default function Index() {
               </Typography>
             </Box>
 
-            {pollOptions.map((option, index) => (
-              <OptionCard
-                key={option.id}
-                option={option}
-                index={index}
-                urlError={optionUrlErrors[option.id]}
-                canRemove={pollOptions.length > MIN_OPTIONS}
-                onOptionChange={(updates) => updateOption(option.id, updates)}
-                onRemove={() => handleRemoveOption(option.id)}
-              />
-            ))}
+            {fields.map((field, index) => {
+              const option = pollOptions[index];
+              const optionErrors = errors.options?.[index];
+              return (
+                <OptionCard
+                  key={field.id}
+                  option={option || { id: Date.now() + index, url: '', showCustomBudget: false }}
+                  index={index}
+                  urlError={optionErrors?.url?.message}
+                  canRemove={fields.length > MIN_OPTIONS}
+                  onOptionChange={(updates) => updateOption(index, updates)}
+                  onRemove={() => handleRemoveOption(index)}
+                  register={register}
+                  control={control}
+                  errors={optionErrors}
+                />
+              );
+            })}
 
-            {pollOptions.length < MAX_OPTIONS && <AddOptionButton onClick={handleAddOption} />}
+            {fields.length < MAX_OPTIONS && <AddOptionButton onClick={handleAddOption} />}
           </Box>
 
           <VotingDeadline
-            endDate={deadlineDate}
-            endTime={deadlineTime}
+            endDate={watchedEndDate || defaultEndDate}
+            endTime={watchedEndTime || defaultEndTime}
             todayDate={todayDate}
             maxDate={maxEndDate}
             currentTimeString={currentTimeString}
             onEndDateChange={(value) => {
-              setDeadlineDate(value);
-              if (value === todayDate && deadlineTime && deadlineTime < currentTimeString) {
-                setDeadlineTime('');
+              setValue('endDate', value);
+              if (value === todayDate && watchedEndTime && watchedEndTime < currentTimeString) {
+                setValue('endTime', '');
               }
             }}
-            onEndTimeChange={setDeadlineTime}
+            onEndTimeChange={(value) => setValue('endTime', value)}
+            register={register}
+            errors={errors}
           />
 
           <Box
@@ -256,8 +324,7 @@ export default function Index() {
             <FormControlLabel
               control={
                 <Checkbox
-                  checked={hasAgreedToTerms}
-                  onChange={(e) => setHasAgreedToTerms(e.target.checked)}
+                  {...register('hasAgreedToTerms')}
                   color="primary"
                   size="small"
                   sx={{
@@ -287,6 +354,11 @@ export default function Index() {
                 </Typography>
               }
             />
+            {errors.hasAgreedToTerms && (
+              <Typography variant="caption" color="error" sx={{ mt: 0.5, display: 'block' }}>
+                {errors.hasAgreedToTerms.message}
+              </Typography>
+            )}
           </Box>
 
           <Box
@@ -299,13 +371,15 @@ export default function Index() {
             }}
           />
 
-          <CreatePollButton
-            loading={isLoading}
-            disabled={isLoading || !hasAgreedToTerms}
-            onClick={handleCreatePoll}
-          />
+          <Box component="div">
+            <CreatePollButton
+              loading={isSubmitting}
+              disabled={isSubmitting || !watch('hasAgreedToTerms')}
+              onClick={handleSubmit(onSubmit)}
+            />
+          </Box>
 
-          {errorMessage && (
+          {errors.root && (
             <Alert
               severity="error"
               sx={{
@@ -319,7 +393,7 @@ export default function Index() {
                 },
               }}
             >
-              {errorMessage}
+              {errors.root.message}
             </Alert>
           )}
         </Box>

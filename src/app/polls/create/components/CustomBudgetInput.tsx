@@ -1,4 +1,5 @@
 import { Box, TextField, Typography } from '@mui/material';
+import { UseFormRegisterReturn } from 'react-hook-form';
 import { formatNumber, parseNumber } from '../../../../utils/budget';
 
 export function CustomBudgetInput({
@@ -6,11 +7,15 @@ export function CustomBudgetInput({
   budgetMax,
   onBudgetMinChange,
   onBudgetMaxChange,
+  registerMin,
+  registerMax,
 }: {
   budgetMin: string;
   budgetMax: string;
   onBudgetMinChange: (value: string) => void;
   onBudgetMaxChange: (value: string) => void;
+  registerMin: UseFormRegisterReturn;
+  registerMax: UseFormRegisterReturn;
 }) {
   return (
     <Box sx={{ mb: 3 }}>
@@ -21,12 +26,15 @@ export function CustomBudgetInput({
           placeholder="8,000"
           type="text"
           inputMode="numeric"
+          {...registerMin}
           value={budgetMin ? formatNumber(budgetMin) : ''}
           onChange={(e) => {
+            registerMin.onChange(e);
             const numericValue = parseNumber(e.target.value);
             onBudgetMinChange(numericValue);
           }}
           onBlur={(e) => {
+            registerMin.onBlur(e);
             const numericValue = parseNumber(e.target.value);
             if (numericValue) {
               onBudgetMinChange(numericValue);
@@ -69,12 +77,15 @@ export function CustomBudgetInput({
           placeholder="10,000"
           type="text"
           inputMode="numeric"
+          {...registerMax}
           value={budgetMax ? formatNumber(budgetMax) : ''}
           onChange={(e) => {
+            registerMax.onChange(e);
             const numericValue = parseNumber(e.target.value);
             onBudgetMaxChange(numericValue);
           }}
           onBlur={(e) => {
+            registerMax.onBlur(e);
             const numericValue = parseNumber(e.target.value);
             if (numericValue) {
               onBudgetMaxChange(numericValue);
