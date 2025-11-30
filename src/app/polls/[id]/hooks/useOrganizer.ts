@@ -5,7 +5,6 @@ export function useOrganizer(pollId: string | null, pollPassword: string | null)
   const [passwordDialogOpen, setPasswordDialogOpen] = useState(false);
   const [errorDialogOpen, setErrorDialogOpen] = useState(false);
 
-  // 主催者フラグをチェック
   useEffect(() => {
     if (pollId) {
       const organizerKey = `organizer_${pollId}`;
@@ -14,7 +13,6 @@ export function useOrganizer(pollId: string | null, pollPassword: string | null)
     }
   }, [pollId]);
 
-  // 主催者権限をチェックして、必要に応じてパスワードダイアログを表示
   const checkOrganizerAccess = (
     onAuthorized: () => void,
     onPasswordRequired?: () => void
@@ -34,7 +32,6 @@ export function useOrganizer(pollId: string | null, pollPassword: string | null)
       return;
     }
 
-    // カスタムのパスワードダイアログハンドラーがある場合はそれを使用、なければデフォルト
     if (onPasswordRequired) {
       onPasswordRequired();
     } else {
@@ -42,7 +39,6 @@ export function useOrganizer(pollId: string | null, pollPassword: string | null)
     }
   };
 
-  // パスワード検証
   const verifyPassword = async (password: string): Promise<void> => {
     if (!pollId) return;
 

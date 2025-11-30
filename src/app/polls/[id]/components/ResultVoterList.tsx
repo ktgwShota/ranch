@@ -26,10 +26,10 @@ export function ResultVoterList({ poll }: ResultVoterListProps) {
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
             <Avatar
               sx={{
-                width: 36,
-                height: 36,
+                width: 32,
+                height: 32,
                 bgcolor: '#667eea',
-                fontSize: '14px',
+                fontSize: '13px',
               }}
             >
               {(voter.name && voter.name.length > 0 ? voter.name.charAt(0) : '?').toUpperCase()}

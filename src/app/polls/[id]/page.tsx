@@ -5,7 +5,7 @@ import type { Metadata } from 'next';
 import PollPage from './components/PollPage';
 import { ResultPage, calculateTotalVotes, getWinningOption } from './components/ResultPage';
 import { Box } from '@mui/material';
-import { DBPoll, DBPollOption } from '@/services/db/poll/types';
+import { DBPoll } from '@/services/db/poll/types';
 import { LAYOUT_CONSTANTS } from '@/config/constants';
 
 interface PageProps {
