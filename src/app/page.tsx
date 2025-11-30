@@ -1,7 +1,6 @@
 'use client';
 
-import { useState, useRef, useEffect, useCallback } from 'react';
-import React from 'react';
+import React, { Fragment, useCallback, useEffect, useRef, useState } from 'react';
 import {
   Box,
   Button,
@@ -416,7 +415,7 @@ const StepItem = React.forwardRef<
         display: 'flex',
         flexDirection: { xs: 'column', md: 'row' },
         alignItems: 'center',
-        gap: 6,
+        gap: 10,
         opacity: finalIsVisible ? 1 : 0,
         transform: `translateX(${translateX}px)`,
         transition: `opacity 0.5s ease ${delay}, transform 0.5s ease ${delay}`,
@@ -424,7 +423,7 @@ const StepItem = React.forwardRef<
     >
       <Box
         sx={{
-          flex: 1,
+          flex: { xs: 1, md: 0.55 },
           textAlign: { xs: 'center', md: 'left' },
           order: { xs: 1, md: isEven ? 1 : 2 },
         }}
@@ -464,25 +463,80 @@ const StepItem = React.forwardRef<
 
       <Box
         sx={{
-          flex: 1,
+          flex: { xs: 1, md: 0.4 },
           display: 'flex',
           justifyContent: { xs: 'center', md: isEven ? 'flex-end' : 'flex-start' },
-          alignItems: 'center',
-          height: { xs: 'auto', md: '450px' },
+          alignItems: 'flex-start',
           order: { xs: 2, md: isEven ? 2 : 1 },
         }}
       >
         <Box
-          component="img"
-          src={step.imageSrc}
-          alt={step.imageAlt}
           sx={{
-            width: { xs: '100%', md: '440px' },
-            aspectRatio: 1,
-            objectFit: 'contain',
-            borderRadius: '8px',
+            position: 'relative',
+            width: { xs: '100%', md: 420 },
+            aspectRatio: '4 / 3',
+            borderRadius: 3,
+            overflow: 'hidden',
+            background: isEven
+              ? 'linear-gradient(135deg, rgba(191,219,254,0.4), rgba(59,130,246,0.1))'
+              : 'linear-gradient(135deg, rgba(254,215,170,0.4), rgba(251,146,60,0.1))',
+            border: '1px solid rgba(15,23,42,0.08)',
+            boxShadow: '0 25px 50px rgba(15,23,42,0.2)',
           }}
-        />
+        >
+          <Box
+            sx={{
+              position: 'absolute',
+              inset: 12,
+              borderRadius: 2,
+              backgroundColor: '#fff',
+              boxShadow: '0 18px 40px rgba(15,23,42,0.12)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              zIndex: 1,
+            }}
+          >
+            <Box
+              component="img"
+              src={step.imageSrc}
+              alt={step.imageAlt}
+              sx={{
+                width: '100%',
+                height: '100%',
+                objectFit: 'cover',
+                borderRadius: 1.5,
+              }}
+            />
+          </Box>
+
+          <Box
+            sx={{
+              position: 'absolute',
+              width: 140,
+              height: 140,
+              borderRadius: '50%',
+              background: isEven
+                ? 'radial-gradient(circle, rgba(59,130,246,0.35), rgba(59,130,246,0))'
+                : 'radial-gradient(circle, rgba(251,146,60,0.35), rgba(251,146,60,0))',
+              top: -40,
+              right: -20,
+              filter: 'blur(8px)',
+            }}
+          />
+          <Box
+            sx={{
+              position: 'absolute',
+              width: 120,
+              height: 120,
+              borderRadius: '50%',
+              background: 'radial-gradient(circle, rgba(15,23,42,0.15), transparent)',
+              bottom: -50,
+              left: '20%',
+              filter: 'blur(20px)',
+            }}
+          />
+        </Box>
       </Box>
     </Box>
   );
@@ -495,7 +549,7 @@ const STEPS: StepData[] = [
     step: 'ステップ1',
     title: '投票作成',
     description: '候補となる店舗の URL を入力して投票作成しましょう。店舗名や画像は自動的に入力されます。',
-    imageSrc: 'https://placehold.co/440x600/fed7aa/ffffff?text=Step+1',
+    imageSrc: '/1.png',
     imageAlt: '投票作成画面',
     icon: <CreateIcon sx={{ fontSize: '1.5rem', color: '#3b82f6' }} />,
   },
@@ -503,7 +557,7 @@ const STEPS: StepData[] = [
     step: 'ステップ2',
     title: '投票ページを共有',
     description: '作成した投票ページを LINE や Slack などの SNS で共有して、参加者の投票が終わるまで待ちます。',
-    imageSrc: 'https://placehold.co/440x600/ccfbf1/ffffff?text=Step+2',
+    imageSrc: '/2.png',
     imageAlt: '投票ページ共有画面',
     icon: <ShareIcon sx={{ fontSize: '1.5rem', color: '#3b82f6' }} />,
   },
@@ -511,7 +565,7 @@ const STEPS: StepData[] = [
     step: 'ステップ3',
     title: 'お店が決定',
     description: '投票受付時間に達すると投票結果が公開されます。',
-    imageSrc: 'https://placehold.co/440x600/ccfbf1/ffffff?text=Step+3',
+    imageSrc: '/3.png',
     imageAlt: '投票結果画面',
     icon: <RestaurantIcon sx={{ fontSize: '1.5rem', color: '#3b82f6' }} />,
   },
@@ -562,13 +616,27 @@ function HowItWorksSection() {
 
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: { xs: 8, md: 12 } }}>
           {STEPS.map((step, index) => (
-            <StepItem
-              key={index}
-              step={step}
-              index={index}
-              ref={index === 0 ? step1Ref : undefined}
-              isVisible={index === 0 ? isStep1Visible : undefined}
-            />
+            <Fragment key={index}>
+              <StepItem
+                step={step}
+                index={index}
+                ref={index === 0 ? step1Ref : undefined}
+                isVisible={index === 0 ? isStep1Visible : undefined}
+              />
+              {index < STEPS.length - 1 && (
+                <Box
+                  sx={{
+                    height: 2,
+                    width: '100vw',
+                    position: 'relative',
+                    left: '50%',
+                    transform: 'translateX(-50%)',
+                    background: 'linear-gradient(90deg, rgba(148,163,184,0), rgba(148,163,184,0.35), rgba(148,163,184,0))',
+                    opacity: 0.6,
+                  }}
+                />
+              )}
+            </Fragment>
           ))}
         </Box>
       </Container>

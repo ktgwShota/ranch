@@ -1,5 +1,3 @@
-'use client';
-
 import { Box, Container, Paper, Typography } from '@mui/material';
 import { LAYOUT_CONSTANTS } from '@/config/constants';
 import PageHeader from '@/app/components/PageHeader';

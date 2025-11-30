@@ -50,18 +50,18 @@ export function PollTimeRemaining({ poll }: PollTimeRemainingProps) {
     return Math.max(0, Math.ceil((endTime - now) / 1000));
   };
 
-  if (!poll || !poll.endDateTime) {
-    return null;
-  }
+  const hasEndTime = !!poll.endDateTime;
+  const timeLabel = hasEndTime ? formatTime(getTimeRemaining()) : '無制限';
 
   return (
-    <Box sx={{ mt: 1, display: 'flex', alignItems: 'center', gap: 0.5 }}>
+    <Box sx={{ mt: 1, display: 'flex', alignItems: 'center', gap: 0.5, minHeight: 20 }}>
       <Typography
         variant="caption"
         sx={{
           color: '#6b7280',
           fontSize: '12px',
           fontWeight: 500,
+          lineHeight: 1,
         }}
       >
         投票受付時間:
@@ -70,12 +70,13 @@ export function PollTimeRemaining({ poll }: PollTimeRemainingProps) {
         variant="body2"
         sx={{
           color: '#1e40af',
-          fontSize: '13px',
+          fontSize: '12px',
           fontWeight: 500,
           fontFamily: 'system-ui, -apple-system, sans-serif',
+          lineHeight: 1,
         }}
       >
-        {formatTime(getTimeRemaining())}
+        {timeLabel}
       </Typography>
     </Box>
   );

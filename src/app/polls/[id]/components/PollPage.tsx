@@ -116,7 +116,7 @@ export default function PollPage({ pollData }: PollPageProps) {
           })}
         </Box>
 
-        <Box
+        {/* <Box
           sx={{
             border: '1px solid #e5e7eb',
             backgroundColor: '#f3f4f6',
@@ -131,7 +131,7 @@ export default function PollPage({ pollData }: PollPageProps) {
           }}
         >
           バナー広告
-        </Box>
+        </Box> */}
       </Box>
 
       {dialogState && (

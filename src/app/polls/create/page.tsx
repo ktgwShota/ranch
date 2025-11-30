@@ -275,7 +275,7 @@ export default function Index() {
                 候補となるお店の情報を入力してください。
               </Typography>
               <Typography variant="body1" color="text.secondary" sx={{ fontSize: '0.875rem' }}>
-                <a href="https://tabelog.com/" target="_blank" rel="noopener noreferrer" style={{ color: '#1976d2', textDecoration: 'none' }}>食べログ</a> または <a href="https://www.gnavi.co.jp/" target="_blank" rel="noopener noreferrer" style={{ color: '#1976d2', textDecoration: 'none' }}>ぐるなび</a> で取得した URL の使用を入力するとタイトルと予算を自動取得します。
+                <a href="https://tabelog.com/" target="_blank" rel="noopener noreferrer" style={{ color: '#1976d2', textDecoration: 'none' }}>食べログ</a> または <a href="https://www.gnavi.co.jp/" target="_blank" rel="noopener noreferrer" style={{ color: '#1976d2', textDecoration: 'none' }}>ぐるなび</a> で取得した URL を使用するとタイトルと予算を自動入力されます。
               </Typography>
             </Box>
 
@@ -440,13 +440,13 @@ export default function Index() {
                 >
                   <a
                     href="/terms"
-                    style={
-                      {
-                        color: '#1976d2',
-                        textDecoration: 'none',
-                        paddingLeft: 4,
-                      }
-                    }
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{
+                      color: '#1976d2',
+                      textDecoration: 'none',
+                      paddingLeft: 4,
+                    }}
                   >
                     利用規約
                   </a>

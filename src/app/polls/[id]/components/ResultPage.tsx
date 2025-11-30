@@ -19,7 +19,7 @@ export function ResultPage({ pollData }: ResultPageProps) {
         <RightColumn poll={pollData} totalVotes={totalVotes} />
       </Box>
 
-      <Box
+      {/* <Box
         sx={{
           mt: 3,
           border: '1px solid #e5e7eb',
@@ -35,7 +35,7 @@ export function ResultPage({ pollData }: ResultPageProps) {
         }}
       >
         バナー広告
-      </Box>
+      </Box> */}
     </>
   );
 }
