@@ -34,17 +34,18 @@ export async function createPoll(data: CreatePollData, env: { DB: D1Database }) 
     console.log('About to create poll in database...');
     await db
       .prepare(`
-      INSERT INTO polls (id, title, duration, endDateTime, createdBy, createdAt, isClosed)
-      VALUES (?, ?, ?, ?, ?, ?, ?)
+      INSERT INTO polls (id, title, duration, endDateTime, createdBy, createdAt, isClosed, password)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
     `)
       .bind(
         pollId,
         data.title,
-        data.duration,
+        data.duration ?? null,
         endDateTime,
         data.createdBy,
         new Date().toISOString(),
-        0
+        0,
+        data.password || null
       )
       .run();
 
@@ -154,10 +155,10 @@ export async function updatePoll(pollId: string, data: UpdatePollData, env: { DB
   await db
     .prepare(`
     UPDATE polls 
-    SET title = ?, duration = ?, endDateTime = ?
+    SET title = ?, duration = ?, endDateTime = ?, password = ?
     WHERE id = ?
   `)
-    .bind(data.title, data.duration, endDateTime, pollId)
+    .bind(data.title, data.duration ?? null, endDateTime, data.password || null, pollId)
     .run();
 
   return { success: true, data: { id: pollId }, error: undefined };

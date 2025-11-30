@@ -19,6 +19,7 @@ import {
   Create as CreateIcon,
   Share as ShareIcon,
   Restaurant as RestaurantIcon,
+  Lock as LockIcon,
 } from '@mui/icons-material';
 import Link from 'next/link';
 
@@ -314,7 +315,7 @@ function HeroSection({
             transition: 'opacity 0.6s ease 0.2s',
           }}
         >
-          店決めに悩む時代はもう終わり。行く店はみんなで決める。
+          店決めに悩む時代はもう終わり。行く店は全員で決める。
           <br />
           チョイスルは店決めに悩む幹事のためのサービスを提供します。
         </Typography>
@@ -718,37 +719,70 @@ function FAQSection() {
   );
 }
 
+
 function BottomCTASection() {
   const [isBackgroundVisible, setIsBackgroundVisible] = useState(false);
   const [isTitleVisible, setIsTitleVisible] = useState(false);
-  const [isDescriptionVisible, setIsDescriptionVisible] = useState(false);
   const [isButtonVisible, setIsButtonVisible] = useState(false);
   const sectionRef = useRef<HTMLDivElement>(null);
 
-  const isSectionVisible = useElementVisibility(sectionRef, FULL_VISIBILITY_THRESHOLD);
+  // 既存のアニメーションロジックは維持
+  // const isSectionVisible = useElementVisibility(sectionRef, FULL_VISIBILITY_THRESHOLD);
+  // useEffect(() => {
+  //   if (isSectionVisible) {
+  //     setIsBackgroundVisible(true);
+  //     setIsTitleVisible(true);
+  //     setTimeout(() => setIsButtonVisible(true), ANIMATION_DELAYS.SUBTITLE_DELAY * 2);
+  //   }
+  // }, [isSectionVisible]);
 
+  // デモのためアニメーションを無効化
   useEffect(() => {
-    if (isSectionVisible) {
-      setIsBackgroundVisible(true);
-      setIsTitleVisible(true);
-      setTimeout(() => setIsDescriptionVisible(true), ANIMATION_DELAYS.SUBTITLE_DELAY);
-      setTimeout(() => setIsButtonVisible(true), ANIMATION_DELAYS.SUBTITLE_DELAY * 2);
-    }
-  }, [isSectionVisible]);
+    setIsBackgroundVisible(true);
+    setIsTitleVisible(true);
+    setIsButtonVisible(true);
+  }, []);
+
+  // --- 新しいカラースキーム ---
+  const DARK_NAVY = '#1e293b'; // 背景色
+  const TEAL_ACCENT = '#2dd4bf'; // アクセントカラー（ボタン、アイコン）
+  const LIGHT_TEXT = '#f8fafc'; // テキスト色
+  const SUBTLE_TEXT = '#94a3b8'; // サブテキスト色
+
+  const features: Array<{ icon: React.ComponentType<any>; text: string }> = [
+    { icon: CheckCircleIcon, text: '無料' },
+    { icon: LockIcon, text: '匿名使用可能' },
+  ];
 
   return (
     <Box
       ref={sectionRef}
       sx={{
         position: 'relative',
-        pt: { xs: 10, md: 14 },
-        pb: { xs: 10, md: 14 },
-        background: 'linear-gradient(180deg, #dbeafe 0%, #bfdbfe 50%, #93c5fd 100%)',
+        // 背景をダークカラーに変更
+        background: DARK_NAVY,
+        pt: { xs: 12, md: 16 },
+        pb: { xs: 12, md: 16 },
+        overflow: 'hidden',
         opacity: isBackgroundVisible ? 1 : 0,
         transition: 'opacity 1.2s ease',
       }}
     >
-      <Container maxWidth={false} sx={{ maxWidth: CONTAINER_MAX_WIDTH }}>
+      {/* 背景に円形グラデーションを追加して奥行きを出す */}
+      <Box
+        sx={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: `radial-gradient(circle at center, ${DARK_NAVY} 0%, #0f172a 100%)`,
+          opacity: 0.8,
+          zIndex: 0,
+        }}
+      />
+
+      <Container maxWidth={false} sx={{ maxWidth: CONTAINER_MAX_WIDTH, zIndex: 1, position: 'relative' }}>
         <Box
           sx={{
             textAlign: 'center',
@@ -757,94 +791,83 @@ function BottomCTASection() {
             transition: 'opacity 0.8s ease 0.1s, transform 0.8s ease 0.1s',
           }}
         >
+          {/* メイン見出し */}
           <Typography
             variant="h2"
             sx={{
               fontSize: { xs: '1.75rem', md: '2.25rem' },
-              fontWeight: 700,
-              color: 'text.primary',
+              fontWeight: 900, // 極太フォント
+              lineHeight: 1.1,
               mb: 3,
-              lineHeight: 1.2,
+              color: LIGHT_TEXT,
+              textShadow: '0 4px 10px rgba(0, 0, 0, 0.5)',
             }}
           >
-            意思決定 = ストレスフリー
+            <Box component="span" sx={{ color: TEAL_ACCENT }}>
+              全員を尊重</Box>する意思決定
           </Typography>
 
+          {/* 説明文 */}
           <Typography
             variant="body1"
             sx={{
               fontSize: { xs: '1rem', md: '1.125rem' },
-              color: 'text.secondary',
-              maxWidth: '700px',
-              mx: 'auto',
+              color: SUBTLE_TEXT,
               lineHeight: 1.7,
-              mb: 4,
+              mb: 6,
             }}
           >
-            店決めに悩む時間を、もっと大切なことに使えます。
+            xxx
             <br />
-            <Box component="span" sx={{ color: '#3b82f6', fontWeight: 600 }}>
-              『簡単3ステップ』
-            </Box>
-            で全員が納得するお店を決めましょう。
+            チョイスルを使うことで誰でも簡単に全員が納得する店決めができます。
           </Typography>
 
+          {/* CTAボタン */}
           <Button
             component={Link}
             href="/polls/create"
             variant="contained"
             endIcon={<ArrowForwardIcon />}
             sx={{
-              backgroundColor: '#3b82f6',
-              color: '#ffffff',
-              borderRadius: '8px',
-              px: 4,
-              py: 1.5,
-              fontSize: '15px',
-              fontWeight: 600,
+              backgroundColor: TEAL_ACCENT,
+              color: DARK_NAVY, // ボタン内の文字色
+              borderRadius: '9999px',
+              px: { xs: 2, md: 3 },
+              py: { xs: 1.5, md: 2 },
+              fontSize: { xs: '1rem', md: '1rem' },
+              fontWeight: 700,
               textTransform: 'none',
-              boxShadow: 'none',
+              // 立体的なシャドウ（アクセントカラー）
+              boxShadow: `0 15px 30px -10px ${TEAL_ACCENT}50`,
               opacity: isButtonVisible ? 1 : 0,
-              transform: isButtonVisible ? 'translateY(0)' : 'translateY(15px)',
-              transition: 'opacity 0.6s ease 0.5s, transform 0.6s ease 0.5s',
-              '&:hover': {
-                backgroundColor: '#2563eb',
-                boxShadow: '0 4px 12px rgba(59, 130, 246, 0.3)',
-              },
-              '& .MuiButton-endIcon': {
-                transition: 'transform 0.3s ease',
-              },
-              '&:hover .MuiButton-endIcon': {
-                transform: 'translateX(4px)',
-              },
             }}
           >
             今すぐ始める
           </Button>
 
+          {/* 特典表示をアイコン付きで横並びに */}
           <Box
             sx={{
               display: 'flex',
               justifyContent: 'center',
-              gap: 3,
-              mt: 4,
+              gap: { xs: 3, md: 3 },
+              mt: 6, // ボタンからより離す
               opacity: isButtonVisible ? 1 : 0,
               transition: 'opacity 0.6s ease 0.7s',
             }}
           >
-            {['完全無料', 'アカウント不要'].map((feature, index) => (
+            {features.map((item, index) => (
               <Box
                 key={index}
                 sx={{
                   display: 'flex',
                   alignItems: 'center',
-                  gap: 0.5,
-                  color: 'text.secondary',
+                  gap: 1,
                 }}
               >
-                <CheckCircleIcon sx={{ fontSize: '1rem', color: '#3b82f6' }} />
-                <Typography sx={{ fontSize: '0.875rem', fontWeight: 500 }}>
-                  {feature}
+                <item.icon sx={{ fontSize: '1.5rem', color: TEAL_ACCENT }} />
+                <Typography sx={{ fontSize: '1rem', fontWeight: 500, color: SUBTLE_TEXT }}>
+                  {item.text}
                 </Typography>
               </Box>
             ))}

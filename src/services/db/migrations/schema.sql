@@ -16,11 +16,12 @@ INSERT OR IGNORE INTO Customers (name, email) VALUES
 CREATE TABLE IF NOT EXISTS polls (
   id TEXT PRIMARY KEY,
   title TEXT NOT NULL,
-  duration INTEGER DEFAULT 5,
+  duration INTEGER,
   endDateTime TEXT,
   createdBy TEXT NOT NULL,
   createdAt TEXT NOT NULL,
-  isClosed INTEGER DEFAULT 0
+  isClosed INTEGER DEFAULT 0,
+  password TEXT
 );
 
 -- Poll Options テーブルの作成
@@ -40,8 +41,8 @@ CREATE TABLE IF NOT EXISTS poll_options (
 );
 
 -- サンプル投票データの挿入
-INSERT OR IGNORE INTO polls (id, title, duration, endDateTime, createdBy, createdAt, isClosed) VALUES 
-  ('sample-poll-1', '今日のランチはどこで食べますか？', 30, NULL, 'user1', '2025-10-05T07:00:00.000Z', 0);
+INSERT OR IGNORE INTO polls (id, title, duration, endDateTime, createdBy, createdAt, isClosed, password) VALUES 
+  ('sample-poll-1', '今日のランチはどこで食べますか？', 30, NULL, 'user1', '2025-10-05T07:00:00.000Z', 0, NULL);
 
 INSERT OR IGNORE INTO poll_options (pollId, optionId, url, title, description, votes, voters) VALUES 
   ('sample-poll-1', 1, 'https://example.com/restaurant1', 'レストランA', '美味しいイタリアン', 3, '["user1", "user2", "user3"]'),

@@ -26,7 +26,7 @@ export function AddOptionButton({ onClick }: { onClick: () => void }) {
       sx={{
         mb: 3,
         borderRadius: 0.5,
-        border: '2px dashed',
+        border: '1px dashed',
         borderColor: '#ddd',
         backgroundColor: 'white',
         cursor: 'pointer',
@@ -52,8 +52,8 @@ export function AddOptionButton({ onClick }: { onClick: () => void }) {
           transform: 'translateY(0)',
         },
         '&:focus': {
-          outline: '2px solid #1976d2',
-          outlineOffset: '2px',
+          outline: '1px solid #1976d2',
+          outlineOffset: '1px',
         },
       }}
     >

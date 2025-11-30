@@ -9,7 +9,11 @@ import {
   Paper,
   TextField,
   Typography,
+  Accordion,
+  AccordionSummary,
+  AccordionDetails,
 } from '@mui/material';
+import { ExpandMore as ExpandMoreIcon } from '@mui/icons-material';
 import { useEffect, useState } from 'react';
 import { useForm, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -60,8 +64,9 @@ export default function Index() {
         { url: '', title: '', budgetMin: '', budgetMax: '', description: '' },
         { url: '', title: '', budgetMin: '', budgetMax: '', description: '' },
       ],
-      endDate: defaultEndDate,
-      endTime: defaultEndTime,
+      endDate: '',
+      endTime: '',
+      password: '',
       hasAgreedToTerms: false,
     },
   });
@@ -178,8 +183,9 @@ export default function Index() {
             budgetMax: option.budgetMax || undefined,
             description: option.description || undefined,
           })),
-          endDate: data.endDate,
-          endTime: data.endTime,
+          endDate: data.endDate || null,
+          endTime: data.endTime || null,
+          password: data.password || null,
         }),
       });
 
@@ -191,6 +197,9 @@ export default function Index() {
       console.log('投票作成レスポンス:', result);
 
       if (result.poll && result.poll.id) {
+        // パスワード設定の有無に関わらず、localStorageに主催者フラグを保存
+        const organizerKey = `organizer_${result.poll.id}`;
+        localStorage.setItem(organizerKey, 'true');
         window.location.href = `/polls/${result.poll.id}`;
       } else {
         throw new Error('投票IDが取得できませんでした');
@@ -260,7 +269,7 @@ export default function Index() {
                 variant="h6"
                 sx={{ fontWeight: 600, color: 'text.primary', mb: 1, fontSize: '1rem' }}
               >
-                店舗情報 <span style={{ color: '#f44336' }}>*</span>
+                候補 <span style={{ color: '#f44336' }}>*</span>
               </Typography>
               <Typography variant="body1" color="text.secondary" sx={{ mb: 0.5, fontSize: '0.875rem' }}>
                 候補となるお店の情報を入力してください。
@@ -292,22 +301,113 @@ export default function Index() {
             {fields.length < MAX_OPTIONS && <AddOptionButton onClick={handleAddOption} />}
           </Box>
 
-          <VotingDeadline
-            endDate={watchedEndDate || defaultEndDate}
-            endTime={watchedEndTime || defaultEndTime}
-            todayDate={todayDate}
-            maxDate={maxEndDate}
-            currentTimeString={currentTimeString}
-            onEndDateChange={(value) => {
-              setValue('endDate', value);
-              if (value === todayDate && watchedEndTime && watchedEndTime < currentTimeString) {
-                setValue('endTime', '');
-              }
+          {/* 詳細設定 */}
+          <Accordion
+            sx={{
+              boxShadow: 'none',
+              border: '1px solid #e5e7eb',
+              borderRadius: 0.5,
+              '&:before': {
+                display: 'none',
+              },
+              mb: 3,
+              '&.Mui-expanded': {
+                mb: 3,
+              },
             }}
-            onEndTimeChange={(value) => setValue('endTime', value)}
-            register={register}
-            errors={errors}
-          />
+          >
+            <AccordionSummary
+              expandIcon={<ExpandMoreIcon />}
+              sx={{
+                py: 2.5,
+                px: 3,
+                minHeight: '56px',
+                '&.Mui-expanded': {
+                  minHeight: '56px',
+                  borderBottom: '1px solid #e5e7eb',
+                },
+                '& .MuiAccordionSummary-content': {
+                  my: 0,
+                  margin: 0,
+                  alignItems: 'center',
+                  '&.Mui-expanded': {
+                    margin: 0,
+                  },
+                },
+                '& .MuiAccordionSummary-expandIconWrapper': {
+                  transition: 'transform 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+                  color: 'text.secondary',
+                  '&.Mui-expanded': {
+                    transform: 'rotate(180deg)',
+                  },
+                },
+              }}
+            >
+              <Typography
+                variant="h6"
+                sx={{
+                  fontWeight: 600,
+                  color: 'text.primary',
+                  fontSize: '1rem',
+                  lineHeight: 1.5,
+                }}
+              >
+                詳細設定
+              </Typography>
+            </AccordionSummary>
+            <AccordionDetails sx={{ px: 3, pb: 3 }}>
+              <VotingDeadline
+                endDate={watchedEndDate}
+                endTime={watchedEndTime}
+                todayDate={todayDate}
+                maxDate={maxEndDate}
+                currentTimeString={currentTimeString}
+                onEndDateChange={(value) => {
+                  setValue('endDate', value);
+                  if (value === todayDate && watchedEndTime && watchedEndTime < currentTimeString) {
+                    setValue('endTime', '');
+                  }
+                }}
+                onEndTimeChange={(value) => setValue('endTime', value)}
+                register={register}
+                errors={errors}
+              />
+
+              <Box>
+                <Typography
+                  variant="h6"
+                  sx={{ mt: 2, fontWeight: 600, color: 'text.primary', mb: 1, fontSize: '15px' }}
+                >
+                  編集用パスワード
+                </Typography>
+                <Typography variant="body1" color="text.secondary" sx={{ mb: 2, fontSize: '0.875rem' }}>
+                  パスワードを設定すると、投票終了機能が主催者のみ利用可能になります。
+                </Typography>
+                <TextField
+                  fullWidth
+                  type="password"
+                  {...register('password')}
+                  variant="outlined"
+                  sx={{
+                    '& .MuiOutlinedInput-root': {
+                      borderRadius: 0.5,
+                      fontSize: '1rem',
+                      '&:hover .MuiOutlinedInput-notchedOutline': {
+                        borderColor: '#1976d2',
+                      },
+                      '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                        borderColor: '#1976d2',
+                        borderWidth: 2,
+                      },
+                    },
+                    '& .MuiInputBase-input::placeholder': {
+                      fontSize: '0.875rem',
+                    },
+                  }}
+                />
+              </Box>
+            </AccordionDetails>
+          </Accordion>
 
           <Box
             sx={{

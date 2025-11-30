@@ -11,6 +11,7 @@ import { Stop as StopIcon, Settings as SettingsIcon, Edit as EditIcon } from '@m
 import { useState, useEffect } from 'react';
 import type { DBPoll as Poll } from '@/services/db/poll/types';
 import { CustomDialog } from '@/app/components/CustomDialog';
+import { PasswordDialog } from './PasswordDialog';
 
 interface HeaderProps {
   poll: Poll | null;
@@ -44,6 +45,8 @@ export function Header({
 }: HeaderProps) {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
+  const [passwordDialogOpen, setPasswordDialogOpen] = useState(false);
+  const [isOrganizer, setIsOrganizer] = useState(false);
   const [, setTick] = useState(0);
   const open = Boolean(anchorEl);
 
@@ -58,6 +61,15 @@ export function Header({
     }, 1000);
 
     return () => clearInterval(timer);
+  }, [poll]);
+
+  // 主催者フラグをチェック
+  useEffect(() => {
+    if (poll) {
+      const organizerKey = `organizer_${poll.id}`;
+      const organizerFlag = localStorage.getItem(organizerKey) === 'true';
+      setIsOrganizer(organizerFlag);
+    }
   }, [poll]);
 
   const getTimeRemaining = (): number => {
@@ -76,8 +88,56 @@ export function Header({
   };
 
   const handleEndPollClick = () => {
-    setConfirmDialogOpen(true);
     handleClose();
+
+    if (!poll) return;
+
+    // localStorageから主催者フラグを直接チェック
+    const organizerKey = `organizer_${poll.id}`;
+    const hasOrganizerFlag = localStorage.getItem(organizerKey) === 'true';
+
+    // 主催者フラグがある場合はそのまま確認ダイアログを表示
+    if (hasOrganizerFlag) {
+      setConfirmDialogOpen(true);
+      return;
+    }
+
+    // 主催者フラグがない場合
+    // パスワードが設定されていない場合は誰でも投票終了できるので確認ダイアログを表示
+    if (!poll.password) {
+      setConfirmDialogOpen(true);
+      return;
+    }
+
+    // 主催者フラグがなく、パスワードが設定されている場合はパスワード入力ダイアログを表示
+    setPasswordDialogOpen(true);
+  };
+
+  const handlePasswordConfirm = async (password: string) => {
+    if (!poll) return;
+
+    // パスワードを検証
+    const response = await fetch(`/api/polls/${poll.id}/verify-password`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ password }),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || 'パスワードが正しくありません');
+    }
+
+    // パスワードが正しい場合、localStorageに主催者フラグを保存
+    const organizerKey = `organizer_${poll.id}`;
+    localStorage.setItem(organizerKey, 'true');
+    setIsOrganizer(true);
+
+    // パスワードダイアログを閉じて確認ダイアログを表示
+    setPasswordDialogOpen(false);
+    setConfirmDialogOpen(true);
   };
 
   const handleConfirmEndPoll = () => {
@@ -93,6 +153,9 @@ export function Header({
     onChangeVoterName();
     handleClose();
   };
+
+  // 投票終了ボタンは常に有効（主催者フラグがない場合はパスワード入力ダイアログを表示）
+  const canEndPoll = poll ? true : false;
 
   return (
     <Box
@@ -245,26 +308,30 @@ export function Header({
                 </MenuItem>
                 <MenuItem
                   onClick={handleEndPollClick}
+                  disabled={!canEndPoll}
                   sx={{
                     py: 1.5,
                     px: 2,
                     '&:hover': {
-                      backgroundColor: '#fef2f2',
+                      backgroundColor: canEndPoll ? '#fef2f2' : 'transparent',
                     },
                     '&:active': {
-                      backgroundColor: '#fee2e2',
+                      backgroundColor: canEndPoll ? '#fee2e2' : 'transparent',
+                    },
+                    '&.Mui-disabled': {
+                      opacity: 0.5,
                     },
                   }}
                 >
                   <ListItemIcon sx={{ minWidth: 40 }}>
-                    <StopIcon fontSize="small" sx={{ color: '#ef4444' }} />
+                    <StopIcon fontSize="small" sx={{ color: canEndPoll ? '#ef4444' : 'text.disabled' }} />
                   </ListItemIcon>
                   <ListItemText
                     primary="投票を終了"
                     primaryTypographyProps={{
                       fontSize: '14px',
                       fontWeight: 500,
-                      color: '#dc2626',
+                      color: canEndPoll ? '#dc2626' : 'text.disabled',
                     }}
                   />
                 </MenuItem>
@@ -286,6 +353,15 @@ export function Header({
           startIcon: <StopIcon />,
         }}
       />
+
+      {poll && (
+        <PasswordDialog
+          open={passwordDialogOpen}
+          onClose={() => setPasswordDialogOpen(false)}
+          onConfirm={handlePasswordConfirm}
+          pollId={poll.id}
+        />
+      )}
     </Box>
   );
 }

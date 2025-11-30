@@ -34,13 +34,13 @@ export default function VotingPage({ pollId, initialPoll }: VotingPageProps) {
         {
           elementId: 'option-title-1',
           title: '店舗情報',
-          description: `こちらをクリックすると店舗情報が表示されます。外部サイトに遷移します。`,
+          description: `クリックすると店舗の詳細が表示されます。※外部サイトに遷移します`,
           position: 'bottom',
         },
         {
           elementId: 'poll-settings-button',
           title: 'メニュー',
-          description: `名前の変更や投票の早期終了などの設定ができます。一部機能は権限が必要です。`,
+          description: `投票者名の変更や投票受付の早期終了など、各種設定ができます。※一部機能は権限が必要です`,
           position: 'bottom',
         }
       ],

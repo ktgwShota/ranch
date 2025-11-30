@@ -9,6 +9,7 @@ export interface DBPoll {
   createdBy: string;
   createdAt: string;
   isClosed: number; // 0 = 開いている, 1 = 閉じている
+  password: string | null; // 編集用パスワード
   options: DBPollOption[];
 }
 
@@ -32,6 +33,7 @@ export interface CreatePollData {
   duration?: number;
   endDateTime?: string | null;
   createdBy: string;
+  password?: string | null; // 編集用パスワード
   options: Omit<DBPollOption, 'id' | 'votes' | 'voters'>[];
 }
 
@@ -39,6 +41,7 @@ export interface UpdatePollData {
   title: string;
   duration?: number;
   endDateTime?: string | null;
+  password?: string | null; // 編集用パスワード
   options: DBPollOption[];
 }
 

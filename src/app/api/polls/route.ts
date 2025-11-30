@@ -43,19 +43,20 @@ export async function POST(req: Request) {
     const body: {
       title?: string;
       options?:
-        | string[]
-        | Array<{
-            url: string;
-            title?: string;
-            description?: string;
-            image?: string;
-            budgetMin?: string;
-            budgetMax?: string;
-          }>;
+      | string[]
+      | Array<{
+        url: string;
+        title?: string;
+        description?: string;
+        image?: string;
+        budgetMin?: string;
+        budgetMax?: string;
+      }>;
       duration?: number;
       endDate?: string | null;
       endTime?: string | null;
       createdBy?: string;
+      password?: string | null; // 編集用パスワード
     } = await req.json();
 
     if (!body.title || !body.options || body.options.length < 2) {
@@ -122,9 +123,10 @@ export async function POST(req: Request) {
       {
         title: body.title,
         options,
-        duration: body.duration || 5,
+        duration: body.duration || undefined,
         endDateTime: endDateTime,
         createdBy: body.createdBy || Date.now().toString(),
+        password: body.password || null,
       },
       env
     );

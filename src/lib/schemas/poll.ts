@@ -34,17 +34,22 @@ export const pollSchema = z
           message: '最低2つの有効な選択肢を入力してください',
         }
       ),
-    endDate: z.string().min(1, '投票締切日は必須です'),
-    endTime: z.string().min(1, '投票締切時刻は必須です'),
+    endDate: z.string().optional(),
+    endTime: z.string().optional(),
+    password: z.string().optional(),
     hasAgreedToTerms: z.boolean().refine((val) => val === true, {
       message: '利用規約に同意してください',
     }),
   })
   .refine(
     (data) => {
-      const selectedDateTime = new Date(`${data.endDate}T${data.endTime}`);
-      const now = new Date();
-      return selectedDateTime > now;
+      // endDateとendTimeの両方が設定されている場合のみ検証
+      if (data.endDate && data.endTime) {
+        const selectedDateTime = new Date(`${data.endDate}T${data.endTime}`);
+        const now = new Date();
+        return selectedDateTime > now;
+      }
+      return true; // 設定されていない場合は検証をスキップ
     },
     {
       message: '締切日時は現在時刻より後の日時を選択してください',
