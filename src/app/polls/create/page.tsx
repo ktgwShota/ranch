@@ -381,7 +381,7 @@ export default function Index() {
                   編集用パスワード
                 </Typography>
                 <Typography variant="body1" color="text.secondary" sx={{ mb: 2, fontSize: '0.875rem' }}>
-                  パスワードを設定すると、投票終了機能が主催者のみ利用可能になります。
+                  パスワードを設定すると主催者以外のメンバーがパスワードを使用して投票に関する操作ができるようになります。
                 </Typography>
                 <TextField
                   fullWidth

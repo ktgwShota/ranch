@@ -1,5 +1,5 @@
 import { getCloudflareContext } from '@opennextjs/cloudflare';
-import { getPoll } from '../../../../services/db/poll';
+import { getPoll, deletePoll } from '../../../../services/db/poll';
 
 export async function GET(req: Request, context: { params: Promise<{ id: string }> }) {
   try {
@@ -57,6 +57,79 @@ export async function GET(req: Request, context: { params: Promise<{ id: string 
     });
   } catch (error) {
     console.error('Error in GET /api/polls/[id]:', error);
+    return new Response(
+      JSON.stringify({
+        error: error instanceof Error ? error.message : 'Unknown error',
+      }),
+      {
+        status: 500,
+        headers: { 'Content-Type': 'application/json' },
+      }
+    );
+  }
+}
+
+export async function DELETE(req: Request, context: { params: Promise<{ id: string }> }) {
+  try {
+    const params = await context.params;
+
+    let env: { DB: D1Database };
+    try {
+      const cloudflareContext = getCloudflareContext();
+      env = cloudflareContext.env;
+      console.log('Environment retrieved for DELETE [id]:', !!env?.DB);
+    } catch (contextError) {
+      console.error('Error getting Cloudflare context:', contextError);
+      return new Response(
+        JSON.stringify({
+          error: 'Failed to get Cloudflare context',
+          details: contextError instanceof Error ? contextError.message : 'Unknown error',
+        }),
+        {
+          status: 500,
+          headers: { 'Content-Type': 'application/json' },
+        }
+      );
+    }
+
+    if (!env || !env.DB) {
+      console.error('DB not found in context');
+      return new Response(
+        JSON.stringify({
+          error: 'DB not found in context',
+        }),
+        {
+          status: 500,
+          headers: { 'Content-Type': 'application/json' },
+        }
+      );
+    }
+
+    const result = await deletePoll(params.id, env);
+
+    if (!result.success) {
+      return new Response(
+        JSON.stringify({
+          error: result.error || 'Failed to delete poll',
+        }),
+        {
+          status: 500,
+          headers: { 'Content-Type': 'application/json' },
+        }
+      );
+    }
+
+    return new Response(
+      JSON.stringify({
+        success: true,
+        data: result.data,
+      }),
+      {
+        headers: { 'Content-Type': 'application/json' },
+      }
+    );
+  } catch (error) {
+    console.error('Error in DELETE /api/polls/[id]:', error);
     return new Response(
       JSON.stringify({
         error: error instanceof Error ? error.message : 'Unknown error',

@@ -173,6 +173,16 @@ export async function closePoll(pollId: string, env: { DB: D1Database }) {
   return { success: true, data: { id: pollId }, error: undefined };
 }
 
+// ポール削除
+export async function deletePoll(pollId: string, env: { DB: D1Database }) {
+  const db = getDB(env);
+
+  // 外部キー制約により、poll_optionsは自動的に削除される（ON DELETE CASCADE）
+  await db.prepare('DELETE FROM polls WHERE id = ?').bind(pollId).run();
+
+  return { success: true, data: { id: pollId }, error: undefined };
+}
+
 // 投票
 export async function votePoll(data: VoteData, env: { DB: D1Database }) {
   const db = getDB(env);

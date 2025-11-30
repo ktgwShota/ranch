@@ -28,14 +28,14 @@ export function useVote(
     return options.map((option) => {
       if (option.id !== optionId) return option;
 
-      const hasVoted = option.voters.some((v) => v.id === currentVoter.id);
+      const hasVoted = option.voters.some((v) => v.id === currentVoter.voterId);
 
       if (hasVoted) {
         // 投票を取り消し
         return {
           ...option,
           votes: option.votes - 1,
-          voters: option.voters.filter((v) => v.id !== currentVoter.id),
+          voters: option.voters.filter((v) => v.id !== currentVoter.voterId),
         };
       }
 
@@ -43,7 +43,7 @@ export function useVote(
       return {
         ...option,
         votes: option.votes + 1,
-        voters: [...option.voters, { id: currentVoter.id, name: currentVoter.name }],
+        voters: [...option.voters, { id: currentVoter.voterId, name: currentVoter.voterName }],
       };
     });
   };
@@ -67,8 +67,8 @@ export function useVote(
         },
         body: JSON.stringify({
           optionId,
-          voterId: currentVoter.id,
-          voterName: currentVoter.name,
+          voterId: currentVoter.voterId,
+          voterName: currentVoter.voterName,
         }),
       });
     } catch (error) {
@@ -88,7 +88,7 @@ export function useVote(
     await new Promise((resolve) => setTimeout(resolve, 1000));
 
     // 他の選択肢から投票を削除（一人一票制）
-    let updatedOptions = removeVoteFromOtherOptions(poll.options, optionId, currentVoter.id);
+    let updatedOptions = removeVoteFromOtherOptions(poll.options, optionId, currentVoter.voterId);
 
     // 対象の選択肢の投票をトグル
     updatedOptions = toggleVoteForOption(updatedOptions, optionId, currentVoter);
@@ -101,7 +101,7 @@ export function useVote(
     setPoll(updatedPoll);
 
     // 投票状態を更新
-    const newVotedOptions = updateVotedOptions(updatedOptions, currentVoter.id);
+    const newVotedOptions = updateVotedOptions(updatedOptions, currentVoter.voterId);
     setVotedOptions(newVotedOptions);
 
     // サーバーに投票を送信
@@ -111,7 +111,7 @@ export function useVote(
 
   const isVotedByUser = (option: Option) => {
     if (!voter) return false;
-    return option.voters.some((v) => v.id === voter.id);
+    return option.voters.some((v) => v.id === voter.voterId);
   };
 
   const refreshPoll = async () => {

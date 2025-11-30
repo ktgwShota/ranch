@@ -3,14 +3,31 @@ import { BarChart as BarChartIcon, HowToVote as HowToVoteIcon, People as PeopleI
 import type { DBPoll as Poll, DBPollOption as Option } from '@/services/db/poll/types';
 import { VotersList } from './VotersList';
 
-interface ResultPageProps {
-  poll: Poll;
-  totalVotes: number;
-  winningOption: Option | null;
+/**
+ * 総投票数を計算
+ */
+export function calculateTotalVotes(poll: Poll): number {
+  return poll.options.reduce((sum, option) => sum + option.votes, 0);
 }
 
-export function ResultPage({ poll, totalVotes, winningOption }: ResultPageProps) {
+/**
+ * 最多得票の選択肢を取得
+ */
+export function getWinningOption(poll: Poll): Option | null {
+  if (poll.options.length === 0) return null;
+  return poll.options.reduce((max, option) =>
+    option.votes > max.votes ? option : max, poll.options[0]
+  );
+}
+
+interface ResultPageProps {
+  poll: Poll;
+}
+
+export function ResultPage({ poll }: ResultPageProps) {
   const sortedOptions = [...poll.options].sort((a, b) => b.votes - a.votes);
+  const totalVotes = calculateTotalVotes(poll);
+  const winningOption = getWinningOption(poll);
 
   return (
     <>

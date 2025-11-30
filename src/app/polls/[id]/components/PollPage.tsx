@@ -11,22 +11,22 @@ import { VoterNameDialog } from './VoterNameDialog';
 import { useTutorialStore } from '@/app/stores/tutorialStore';
 import type { DBPoll as Poll } from '@/services/db/poll/types';
 
-interface VotingPageProps {
-  pollId: string;
-  initialPoll: Poll;
+interface PollPageProps {
+  data: Poll;
 }
 
-export default function VotingPage({ pollId, initialPoll }: VotingPageProps) {
-  const [poll, setPoll] = useState<Poll | null>(initialPoll);
+export default function PollPage({ data }: PollPageProps) {
   const { setupTutorial } = useTutorialStore();
+  const [poll, setPoll] = useState<Poll | null>(data);
   const router = useRouter();
+  const pollId = data.id;
 
   const { voter, setVoter } = useVoter(pollId);
   const { vote, voting, isVotedByUser, refreshPoll } = useVote(poll, setPoll, voter);
 
-  const [voteDialogOpen, setVoteDialogOpen] = useState(false);
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [dialogMode, setDialogMode] = useState<'vote' | 'name-change' | null>(null);
   const [pendingOptionId, setPendingOptionId] = useState<number | null>(null);
-  const [nameChangeDialogOpen, setNameChangeDialogOpen] = useState(false);
 
   useEffect(() => {
     setupTutorial(
@@ -48,39 +48,19 @@ export default function VotingPage({ pollId, initialPoll }: VotingPageProps) {
     );
   }, []);
 
-  // ユーザーが閲覧中に投票受付時間が切れた場合、強制的にリロードすることで ResultPage を表示
-  useEffect(() => {
-    if (!poll || poll.isClosed === 1 || !poll.endDateTime) {
-      return;
-    }
-
-    const endDateTime = poll.endDateTime;
-    const checkTimeRemaining = () => {
-      const endTime = new Date(endDateTime).getTime();
-      const now = Date.now();
-      const remaining = Math.max(0, endTime - now);
-
-      if (remaining <= 0) {
-        router.refresh();
-      }
-    };
-
-    const timer = setInterval(checkTimeRemaining, 1000);
-    return () => clearInterval(timer);
-  }, [poll, router]);
 
   const handleVoteClick = (optionId: number) => {
     if (!voter) {
       setPendingOptionId(optionId);
-      setVoteDialogOpen(true);
+      setDialogMode('vote');
+      setDialogOpen(true);
     } else {
       vote(optionId);
     }
   };
 
-  const handleVoteNameSubmit = async (name: string, newUserId: string) => {
-    // 名前とuserIdを更新
-    const newVoter = { id: newUserId, name };
+  const handleVoterNameSubmit = async (name: string, newUserId: string) => {
+    const newVoter = { voterId: newUserId, voterName: name };
     setVoter(newVoter);
 
     // 投票を実行（新しいvoterを渡す）
@@ -90,18 +70,20 @@ export default function VotingPage({ pollId, initialPoll }: VotingPageProps) {
       await refreshPoll();
     }
 
-    setVoteDialogOpen(false);
+    setDialogOpen(false);
+    setDialogMode(null);
     setPendingOptionId(null);
   };
 
-  const handleNameChangeSubmit = async (name: string, newUserId: string) => {
+  const handleVoterNameChangeSubmit = async (name: string, newUserId: string) => {
     // 名前とuserIdを更新
-    setVoter({ id: newUserId, name });
+    setVoter({ voterId: newUserId, voterName: name });
 
     // ポーリングデータを再取得（名前変更が反映されるように）
     await refreshPoll();
 
-    setNameChangeDialogOpen(false);
+    setDialogOpen(false);
+    setDialogMode(null);
   };
 
   const endPoll = async () => {
@@ -130,7 +112,8 @@ export default function VotingPage({ pollId, initialPoll }: VotingPageProps) {
           poll={poll}
           onEndPoll={endPoll}
           onChangeVoterName={() => {
-            setNameChangeDialogOpen(true);
+            setDialogMode('name-change');
+            setDialogOpen(true);
           }}
           hasVoterName={!!voter}
         />
@@ -184,30 +167,17 @@ export default function VotingPage({ pollId, initialPoll }: VotingPageProps) {
         </Box>
       </Box>
 
-      {/* 投票用の名前入力ダイアログ */}
-      {pendingOptionId !== null && (
-        <VoterNameDialog
-          open={voteDialogOpen}
-          onClose={() => {
-            setVoteDialogOpen(false);
-            setPendingOptionId(null);
-          }}
-          pollId={pollId}
-          type="vote"
-          onSubmit={handleVoteNameSubmit}
-        />
-      )}
-
-      {/* 名前変更用の名前入力ダイアログ */}
       <VoterNameDialog
-        open={nameChangeDialogOpen}
+        open={dialogOpen}
         onClose={() => {
-          setNameChangeDialogOpen(false);
+          setDialogOpen(false);
+          setDialogMode(null);
+          setPendingOptionId(null);
         }}
         pollId={pollId}
-        type="name-change"
-        initialName={voter?.name}
-        onSubmit={handleNameChangeSubmit}
+        type={dialogMode || 'vote'}
+        initialName={dialogMode === 'name-change' ? voter?.voterName : ''}
+        onSubmit={dialogMode === 'vote' ? handleVoterNameSubmit : handleVoterNameChangeSubmit}
       />
     </>
   );

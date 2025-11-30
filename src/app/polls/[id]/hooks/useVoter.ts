@@ -1,40 +1,36 @@
 import { useState, useEffect } from 'react';
 
 export interface Voter {
-  id: string;
-  name: string;
+  voterId: string;
+  voterName: string;
 }
 
 export function useVoter(pollId: string) {
   const [voter, setVoter] = useState<Voter | null>(null);
-  const [nameDialogOpen, setNameDialogOpen] = useState(false);
+  const [voterNameDialogOpen, setVoterNameDialogOpen] = useState(false);
   const [tempName, setTempName] = useState<string>('');
 
   useEffect(() => {
-    // ローカルストレージから投票者情報を取得
     const storageKey = `voterInfo_${pollId}`;
     const storedInfo = localStorage.getItem(storageKey);
-
     if (storedInfo) {
       try {
-        const userInfo: Voter = JSON.parse(storedInfo);
-        setVoter(userInfo);
-      } catch (error) {
-        console.error('Error parsing stored user info:', error);
+        const voterInfo: Voter = JSON.parse(storedInfo);
+        setVoter(voterInfo);
+      } catch (e) {
         localStorage.removeItem(storageKey);
       }
     }
-    // 初期表示時にはダイアログを開かない
   }, [pollId]);
 
   const handleNameSubmit = async () => {
     if (tempName.trim()) {
       const newName = tempName.trim();
       // userIdがない場合は新しく生成
-      const newUserId = voter?.id || `voter_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      const newUserId = voter?.voterId || `voter_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
       const newVoter: Voter = {
-        id: newUserId,
-        name: newName,
+        voterId: newUserId,
+        voterName: newName,
       };
 
       setVoter(newVoter);
@@ -44,7 +40,7 @@ export function useVoter(pollId: string) {
       localStorage.setItem(storageKey, JSON.stringify(newVoter));
 
       // データベースの投票者名も更新（投票済みの場合のみ、userIdが既に存在する場合）
-      if (voter?.id) {
+      if (voter?.voterId) {
         try {
           await fetch(`/api/polls/${pollId}/voter-name`, {
             method: 'PUT',
@@ -52,7 +48,7 @@ export function useVoter(pollId: string) {
               'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-              voterId: voter.id,
+              voterId: voter.voterId,
               voterName: newName,
             }),
           });
@@ -61,13 +57,13 @@ export function useVoter(pollId: string) {
         }
       }
 
-      setNameDialogOpen(false);
+      setVoterNameDialogOpen(false);
     }
   };
 
   const checkAndOpenDialog = () => {
     if (!voter) {
-      setNameDialogOpen(true);
+      setVoterNameDialogOpen(true);
       return false;
     }
     return true;
@@ -76,10 +72,10 @@ export function useVoter(pollId: string) {
   return {
     voter,
     setVoter,
-    nameDialogOpen,
+    nameDialogOpen: voterNameDialogOpen,
     tempName,
     setTempName,
-    setNameDialogOpen,
+    setNameDialogOpen: setVoterNameDialogOpen,
     handleNameSubmit,
     checkAndOpenDialog,
   };

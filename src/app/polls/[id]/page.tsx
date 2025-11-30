@@ -2,8 +2,8 @@ import { getCloudflareContext } from '@opennextjs/cloudflare';
 import { getPoll } from '@/services/db/poll';
 import { redirect } from 'next/navigation';
 import type { Metadata } from 'next';
-import VotingPage from './components/VotingPage';
-import { ResultPage } from './components/ResultPage';
+import PollPage from './components/PollPage';
+import { ResultPage, calculateTotalVotes, getWinningOption } from './components/ResultPage';
 import { Box } from '@mui/material';
 import { DBPoll, DBPollOption } from '@/services/db/poll/types';
 import { LAYOUT_CONSTANTS } from '@/config/constants';
@@ -25,44 +25,19 @@ export default async function Page({ params }: PageProps) {
       redirect('/404');
     }
 
-    const pollData = result.data;
+    let pollData = result.data;
 
-    // endDateTimeが設定されていて、期限が過ぎている場合は自動的に投票を締め切る
-    if (pollData.endDateTime && pollData.isClosed === 0) {
+    if (pollData.isClosed === 0 && pollData.endDateTime) {
       const endTime = new Date(pollData.endDateTime).getTime();
-      const now = Date.now();
-      if (endTime <= now) {
-        // 期限が過ぎている場合は自動的に投票を締め切る
+      if (endTime <= Date.now()) {
         const { closePoll } = await import('@/services/db/poll');
         await closePoll(id, context.env);
-        // 締め切った後、再度ポールデータを取得
-        const updatedResult = await getPoll(id, context.env);
-        if (updatedResult.success && updatedResult.data) {
-          const updatedPollData = updatedResult.data;
-          const structuredData = generateStructuredData(updatedPollData);
-          const totalVotes = calculateTotalVotes(updatedPollData);
-          const winningOption = getWinningOption(updatedPollData);
-
-          return (
-            <>
-              <script
-                type="application/ld+json"
-                dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
-              />
-
-              <Box sx={{ maxWidth: LAYOUT_CONSTANTS.MAX_CONTENT_WIDTH, mx: 'auto', py: { xs: 2, sm: 3 }, px: { xs: 2, sm: 3 }, boxSizing: 'border-box' }}>
-                <ResultPage poll={updatedPollData} totalVotes={totalVotes} winningOption={winningOption} />
-              </Box>
-            </>
-          );
-        }
+        // NOTE: 投票受付を締め切った後に再度データを取得するのは非効率なので直接 isClosed を更新する
+        pollData.isClosed = 1;
       }
     }
 
-    const isClosed = pollData.isClosed === 1;
     const structuredData = generateStructuredData(pollData);
-    const totalVotes = calculateTotalVotes(pollData);
-    const winningOption = getWinningOption(pollData);
 
     return (
       <>
@@ -72,36 +47,19 @@ export default async function Page({ params }: PageProps) {
         />
 
         <Box sx={{ maxWidth: LAYOUT_CONSTANTS.MAX_CONTENT_WIDTH, mx: 'auto', py: { xs: 2, sm: 3 }, px: { xs: 2, sm: 3 }, boxSizing: 'border-box' }}>
-          {isClosed ? (
-            <ResultPage poll={pollData} totalVotes={totalVotes} winningOption={winningOption} />
+          {pollData.isClosed === 1 ? (
+            <ResultPage poll={pollData} />
           ) : (
-            <VotingPage pollId={id} initialPoll={pollData} />
+            <PollPage data={pollData} />
           )}
         </Box>
       </>
     );
   } catch (error) {
-    console.error('Error fetching poll data:', error);
     redirect('/404');
   }
 }
 
-/**
- * 総投票数を計算
- */
-function calculateTotalVotes(poll: DBPoll): number {
-  return poll.options.reduce((sum, option) => sum + option.votes, 0);
-}
-
-/**
- * 最多得票の選択肢を取得
- */
-function getWinningOption(poll: DBPoll): DBPollOption | null {
-  if (poll.options.length === 0) return null;
-  return poll.options.reduce((max, option) =>
-    option.votes > max.votes ? option : max, poll.options[0]
-  );
-}
 
 /**
  * 構造化データ（JSON-LD）を生成
