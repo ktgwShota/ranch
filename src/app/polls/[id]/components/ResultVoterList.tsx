@@ -4,11 +4,11 @@ import { Box, Avatar, Divider, Button, Typography } from '@mui/material';
 import { useState } from 'react';
 import type { DBPoll as Poll } from '@/services/db/poll/types';
 
-interface VotersListProps {
+interface ResultVoterListProps {
   poll: Poll;
 }
 
-export function VotersList({ poll }: VotersListProps) {
+export function ResultVoterList({ poll }: ResultVoterListProps) {
   const [showAll, setShowAll] = useState(false);
   const allVoters = poll.options.flatMap((option) =>
     option.voters.map((voter) => ({ ...voter, votedFor: option.title || option.url }))

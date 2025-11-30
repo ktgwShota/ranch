@@ -8,7 +8,7 @@ interface HeaderProps {
   onChangeVoterName: () => void;
 }
 
-export function Header({
+export function PollHeader({
   poll,
   onChangeVoterName,
 }: HeaderProps) {

@@ -1,10 +1,8 @@
 'use client';
 
-import { Box, Card, CardContent, CardMedia, Chip, Typography } from '@mui/material';
+import { Box, Card, CardContent, CardMedia, Chip, LinearProgress, Typography } from '@mui/material';
 import { Restaurant as RestaurantIcon } from '@mui/icons-material';
-import type { DBPollOption as Option } from '@/services/db/poll/types';
-import { ResultDisplay } from './ResultDisplay';
-import { VoterList } from './VoterList';
+import type { DBPollOption as Option, Voter } from '@/services/db/poll/types';
 import { CustomButton } from '@/app/components/CustomButton';
 import { Check as CheckIcon, ThumbUp as ThumbUpIcon } from '@mui/icons-material';
 
@@ -17,7 +15,7 @@ interface OptionCardProps {
   onVote: () => void;
 }
 
-export function OptionCard({
+export function PollOptionCard({
   option,
   totalVotes,
   isVoted,
@@ -249,6 +247,157 @@ export function OptionCard({
         </Box>
       </CardContent>
     </Card>
+  );
+}
+
+
+interface VoterListProps {
+  voters: Voter[];
+}
+
+export function VoterList({ voters }: VoterListProps) {
+  return (
+    <Box sx={{ mb: 2 }}>
+      <Typography
+        variant="caption"
+        sx={{
+          color: 'text.secondary',
+          fontSize: '14px',
+          mb: 1,
+          display: 'block',
+        }}
+      >
+        投票者
+      </Typography>
+      {voters && voters.length > 0 ? (
+        <Box
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 1,
+            flexWrap: 'wrap',
+          }}
+        >
+          {voters.slice(0, 5).map((voter) => (
+            <Box
+              key={voter.id}
+              sx={{
+                width: 32,
+                height: 32,
+                borderRadius: '50%',
+                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: 'white',
+                fontSize: '14px',
+                fontWeight: 600,
+                border: '2px solid white',
+                boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+              }}
+            >
+              {(voter.name && voter.name.length > 0 ? voter.name.charAt(0) : '?').toUpperCase()}
+            </Box>
+          ))}
+          {voters.length > 5 && (
+            <Box
+              sx={{
+                width: 32,
+                height: 32,
+                borderRadius: '50%',
+                background: '#e5e7eb',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: 'text.secondary',
+                fontSize: '14px',
+                fontWeight: 600,
+                border: '2px solid white',
+                boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+              }}
+            >
+              +{voters.length - 5}
+            </Box>
+          )}
+        </Box>
+      ) : (
+        <Typography
+          variant="body1"
+          sx={{
+            height: 32,
+            display: 'flex',
+            alignItems: 'center',
+            color: '#9ca3af',
+            fontSize: '14px',
+            fontStyle: 'italic',
+          }}
+        >
+          -
+        </Typography>
+      )}
+    </Box>
+  );
+}
+
+interface ResultDisplayProps {
+  votes: number;
+  percentage: number;
+}
+
+function ResultDisplay({ votes, percentage }: ResultDisplayProps) {
+  return (
+    <>
+      <Box display="flex" justifyContent="space-between" alignItems="baseline" mb={1.5}>
+        <Box display="flex" alignItems="baseline" gap={0.5}>
+          <Typography
+            variant="h6"
+            sx={{
+              color: 'text.primary',
+              fontWeight: 700,
+              fontSize: '20px',
+              lineHeight: 1.2,
+            }}
+          >
+            {votes}
+          </Typography>
+          <Typography
+            variant="body1"
+            sx={{
+              color: 'text.secondary',
+              fontSize: '14px',
+              fontWeight: 500,
+            }}
+          >
+            票
+          </Typography>
+        </Box>
+        <Typography
+          variant="body1"
+          sx={{
+            color: 'text.primary',
+            fontWeight: 600,
+            fontSize: '18px',
+          }}
+        >
+          {percentage.toFixed(1)}%
+        </Typography>
+      </Box>
+
+      <LinearProgress
+        variant="determinate"
+        value={percentage}
+        sx={{
+          height: 8,
+          borderRadius: 4,
+          backgroundColor: '#e5e7eb',
+          mb: 3,
+          '& .MuiLinearProgress-bar': {
+            borderRadius: 4,
+            background: '#3b82f6',
+          },
+        }}
+      />
+    </>
   );
 }
 

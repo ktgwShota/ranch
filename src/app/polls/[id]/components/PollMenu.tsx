@@ -4,6 +4,13 @@ import {
   MenuItem,
   ListItemIcon,
   ListItemText,
+  Alert,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  TextField,
+  Typography,
 } from '@mui/material';
 import {
   Visibility as VisibilityIcon,
@@ -14,10 +21,10 @@ import {
 import { useState } from 'react';
 import type { DBPoll as Poll } from '@/services/db/poll/types';
 import { CustomDialog } from '@/app/components/CustomDialog';
-import { PasswordDialog } from './PasswordDialog';
 import { useOrganizer } from '../hooks/useOrganizer';
 import { useRouter } from 'next/navigation';
 import { closePoll, deletePoll } from '@/lib/api/pollApi';
+import { PollPasswordDialog } from './PollPasswordDialog';
 
 interface PollMenuProps {
   poll: Poll;
@@ -237,14 +244,13 @@ export function PollMenu({
         ))}
       </Menu>
 
-      <PasswordDialog
+      <PollPasswordDialog
         open={passwordDialogOpen}
         onClose={() => {
           setPasswordDialogOpen(false);
           setOnPasswordSuccess(null);
         }}
         onConfirm={handlePasswordConfirm}
-        pollId={poll.id}
       />
 
       <CustomDialog
@@ -285,4 +291,3 @@ export function PollMenu({
     </>
   );
 }
-

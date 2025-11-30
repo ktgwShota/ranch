@@ -1,7 +1,7 @@
 import { Box, Paper, Typography, LinearProgress, Avatar, Divider } from '@mui/material';
 import { BarChart as BarChartIcon, HowToVote as HowToVoteIcon, People as PeopleIcon } from '@mui/icons-material';
 import type { DBPoll as Poll, DBPollOption as Option } from '@/services/db/poll/types';
-import { VotersList } from './VotersList';
+import { ResultVoterList } from './ResultVoterList';
 
 interface ResultPageProps {
   pollData: Poll;
@@ -290,7 +290,7 @@ function RightColumn({ poll, totalVotes }: { poll: Poll; totalVotes: number }) {
             投票者
           </Typography>
         </Box>
-        <VotersList poll={poll} />
+        <ResultVoterList poll={poll} />
       </Paper>
     </Box>
   );

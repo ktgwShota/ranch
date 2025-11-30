@@ -3,9 +3,9 @@
 import { Box } from '@mui/material';
 import { useState, useEffect } from 'react';
 import { usePollVote } from '../hooks/usePollVote';
-import { Header } from './Header';
-import { OptionCard } from './OptionCard';
-import { VoterNameDialog } from './VoterNameDialog';
+import { PollHeader } from './PollHeader';
+import { PollOptionCard } from './PollOptionCard';
+import { PollVoterNameDialog } from './PollVoterNameDialog';
 import { useTutorialStore } from '@/app/stores/tutorialStore';
 import type { DBPoll as Poll } from '@/services/db/poll/types';
 
@@ -77,7 +77,7 @@ export default function PollPage({ pollData }: PollPageProps) {
   return (
     <>
       <Box>
-        <Header
+        <PollHeader
           poll={pollData}
           onChangeVoterName={() => {
             setDialogState({ mode: DIALOG_MODE.EDIT_VOTER_NAME });
@@ -103,7 +103,7 @@ export default function PollPage({ pollData }: PollPageProps) {
             const isAnyVoting = voting !== null;
 
             return (
-              <OptionCard
+              <PollOptionCard
                 key={option.id}
                 option={option}
                 totalVotes={totalVotes}
@@ -135,7 +135,7 @@ export default function PollPage({ pollData }: PollPageProps) {
       </Box>
 
       {dialogState && (
-        <VoterNameDialog
+        <PollVoterNameDialog
           open
           onClose={() => setDialogState(null)}
           pollId={pollData.id}

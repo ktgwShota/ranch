@@ -5,7 +5,7 @@ import { useState, useEffect } from 'react';
 import { CustomDialog } from '@/app/components/CustomDialog';
 import { useErrorStore } from '@/app/stores/errorStore';
 
-interface VoterNameDialogProps {
+interface PollVoterNameDialogProps {
   open: boolean;
   pollId: string;
   initialVoterName?: string;
@@ -13,13 +13,13 @@ interface VoterNameDialogProps {
   onSubmit?: (name: string, userId: string) => void | Promise<void>;
 }
 
-export function VoterNameDialog({
+export function PollVoterNameDialog({
   open,
   onClose,
   pollId,
   initialVoterName = '',
   onSubmit,
-}: VoterNameDialogProps) {
+}: PollVoterNameDialogProps) {
   const [tempName, setTempName] = useState(initialVoterName);
   const [submitting, setSubmitting] = useState(false);
   const [nameError, setNameError] = useState<string | null>(null);

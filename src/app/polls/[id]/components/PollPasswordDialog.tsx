@@ -1,25 +1,13 @@
-'use client';
+import { Dialog, DialogTitle, DialogContent, Typography, Alert, TextField, DialogActions, Button } from "@mui/material";
+import { useState } from "react";
 
-import { useState } from 'react';
-import {
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  TextField,
-  Button,
-  Typography,
-  Alert,
-} from '@mui/material';
-
-interface PasswordDialogProps {
+interface PollPasswordDialogProps {
   open: boolean;
   onClose: () => void;
   onConfirm: (password: string) => Promise<void>;
-  pollId: string;
 }
 
-export function PasswordDialog({ open, onClose, onConfirm, pollId }: PasswordDialogProps) {
+export function PollPasswordDialog({ open, onClose, onConfirm }: PollPasswordDialogProps) {
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -52,10 +40,10 @@ export function PasswordDialog({ open, onClose, onConfirm, pollId }: PasswordDia
 
   return (
     <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>
-      <DialogTitle>主催者パスワードを入力</DialogTitle>
+      <DialogTitle>管理者権限パスワードを入力</DialogTitle>
       <DialogContent>
         <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-          投票を終了するには主催者パスワードが必要です。
+          投票を終了するには管理者権限パスワードが必要です。
         </Typography>
         {error && (
           <Alert severity="error" sx={{ mb: 2 }}>
@@ -92,4 +80,3 @@ export function PasswordDialog({ open, onClose, onConfirm, pollId }: PasswordDia
     </Dialog>
   );
 }
-
