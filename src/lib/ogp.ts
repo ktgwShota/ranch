@@ -1,3 +1,5 @@
+const GAS_PROXY_URL = 'https://script.google.com/macros/s/AKfycbykQq3SWYs1m9mteUsW8QNoNxKOxOZlyPMj3HK6hcmwfl6nTnyvh8N-Bfpse9eKIaqQ/exec';
+
 async function fetchOGPData(url: string): Promise<{ title: string; image: string | null; description?: string | null; budgetMin?: string; budgetMax?: string; budgetOptions?: Array<{ label: string; min: string; max: string }>; error?: string }> {
   try {
     // URLのバリデーション
@@ -37,12 +39,28 @@ async function fetchOGPData(url: string): Promise<{ title: string; image: string
     // HTMLを取得
     let html: string;
     try {
-      const response = await fetch(url, {
-        headers: {
-          'User-Agent': 'Mozilla/5.0 (compatible; OGP-Fetcher/1.0)',
-        },
-        signal: AbortSignal.timeout(10000), // 10秒でタイムアウト
-      });
+      let response: Response;
+
+      // 食べログの場合はGASプロキシを経由する
+      if (parsedUrl.hostname.includes('tabelog.com') && GAS_PROXY_URL) {
+        console.log('Using GAS Proxy for Tabelog in lib/ogp...');
+        const proxyUrl = `${GAS_PROXY_URL}?url=${encodeURIComponent(url)}`;
+
+        // GASプロキシへのリクエストは単純なGETで良い
+        response = await fetch(proxyUrl, {
+          signal: AbortSignal.timeout(15000), // プロキシ経由なので少し長めに
+        });
+      } else {
+        // 通常のフェッチ
+        response = await fetch(url, {
+          headers: {
+            'User-Agent': 'Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)',
+            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+            'Accept-Language': 'ja,en-US;q=0.9,en;q=0.8',
+          },
+          signal: AbortSignal.timeout(10000), // 10秒でタイムアウト
+        });
+      }
 
       if (!response.ok) {
         return { title: 'お店の情報を取得できませんでした', image: null, description: null, budgetMin: undefined, budgetMax: undefined, budgetOptions: undefined, error: `HTTP error! status: ${response.status}` };

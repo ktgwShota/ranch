@@ -1,6 +1,8 @@
 import { type NextRequest, NextResponse } from 'next/server';
 import { fetchOGPData as fetchOGPDataCommon } from '../../../lib/ogp';
 
+const GAS_PROXY_URL = 'https://script.google.com/macros/s/AKfycbykQq3SWYs1m9mteUsW8QNoNxKOxOZlyPMj3HK6hcmwfl6nTnyvh8N-Bfpse9eKIaqQ/exec';
+
 // OGPデータを取得する共通関数（後方互換性のため残す）
 async function fetchOGPData(url: string) {
   console.log('Fetching OGP data for URL:', url);
@@ -64,12 +66,28 @@ async function fetchOGPData(url: string) {
   console.log('Fetching HTML from URL:', url);
   let html: string;
   try {
-    const response = await fetch(url, {
-      headers: {
-        'User-Agent': 'Mozilla/5.0 (compatible; OGP-Fetcher/1.0)',
-      },
-      signal: AbortSignal.timeout(10000), // 10秒でタイムアウト
-    });
+    let response: Response;
+
+    // 食べログの場合はGASプロキシを経由する
+    if (parsedUrl.hostname.includes('tabelog.com') && GAS_PROXY_URL) {
+      console.log('Using GAS Proxy for Tabelog...');
+      const proxyUrl = `${GAS_PROXY_URL}?url=${encodeURIComponent(url)}`;
+
+      // GASプロキシへのリクエストは単純なGETで良い
+      response = await fetch(proxyUrl, {
+        signal: AbortSignal.timeout(15000), // プロキシ経由なので少し長めに
+      });
+    } else {
+      // 通常のフェッチ
+      response = await fetch(url, {
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)',
+          'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+          'Accept-Language': 'ja,en-US;q=0.9,en;q=0.8',
+        },
+        signal: AbortSignal.timeout(10000), // 10秒でタイムアウト
+      });
+    }
 
     console.log('HTML response status:', response.status);
     if (!response.ok) {

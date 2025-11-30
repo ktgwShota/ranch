@@ -546,3 +546,10 @@ MIT License
    ```
 
 これで Cloudflare D1 を使った Next.js アプリケーションの開発・デプロイが可能です！
+
+
+# 本番 (env=prd)
+npx wrangler d1 execute myapp_prod \
+  --remote \
+  --file="./src/services/db/migrations/schema.sql" \
+  --env=prd
