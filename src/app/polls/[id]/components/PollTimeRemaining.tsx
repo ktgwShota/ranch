@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import type { DBPoll as Poll } from '@/services/db/poll/types';
 
 interface PollTimeRemainingProps {
-  poll: Poll | null;
+  poll: Poll;
 }
 
 function formatTime(seconds: number): string {
@@ -32,7 +32,7 @@ export function PollTimeRemaining({ poll }: PollTimeRemainingProps) {
 
   // リアルタイム更新のため、1秒ごとに再レンダリング
   useEffect(() => {
-    if (!poll?.endDateTime || poll.isClosed === 1) {
+    if (!poll.endDateTime || poll.isClosed === 1) {
       return;
     }
 
@@ -44,7 +44,7 @@ export function PollTimeRemaining({ poll }: PollTimeRemainingProps) {
   }, [poll]);
 
   const getTimeRemaining = (): number => {
-    if (!poll?.endDateTime) return 0;
+    if (!poll.endDateTime) return 0;
     const endTime = new Date(poll.endDateTime).getTime();
     const now = Date.now();
     return Math.max(0, Math.ceil((endTime - now) / 1000));

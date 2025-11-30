@@ -20,15 +20,13 @@ import { useRouter } from 'next/navigation';
 import { closePoll, deletePoll } from '@/lib/api/pollApi';
 
 interface PollMenuProps {
-  poll: Poll | null;
+  poll: Poll;
   onChangeVoterName: () => void;
-  hasVoterName: boolean;
 }
 
 export function PollMenu({
   poll,
   onChangeVoterName,
-  hasVoterName,
 }: PollMenuProps) {
   const router = useRouter();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
@@ -43,7 +41,17 @@ export function PollMenu({
     setErrorDialogOpen,
     checkOrganizerAccess,
     verifyPassword,
-  } = useOrganizer(poll?.id || null, poll?.password || null);
+  } = useOrganizer(poll.id, poll.password);
+
+  const requireOrganizerAccess = (action: () => void) => {
+    checkOrganizerAccess(
+      action,
+      () => {
+        setOnPasswordSuccess(() => action);
+        setPasswordDialogOpen(true);
+      }
+    );
+  };
 
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
@@ -55,17 +63,7 @@ export function PollMenu({
 
   const handleEndPollClick = () => {
     handleClose();
-    if (!poll) return;
-
-    checkOrganizerAccess(
-      () => {
-        setConfirmDialogOpen(true);
-      },
-      () => {
-        setOnPasswordSuccess(() => () => setConfirmDialogOpen(true));
-        setPasswordDialogOpen(true);
-      }
-    );
+    requireOrganizerAccess(() => setConfirmDialogOpen(true));
   };
 
   const handlePasswordConfirm = async (password: string) => {
@@ -82,15 +80,13 @@ export function PollMenu({
   };
 
   const handleConfirmEndPoll = async () => {
-    if (!poll) return;
-
     setConfirmDialogOpen(false);
 
     try {
       await closePoll(poll.id);
       router.refresh();
     } catch (e) {
-      console.error('Error closing poll:', e);
+      alert('投票の公開に失敗しました。もう一度お試しください。');
     }
   };
 
@@ -101,38 +97,24 @@ export function PollMenu({
 
   const handleDeleteClick = () => {
     handleClose();
-    if (!poll) return;
-
-    checkOrganizerAccess(
-      () => {
-        setDeleteDialogOpen(true);
-      },
-      () => {
-        setOnPasswordSuccess(() => () => setDeleteDialogOpen(true));
-        setPasswordDialogOpen(true);
-      }
-    );
+    requireOrganizerAccess(() => setDeleteDialogOpen(true));
   };
 
   const handleConfirmDelete = async () => {
-    if (!poll) return;
-
     try {
       await deletePoll(poll.id);
-      // 削除成功後、トップページにリダイレクト
       window.location.href = '/';
     } catch (error) {
-      console.error('Error deleting poll:', error);
       alert(error instanceof Error ? error.message : '投票の削除に失敗しました');
     }
   };
 
-  const canEndPoll = !!poll;
+  const canEndPoll = poll.isClosed === 0;
 
   const menuItems = [
     {
       id: 'change-voter-name',
-      label: hasVoterName ? '投票者名を変更' : '投票者名を設定',
+      label: '投票者名を設定',
       icon: <EditIcon fontSize="small" sx={{ color: '#3b82f6' }} />,
       onClick: handleChangeVoterName,
       hoverColor: '#f3f4f6',
@@ -255,6 +237,16 @@ export function PollMenu({
         ))}
       </Menu>
 
+      <PasswordDialog
+        open={passwordDialogOpen}
+        onClose={() => {
+          setPasswordDialogOpen(false);
+          setOnPasswordSuccess(null);
+        }}
+        onConfirm={handlePasswordConfirm}
+        pollId={poll.id}
+      />
+
       <CustomDialog
         open={confirmDialogOpen}
         onClose={() => setConfirmDialogOpen(false)}
@@ -267,18 +259,6 @@ export function PollMenu({
           startIcon: <VisibilityIcon />,
         }}
       />
-
-      {poll && (
-        <PasswordDialog
-          open={passwordDialogOpen}
-          onClose={() => {
-            setPasswordDialogOpen(false);
-            setOnPasswordSuccess(null);
-          }}
-          onConfirm={handlePasswordConfirm}
-          pollId={poll.id}
-        />
-      )}
 
       <CustomDialog
         open={errorDialogOpen}

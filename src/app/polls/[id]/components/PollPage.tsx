@@ -1,6 +1,6 @@
 'use client';
 
-import { Box, Button } from '@mui/material';
+import { Box } from '@mui/material';
 import { useState, useEffect } from 'react';
 import { usePollVote } from '../hooks/usePollVote';
 import { Header } from './Header';
@@ -8,6 +8,15 @@ import { OptionCard } from './OptionCard';
 import { VoterNameDialog } from './VoterNameDialog';
 import { useTutorialStore } from '@/app/stores/tutorialStore';
 import type { DBPoll as Poll } from '@/services/db/poll/types';
+
+const DIALOG_MODE = {
+  CAST_VOTE: 'castVote',
+  EDIT_VOTER_NAME: 'editVoterName',
+} as const;
+
+type DialogState =
+  | { mode: typeof DIALOG_MODE.CAST_VOTE; optionId: number }
+  | { mode: typeof DIALOG_MODE.EDIT_VOTER_NAME };
 
 interface PollPageProps {
   pollData: Poll;
@@ -17,9 +26,7 @@ export default function PollPage({ pollData }: PollPageProps) {
   const { setupTutorial } = useTutorialStore();
   const { voter, setVoter, updateVoterName, vote, voting, isVotedByUser } = usePollVote(pollData.id);
 
-  const [dialogOpen, setDialogOpen] = useState(false);
-  const [dialogMode, setDialogMode] = useState<'vote' | 'name-change' | null>(null);
-  const [pendingOptionId, setPendingOptionId] = useState<number | null>(null);
+  const [dialogState, setDialogState] = useState<DialogState | null>(null);
 
   useEffect(() => {
     setupTutorial(
@@ -44,32 +51,27 @@ export default function PollPage({ pollData }: PollPageProps) {
 
   const handleVoteClick = (optionId: number) => {
     if (!voter) {
-      setPendingOptionId(optionId);
-      setDialogMode('vote');
-      setDialogOpen(true);
-    } else {
-      vote(optionId);
+      setDialogState({ mode: DIALOG_MODE.CAST_VOTE, optionId });
+      return;
     }
+    vote(optionId);
   };
 
-  const handleVoterNameSubmit = async (name: string, newUserId: string) => {
+  const handleVoterNameSubmit = async (name: string, newUserId: string, optionId?: number) => {
     const newVoter = { voterId: newUserId, voterName: name };
     setVoter(newVoter);
 
-    if (pendingOptionId !== null) {
-      await vote(pendingOptionId, newVoter);
+    if (optionId !== undefined) {
+      await vote(optionId, newVoter);
     }
 
-    setDialogOpen(false);
-    setDialogMode(null);
-    setPendingOptionId(null);
+    setDialogState(null);
   };
 
   const handleVoterNameChangeSubmit = async (name: string, newUserId: string) => {
     await updateVoterName(name, newUserId);
 
-    setDialogOpen(false);
-    setDialogMode(null);
+    setDialogState(null);
   };
 
   return (
@@ -78,11 +80,10 @@ export default function PollPage({ pollData }: PollPageProps) {
         <Header
           poll={pollData}
           onChangeVoterName={() => {
-            setDialogMode('name-change');
-            setDialogOpen(true);
+            setDialogState({ mode: DIALOG_MODE.EDIT_VOTER_NAME });
           }}
-          hasVoterName={!!voter}
         />
+
         <Box
           sx={{
             display: 'grid',
@@ -133,18 +134,20 @@ export default function PollPage({ pollData }: PollPageProps) {
         </Box>
       </Box>
 
-      <VoterNameDialog
-        open={dialogOpen}
-        onClose={() => {
-          setDialogOpen(false);
-          setDialogMode(null);
-          setPendingOptionId(null);
-        }}
-        pollId={pollData.id}
-        type={dialogMode || 'vote'}
-        initialName={dialogMode === 'name-change' ? voter?.voterName : ''}
-        onSubmit={dialogMode === 'vote' ? handleVoterNameSubmit : handleVoterNameChangeSubmit}
-      />
+      {dialogState && (
+        <VoterNameDialog
+          open
+          onClose={() => setDialogState(null)}
+          pollId={pollData.id}
+          initialVoterName={dialogState.mode === DIALOG_MODE.EDIT_VOTER_NAME ? voter?.voterName : ''}
+          onSubmit={(name, userId) => {
+            if (dialogState.mode === DIALOG_MODE.CAST_VOTE) {
+              return handleVoterNameSubmit(name, userId, dialogState.optionId);
+            }
+            return handleVoterNameChangeSubmit(name, userId);
+          }}
+        />
+      )}
     </>
   );
 }

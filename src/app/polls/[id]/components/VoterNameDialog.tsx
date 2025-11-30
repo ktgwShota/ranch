@@ -8,8 +8,7 @@ import { useErrorStore } from '@/app/stores/errorStore';
 interface VoterNameDialogProps {
   open: boolean;
   pollId: string;
-  type: 'vote' | 'name-change';
-  initialName?: string;
+  initialVoterName?: string;
   onClose: () => void;
   onSubmit?: (name: string, userId: string) => void | Promise<void>;
 }
@@ -18,21 +17,20 @@ export function VoterNameDialog({
   open,
   onClose,
   pollId,
-  type,
-  initialName = '',
+  initialVoterName = '',
   onSubmit,
 }: VoterNameDialogProps) {
-  const [tempName, setTempName] = useState(initialName);
+  const [tempName, setTempName] = useState(initialVoterName);
   const [submitting, setSubmitting] = useState(false);
   const [nameError, setNameError] = useState<string | null>(null);
   const { showError } = useErrorStore();
 
   useEffect(() => {
     if (open) {
-      setTempName(initialName);
+      setTempName(initialVoterName);
       setNameError(null);
     }
-  }, [open, initialName]);
+  }, [open, initialVoterName]);
 
   const handleSubmit = async () => {
     if (!tempName.trim()) {

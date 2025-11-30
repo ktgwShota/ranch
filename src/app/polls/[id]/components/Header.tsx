@@ -6,13 +6,11 @@ import { PollMenu } from './PollMenu';
 interface HeaderProps {
   poll: Poll;
   onChangeVoterName: () => void;
-  hasVoterName: boolean;
 }
 
 export function Header({
   poll,
   onChangeVoterName,
-  hasVoterName,
 }: HeaderProps) {
 
   return (
@@ -45,19 +43,16 @@ export function Header({
               lineHeight: 1.3,
             }}
           >
-            {poll?.title}
+            {poll.title}
           </Typography>
           <PollTimeRemaining poll={poll} />
         </Box>
 
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, flexShrink: 0 }}>
-          {poll && (
-            <PollMenu
-              poll={poll}
-              onChangeVoterName={onChangeVoterName}
-              hasVoterName={hasVoterName}
-            />
-          )}
+          <PollMenu
+            poll={poll}
+            onChangeVoterName={onChangeVoterName}
+          />
         </Box>
       </Box>
     </Box>
