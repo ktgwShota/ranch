@@ -59,50 +59,6 @@ export function PollOptionCard({
           cursor: 'pointer',
         }}
       >
-        {/* 予算ラベル（画像の右上） */}
-        {option.budgetMin || option.budgetMax ? (
-          <Box
-            sx={{
-              position: 'absolute',
-              top: 10,
-              right: 10,
-              zIndex: 1,
-            }}
-          >
-            <Chip
-              label={(() => {
-                const min = option.budgetMin && option.budgetMin.trim() ? parseInt(option.budgetMin, 10).toLocaleString() : '';
-                const max = option.budgetMax && option.budgetMax.trim() ? parseInt(option.budgetMax, 10).toLocaleString() : '';
-                if (min && max) {
-                  if (option.budgetMin === option.budgetMax) {
-                    return `${min} 円`;
-                  }
-                  return `${min} ~ ${max} 円`;
-                } else if (min) {
-                  return `${min} ~ 円`;
-                } else if (max) {
-                  return `~ ${max} 円`;
-                }
-                return '';
-              })()}
-              size="small"
-              sx={{
-                background: 'linear-gradient(135deg, rgba(17, 24, 39, 0.8) 0%, rgba(31, 41, 55, 0.85) 100%)',
-                color: '#ffffff',
-                fontSize: '12px',
-                fontWeight: 600,
-                height: '28px',
-                backdropFilter: 'blur(12px) saturate(150%)',
-                borderRadius: '4px',
-                border: '0.5px solid rgba(255, 255, 255, 0.1)',
-                '& .MuiChip-label': {
-                  fontFamily: 'system-ui, -apple-system, sans-serif',
-                },
-              }}
-            />
-          </Box>
-        ) : null}
-
         {!option.image && (
           <Box
             sx={{

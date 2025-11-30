@@ -7,11 +7,13 @@ export function UrlInput({
   onChange,
   error,
   register,
+  placeholder = "https://tabelog.com/tokyo/...",
 }: {
   value: string;
   onChange: (value: string) => void;
   error?: string;
   register: UseFormRegisterReturn;
+  placeholder?: string;
 }) {
   return (
     <TextField
@@ -26,7 +28,7 @@ export function UrlInput({
         register.onChange(e);
         onChange(e.target.value);
       }}
-      placeholder="https://tabelog.com/tokyo/..."
+      placeholder={placeholder}
       error={!!error}
       helperText={error || ''}
       InputLabelProps={{

@@ -13,8 +13,6 @@ const pollOptionSchema = z.object({
       { message: '正しいURLを入力してください' }
     ),
   title: z.string().min(1, 'タイトルは必須です'),
-  budgetMin: z.string().optional(),
-  budgetMax: z.string().optional(),
   description: z.string().max(50, '備考は50文字以内で入力してください').optional(),
 });
 
@@ -59,4 +57,3 @@ export const pollSchema = z
 
 export type PollFormData = z.infer<typeof pollSchema>;
 export type PollOptionFormData = z.infer<typeof pollOptionSchema>;
-

@@ -96,7 +96,6 @@ function ResultOptionCard({
   const percentage = totalVotes > 0 ? (option.votes / totalVotes) * 100 : 0;
   const rankColorPalette = ['#fbbf24', '#cfd8ff', '#fde68a'];
   const rankColor = rankColorPalette[rank - 1] || '#e5e7eb';
-  const budgetLabel = formatBudget(option);
 
   return (
     <Box
@@ -136,23 +135,6 @@ function ResultOptionCard({
               }}
             />
           </Box>
-          {budgetLabel && (
-            <Chip
-              label={budgetLabel}
-              size="small"
-              sx={{
-                background: 'linear-gradient(135deg, rgba(17, 24, 39, 0.8) 0%, rgba(31, 41, 55, 0.85) 100%)',
-                color: '#ffffff',
-                fontSize: '12px',
-                fontWeight: 600,
-                height: '26px',
-                borderRadius: 0.5,
-                '& .MuiChip-label': {
-                  fontFamily: 'system-ui, -apple-system, sans-serif',
-                },
-              }}
-            />
-          )}
         </Box>
 
         <Box sx={{ display: 'flex', gap: 1.5 }}>
@@ -293,24 +275,6 @@ function RightColumn({ poll, totalVotes }: { poll: Poll; totalVotes: number }) {
       </Paper>
     </Box>
   );
-}
-
-function formatBudget(option: Option): string {
-  const format = (value?: string | null) =>
-    value && value.trim() ? parseInt(value, 10).toLocaleString() : '';
-
-  const min = format(option.budgetMin);
-  const max = format(option.budgetMax);
-
-  if (min && max) {
-    if (option.budgetMin === option.budgetMax) {
-      return `${min} 円`;
-    }
-    return `${min} ~ ${max} 円`;
-  }
-  if (min) return `${min} ~ 円`;
-  if (max) return `~ ${max} 円`;
-  return '';
 }
 
 /**

@@ -12,8 +12,14 @@ import {
   Accordion,
   AccordionSummary,
   AccordionDetails,
+  Tabs,
+  Tab,
 } from '@mui/material';
-import { ExpandMore as ExpandMoreIcon } from '@mui/icons-material';
+import {
+  ExpandMore as ExpandMoreIcon,
+  Restaurant as RestaurantIcon,
+  Place as PlaceIcon,
+} from '@mui/icons-material';
 import { useEffect, useState } from 'react';
 import { useForm, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -30,6 +36,8 @@ const MAX_OPTIONS = 6;
 const MIN_OPTIONS = 2;
 
 export default function Index() {
+  const [category, setCategory] = useState('RESTAURANT');
+
   // 今日の日付を取得（YYYY-MM-DD形式）
   const todayDate = new Date().toISOString().split('T')[0];
   // 現在時刻を取得（HH:MM形式）
@@ -61,8 +69,8 @@ export default function Index() {
     defaultValues: {
       title: '',
       options: [
-        { url: '', title: '', budgetMin: '', budgetMax: '', description: '' },
-        { url: '', title: '', budgetMin: '', budgetMax: '', description: '' },
+        { url: '', title: '', description: '' },
+        { url: '', title: '', description: '' },
       ],
       endDate: '',
       endTime: '',
@@ -82,8 +90,8 @@ export default function Index() {
 
   // 内部状態としてPollOptionを管理（OGP取得などのロジック用）
   const [pollOptions, setPollOptions] = useState<PollOption[]>([
-    { id: 1, url: '', showCustomBudget: false },
-    { id: 2, url: '', showCustomBudget: false },
+    { id: 1, url: '' },
+    { id: 2, url: '' },
   ]);
 
   // react-hook-formの値と内部状態を同期
@@ -96,24 +104,26 @@ export default function Index() {
           id: existing?.id || Date.now() + index,
           url: formOption.url || '',
           title: formOption.title || '',
-          budgetMin: formOption.budgetMin || '',
-          budgetMax: formOption.budgetMax || '',
           description: formOption.description || '',
-          showCustomBudget: existing?.showCustomBudget || false,
-          budgetOptions: existing?.budgetOptions,
         };
       });
       return newOptions;
     });
   }, [watchedOptions]);
 
+  const handleCategoryChange = (event: React.SyntheticEvent, newValue: string) => {
+    if (newValue === 'GENERAL') {
+      alert('準備中です');
+      return;
+    }
+    setCategory(newValue);
+  };
+
   const handleAddOption = () => {
     if (fields.length < MAX_OPTIONS) {
       append({
         url: '',
         title: '',
-        budgetMin: '',
-        budgetMax: '',
         description: '',
       });
       setPollOptions([
@@ -121,11 +131,7 @@ export default function Index() {
         {
           id: Date.now(),
           url: '',
-          budget: '',
-          budgetMin: '',
-          budgetMax: '',
           description: '',
-          showCustomBudget: false,
         },
       ]);
     }
@@ -144,12 +150,6 @@ export default function Index() {
       }
       if (updates.title !== undefined) {
         setValue(`options.${index}.title`, updates.title);
-      }
-      if (updates.budgetMin !== undefined) {
-        setValue(`options.${index}.budgetMin`, updates.budgetMin || '');
-      }
-      if (updates.budgetMax !== undefined) {
-        setValue(`options.${index}.budgetMax`, updates.budgetMax || '');
       }
       if (updates.description !== undefined) {
         setValue(`options.${index}.description`, updates.description || '');
@@ -179,8 +179,6 @@ export default function Index() {
           options: validOptions.map((option) => ({
             url: option.url.trim(),
             title: option.title.trim(),
-            budgetMin: option.budgetMin || undefined,
-            budgetMax: option.budgetMax || undefined,
             description: option.description || undefined,
           })),
           endDate: data.endDate || null,
@@ -225,6 +223,19 @@ export default function Index() {
         }}
       >
         <Box component="form" onSubmit={handleSubmit(onSubmit)}>
+          {/* カテゴリ切り替えタブ */}
+          <Tabs
+            value={category}
+            onChange={handleCategoryChange}
+            variant="fullWidth"
+            indicatorColor="primary"
+            textColor="primary"
+            sx={{ mb: 4, borderBottom: 1, borderColor: 'divider' }}
+          >
+            <Tab icon={<RestaurantIcon />} label="飲食店" value="RESTAURANT" />
+            <Tab icon={<PlaceIcon />} label="イベント全般" value="GENERAL" />
+          </Tabs>
+
           <Box>
             <Typography
               variant="h6"
@@ -269,13 +280,13 @@ export default function Index() {
                 variant="h6"
                 sx={{ fontWeight: 600, color: 'text.primary', mb: 1, fontSize: '1rem' }}
               >
-                店舗情報 <span style={{ color: '#f44336' }}>*</span>
+                候補リスト <span style={{ color: '#f44336' }}>*</span>
               </Typography>
               <Typography variant="body1" color="text.secondary" sx={{ mb: 0.5, fontSize: '0.875rem' }}>
-                候補となるお店の情報を入力してください。
+                候補となる飲食店のURLを入力してください。
               </Typography>
-              <Typography variant="body1" color="text.secondary" sx={{ fontSize: '0.875rem' }}>
-                <a href="https://tabelog.com/" target="_blank" rel="noopener noreferrer" style={{ color: '#1976d2', textDecoration: 'none' }}>食べログ</a> または <a href="https://www.gnavi.co.jp/" target="_blank" rel="noopener noreferrer" style={{ color: '#1976d2', textDecoration: 'none' }}>ぐるなび</a> で取得した URL を使用するとタイトルと予算を自動入力されます。
+              <Typography variant="body1" color="text.secondary" sx={{ fontSize: '0.875rem' }}>対応サイト（
+                <a href="https://tabelog.com/" target="_blank" rel="noopener noreferrer" style={{ color: '#1976d2', textDecoration: 'none' }}>食べログ</a> / <a href="https://www.gnavi.co.jp/" target="_blank" rel="noopener noreferrer" style={{ color: '#1976d2', textDecoration: 'none' }}>ぐるなび</a>）の URL を使用すると店名が自動的に入力されます。
               </Typography>
             </Box>
 
@@ -285,7 +296,7 @@ export default function Index() {
               return (
                 <OptionCard
                   key={field.id}
-                  option={option || { id: Date.now() + index, url: '', showCustomBudget: false }}
+                  option={option || { id: Date.now() + index, url: '' }}
                   index={index}
                   urlError={optionErrors?.url?.message}
                   canRemove={fields.length > MIN_OPTIONS}

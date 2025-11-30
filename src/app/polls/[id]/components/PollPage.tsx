@@ -33,7 +33,7 @@ export default function PollPage({ pollData }: PollPageProps) {
       [
         {
           elementId: 'option-title-1',
-          title: '店舗情報',
+          title: '候補リスト',
           description: `クリックすると店舗の詳細が表示されます。※外部サイトに遷移します`,
           position: 'bottom',
         },

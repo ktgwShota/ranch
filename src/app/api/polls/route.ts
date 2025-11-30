@@ -49,8 +49,6 @@ export async function POST(req: Request) {
         title?: string;
         description?: string;
         image?: string;
-        budgetMin?: string;
-        budgetMax?: string;
       }>;
       duration?: number;
       endDate?: string | null;
@@ -78,25 +76,17 @@ export async function POST(req: Request) {
         const url = typeof opt === 'string' ? opt : opt.url;
         // フロントから送られたタイトルをそのまま使用（必須）
         const title = typeof opt === 'string' ? url : (opt.title || url);
-        const manualBudgetMin = typeof opt === 'string' ? undefined : opt.budgetMin;
-        const manualBudgetMax = typeof opt === 'string' ? undefined : opt.budgetMax;
         const customDescription = typeof opt === 'string' ? undefined : opt.description;
 
-        // OGPデータを取得（画像と予算情報のみ使用、タイトルは使用しない）
+        // OGPデータを取得（画像のみ使用、タイトルは使用しない）
         try {
           const ogpData = await fetchOGPData(url);
-
-          // 予算情報: 手動設定を優先、なければOGPから取得したものを使用
-          const budgetMin = manualBudgetMin || ogpData.budgetMin;
-          const budgetMax = manualBudgetMax || ogpData.budgetMax;
 
           return {
             url,
             title, // フロントから送られたタイトルをそのまま使用
             description: customDescription || undefined,
             image: ogpData.image || undefined,
-            budgetMin,
-            budgetMax,
           };
         } catch (error) {
           console.error('Error fetching OGP data for URL:', url, error);
@@ -106,8 +96,6 @@ export async function POST(req: Request) {
             title, // フロントから送られたタイトルをそのまま使用
             description: customDescription || undefined,
             image: undefined,
-            budgetMin: manualBudgetMin,
-            budgetMax: manualBudgetMax,
           };
         }
       })

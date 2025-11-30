@@ -39,7 +39,7 @@ export default function AboutPage() {
             主な機能
           </Typography>
           <StyledList items={[
-            'グルメサイトのURLから自動で店舗情報を取得',
+            'グルメサイトのURLから自動で候補リストを取得',
             '写真付きの投票ページを簡単に作成',
             'ログイン不要で誰でも投票可能',
             'リアルタイムで投票結果を確認',
