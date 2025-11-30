@@ -16,27 +16,26 @@ import type { DBPoll as Poll } from '@/services/db/poll/types';
 import { CustomDialog } from '@/app/components/CustomDialog';
 import { PasswordDialog } from './PasswordDialog';
 import { useOrganizer } from '../hooks/useOrganizer';
+import { useRouter } from 'next/navigation';
+import { closePoll, deletePoll } from '@/lib/api/pollApi';
 
 interface PollMenuProps {
   poll: Poll | null;
-  onEndPoll: () => void;
   onChangeVoterName: () => void;
   hasVoterName: boolean;
 }
 
 export function PollMenu({
   poll,
-  onEndPoll,
   onChangeVoterName,
   hasVoterName,
 }: PollMenuProps) {
+  const router = useRouter();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [onPasswordSuccess, setOnPasswordSuccess] = useState<(() => void) | null>(null);
   const open = Boolean(anchorEl);
-
-  // 主催者権限管理hook
   const {
     passwordDialogOpen,
     errorDialogOpen,
@@ -82,9 +81,17 @@ export function PollMenu({
     }
   };
 
-  const handleConfirmEndPoll = () => {
+  const handleConfirmEndPoll = async () => {
+    if (!poll) return;
+
     setConfirmDialogOpen(false);
-    onEndPoll();
+
+    try {
+      await closePoll(poll.id);
+      router.refresh();
+    } catch (e) {
+      console.error('Error closing poll:', e);
+    }
   };
 
   const handleChangeVoterName = () => {
@@ -111,14 +118,7 @@ export function PollMenu({
     if (!poll) return;
 
     try {
-      const response = await fetch(`/api/polls/${poll.id}`, {
-        method: 'DELETE',
-      });
-
-      if (!response.ok) {
-        throw new Error('投票の削除に失敗しました');
-      }
-
+      await deletePoll(poll.id);
       // 削除成功後、トップページにリダイレクト
       window.location.href = '/';
     } catch (error) {

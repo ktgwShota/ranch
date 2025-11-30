@@ -4,15 +4,13 @@ import { PollTimeRemaining } from './PollTimeRemaining';
 import { PollMenu } from './PollMenu';
 
 interface HeaderProps {
-  poll: Poll | null;
-  onEndPoll: () => void;
+  poll: Poll;
   onChangeVoterName: () => void;
   hasVoterName: boolean;
 }
 
 export function Header({
   poll,
-  onEndPoll,
   onChangeVoterName,
   hasVoterName,
 }: HeaderProps) {
@@ -56,7 +54,6 @@ export function Header({
           {poll && (
             <PollMenu
               poll={poll}
-              onEndPoll={onEndPoll}
               onChangeVoterName={onChangeVoterName}
               hasVoterName={hasVoterName}
             />

@@ -50,8 +50,8 @@ export function VoterNameDialog({
       let userId: string;
       if (storedInfo) {
         try {
-          const userInfo = JSON.parse(storedInfo);
-          userId = userInfo.id;
+          const voterInfo = JSON.parse(storedInfo);
+          userId = voterInfo.voterId;
         } catch {
           userId = `voter_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
         }
@@ -60,12 +60,12 @@ export function VoterNameDialog({
       }
 
       const newName = tempName.trim();
-      const userInfo = {
-        id: userId,
-        name: newName,
+      const voterInfo = {
+        voterId: userId,
+        voterName: newName,
       };
 
-      localStorage.setItem(storageKey, JSON.stringify(userInfo));
+      localStorage.setItem(storageKey, JSON.stringify(voterInfo));
 
       if (storedInfo) {
         try {

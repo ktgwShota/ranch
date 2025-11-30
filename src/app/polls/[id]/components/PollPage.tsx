@@ -2,9 +2,7 @@
 
 import { Box, Button } from '@mui/material';
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { useVoter } from '../hooks/useVoter';
-import { useVote } from '../hooks/useVote';
+import { usePollVote } from '../hooks/usePollVote';
 import { Header } from './Header';
 import { OptionCard } from './OptionCard';
 import { VoterNameDialog } from './VoterNameDialog';
@@ -12,17 +10,12 @@ import { useTutorialStore } from '@/app/stores/tutorialStore';
 import type { DBPoll as Poll } from '@/services/db/poll/types';
 
 interface PollPageProps {
-  data: Poll;
+  pollData: Poll;
 }
 
-export default function PollPage({ data }: PollPageProps) {
+export default function PollPage({ pollData }: PollPageProps) {
   const { setupTutorial } = useTutorialStore();
-  const [poll, setPoll] = useState<Poll | null>(data);
-  const router = useRouter();
-  const pollId = data.id;
-
-  const { voter, setVoter } = useVoter(pollId);
-  const { vote, voting, isVotedByUser, refreshPoll } = useVote(poll, setPoll, voter);
+  const { voter, setVoter, updateVoterName, vote, voting, isVotedByUser } = usePollVote(pollData.id);
 
   const [dialogOpen, setDialogOpen] = useState(false);
   const [dialogMode, setDialogMode] = useState<'vote' | 'name-change' | null>(null);
@@ -63,11 +56,8 @@ export default function PollPage({ data }: PollPageProps) {
     const newVoter = { voterId: newUserId, voterName: name };
     setVoter(newVoter);
 
-    // 投票を実行（新しいvoterを渡す）
     if (pendingOptionId !== null) {
       await vote(pendingOptionId, newVoter);
-      // 投票後にポーリングデータを再取得
-      await refreshPoll();
     }
 
     setDialogOpen(false);
@@ -76,41 +66,17 @@ export default function PollPage({ data }: PollPageProps) {
   };
 
   const handleVoterNameChangeSubmit = async (name: string, newUserId: string) => {
-    // 名前とuserIdを更新
-    setVoter({ voterId: newUserId, voterName: name });
-
-    // ポーリングデータを再取得（名前変更が反映されるように）
-    await refreshPoll();
+    await updateVoterName(name, newUserId);
 
     setDialogOpen(false);
     setDialogMode(null);
-  };
-
-  const endPoll = async () => {
-    if (!poll) return;
-
-    try {
-      const response = await fetch(`/api/polls/${poll.id}/close`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ pollId: poll.id }),
-      });
-
-      if (response.ok) {
-        router.refresh();
-      }
-    } catch (e) {
-    }
   };
 
   return (
     <>
       <Box>
         <Header
-          poll={poll}
-          onEndPoll={endPoll}
+          poll={pollData}
           onChangeVoterName={() => {
             setDialogMode('name-change');
             setDialogOpen(true);
@@ -129,8 +95,8 @@ export default function PollPage({ data }: PollPageProps) {
             justifyContent: 'center',
           }}
         >
-          {poll?.options.map((option) => {
-            const totalVotes = poll.options.reduce((sum, option) => sum + option.votes, 0) || 0;
+          {pollData.options.map((option) => {
+            const totalVotes = pollData.options.reduce((sum, option) => sum + option.votes, 0) || 0;
             const isVoted = isVotedByUser(option);
             const isVoting = voting === option.id;
             const isAnyVoting = voting !== null;
@@ -174,7 +140,7 @@ export default function PollPage({ data }: PollPageProps) {
           setDialogMode(null);
           setPendingOptionId(null);
         }}
-        pollId={pollId}
+        pollId={pollData.id}
         type={dialogMode || 'vote'}
         initialName={dialogMode === 'name-change' ? voter?.voterName : ''}
         onSubmit={dialogMode === 'vote' ? handleVoterNameSubmit : handleVoterNameChangeSubmit}

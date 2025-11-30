@@ -48,9 +48,9 @@ export default async function Page({ params }: PageProps) {
 
         <Box sx={{ maxWidth: LAYOUT_CONSTANTS.MAX_CONTENT_WIDTH, mx: 'auto', py: { xs: 2, sm: 3 }, px: { xs: 2, sm: 3 }, boxSizing: 'border-box' }}>
           {pollData.isClosed === 1 ? (
-            <ResultPage poll={pollData} />
+            <ResultPage pollData={pollData} />
           ) : (
-            <PollPage data={pollData} />
+            <PollPage pollData={pollData} />
           )}
         </Box>
       </>
