@@ -16,9 +16,9 @@ const roboto = Roboto({
 });
 
 export const metadata: Metadata = {
-  title: 'チョイスル',
+  title: 'ChoisuR',
   description:
-    'チョイスルは、ランチのお店選びに特化したログイン不要・無料で使用できるの投票ツールです。主要なグルメサイトに対応、URLを貼るだけで写真付きのアンケートを簡単に作成・共有できます。',
+    'ChoisuR は、ランチのお店選びに特化したログイン不要・無料で使用できるの投票ツールです。主要なグルメサイトに対応、URLを貼るだけで写真付きのアンケートを簡単に作成・共有できます。',
 };
 
 export default function RootLayout({

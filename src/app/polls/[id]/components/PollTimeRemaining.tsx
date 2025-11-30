@@ -28,42 +28,30 @@ function formatTime(seconds: number): string {
 }
 
 export function PollTimeRemaining({ poll }: PollTimeRemainingProps) {
-  const [timeLeft, setTimeLeft] = useState<number | null>(null);
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+  const [, setTick] = useState(0);
 
   // リアルタイム更新のため、1秒ごとに再レンダリング
   useEffect(() => {
     if (!poll.endDateTime || poll.isClosed === 1) {
-      setTimeLeft(-1); // -1 を無制限または終了済みとする（表示ロジックで制御）
       return;
     }
 
-    const calculateTimeLeft = () => {
-      if (!poll.endDateTime) return -1;
-      const endTime = new Date(poll.endDateTime).getTime();
-      const now = Date.now();
-      return Math.max(0, Math.ceil((endTime - now) / 1000));
-    };
-
-    setTimeLeft(calculateTimeLeft());
-
     const timer = setInterval(() => {
-      setTimeLeft(calculateTimeLeft());
+      setTick((prev) => prev + 1);
     }, 1000);
 
     return () => clearInterval(timer);
   }, [poll]);
 
-  if (!mounted || timeLeft === null) {
-    return null; // またはスケルトンを表示
-  }
+  const getTimeRemaining = (): number => {
+    if (!poll.endDateTime) return 0;
+    const endTime = new Date(poll.endDateTime).getTime();
+    const now = Date.now();
+    return Math.max(0, Math.ceil((endTime - now) / 1000));
+  };
 
   const hasEndTime = !!poll.endDateTime;
-  const timeLabel = hasEndTime && timeLeft !== -1 ? formatTime(timeLeft) : '無制限';
+  const timeLabel = hasEndTime ? formatTime(getTimeRemaining()) : '無制限';
 
   return (
     <Box sx={{ mt: 1, display: 'flex', alignItems: 'center', gap: 0.5, minHeight: 20 }}>

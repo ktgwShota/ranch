@@ -163,7 +163,7 @@ export default function Header({ isHeaderVisible: propIsHeaderVisible }: HeaderP
                 transition: isHomePage ? 'color 1.2s ease' : 'none',
               }}
             >
-              チョイスル
+              ChoisuR
             </Typography>
           </Link>
 

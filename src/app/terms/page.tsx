@@ -28,7 +28,7 @@ export default function TermsPage() {
             第1条（適用）
           </Typography>
           <Typography variant="body1" color="text.secondary" sx={{ lineHeight: 1.8 }}>
-            本利用規約（以下「本規約」といいます）は、チョイスル（以下「当サービス」といいます）の利用条件を定めるものです。
+            本利用規約（以下「本規約」といいます）は、ChoisuR（以下「当サービス」といいます）の利用条件を定めるものです。
             登録ユーザーの皆さま（以下「ユーザー」といいます）には、本規約に従って、当サービスをご利用いただきます。
           </Typography>
         </Box>

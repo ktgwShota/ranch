@@ -16,7 +16,7 @@ export default function AboutPage() {
           backgroundColor: 'white',
         }}
       >
-        <PageHeader title="チョイスルについて" />
+        <PageHeader title="ChoisuRについて" />
 
         <Box sx={{ mb: 4 }}>
           <Typography
@@ -26,7 +26,7 @@ export default function AboutPage() {
             サービス概要
           </Typography>
           <Typography variant="body1" color="text.secondary" sx={{ mb: 2, lineHeight: 1.8 }}>
-            チョイスルは、飲み会や食事会のお店選びに特化したログイン不要・無料で使用できる投票ツールです。
+            ChoisuR は、飲み会や食事会のお店選びに特化したログイン不要・無料で使用できる投票ツールです。
             主要なグルメサイトに対応し、URLを貼るだけで写真付きのアンケートを簡単に作成・共有できます。
           </Typography>
         </Box>

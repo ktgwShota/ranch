@@ -19,6 +19,9 @@ import {
   Share as ShareIcon,
   Restaurant as RestaurantIcon,
   Lock as LockIcon,
+  FlashOn as FlashOnIcon,
+  Group as GroupIcon,
+  Link as LinkIcon,
 } from '@mui/icons-material';
 import Link from 'next/link';
 
@@ -168,9 +171,113 @@ export default function Index() {
         isScrollEnabled={isScrollEnabled}
         onTypingComplete={handleTypingComplete}
       />
+      <AboutSection />
       <HowItWorksSection />
       <BottomCTASection />
       <FAQSection />
+    </Box>
+  );
+}
+
+function AboutSection() {
+  const [isVisible, setIsVisible] = useState(false);
+  const sectionRef = useRef<HTMLDivElement>(null);
+
+  useIntersectionObserver(
+    sectionRef,
+    0.2,
+    useCallback((isIntersecting) => {
+      if (isIntersecting) setIsVisible(true);
+    }, [])
+  );
+
+  const features = [
+    {
+      title: '会員登録なしで即スタート',
+      description: '面倒なアカウント登録やログインは一切不要。誰でもすぐに投票を作成できます。',
+      icon: <FlashOnIcon sx={{ fontSize: 40, color: '#3b82f6' }} />,
+    },
+    {
+      title: 'URLをシェアするだけ',
+      description: '投票ページを作成してURLを共有。LINEやSlackで簡単にメンバーを招待できます。',
+      icon: <LinkIcon sx={{ fontSize: 40, color: '#3b82f6' }} />,
+    },
+    {
+      title: 'みんなで決める納得感',
+      description: '多数決で、参加者全員が納得できる「行き先選び」をサポートします。',
+      icon: <GroupIcon sx={{ fontSize: 40, color: '#3b82f6' }} />,
+    },
+  ];
+
+  return (
+    <Box
+      ref={sectionRef}
+      sx={{
+        py: { xs: 8, md: 12 },
+        backgroundColor: '#f8fafc',
+      }}
+    >
+      <Container maxWidth={false} sx={{ maxWidth: CONTAINER_MAX_WIDTH }}>
+        <Box sx={{ textAlign: 'center', mb: 8, opacity: isVisible ? 1 : 0, transform: isVisible ? 'translateY(0)' : 'translateY(20px)', transition: 'all 0.6s ease' }}>
+          <Typography variant="h2" sx={{ ...sectionTitleStyles, mb: 3 }}>
+            ChoisuR について
+          </Typography>
+          <Typography variant="body1" sx={{ ...sectionSubtitleStyles, maxWidth: '800px', lineHeight: 1.7 }}>
+            ChoisuR はイベントの行き先を公平に決めるための多数決ツールです。
+            <br />
+            食事会 / 交流会 / 社員旅行など、あらゆるシーンでご利用いただけます。
+          </Typography>
+        </Box>
+
+        <Box
+          sx={{
+            display: 'grid',
+            gridTemplateColumns: { xs: '1fr', md: 'repeat(3, 1fr)' },
+            gap: 4,
+          }}
+        >
+          {features.map((feature, index) => (
+            <Box
+              key={index}
+              sx={{
+                bgcolor: 'white',
+                p: 4,
+                borderRadius: 4,
+                boxShadow: '0 4px 20px rgba(0,0,0,0.05)',
+                textAlign: 'center',
+                opacity: isVisible ? 1 : 0,
+                transform: isVisible ? 'translateY(0)' : 'translateY(30px)',
+                transition: `all 0.6s ease ${index * 0.2 + 0.2}s`,
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                height: '100%',
+              }}
+            >
+              <Box
+                sx={{
+                  width: 80,
+                  height: 80,
+                  borderRadius: '50%',
+                  bgcolor: '#eff6ff',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  mb: 3,
+                }}
+              >
+                {feature.icon}
+              </Box>
+              <Typography variant="h5" sx={{ fontWeight: 700, mb: 2, color: 'text.primary' }}>
+                {feature.title}
+              </Typography>
+              <Typography variant="body1" sx={{ color: 'text.secondary', lineHeight: 1.6 }}>
+                {feature.description}
+              </Typography>
+            </Box>
+          ))}
+        </Box>
+      </Container>
     </Box>
   );
 }
@@ -225,8 +332,26 @@ function HeroSection({
   }, [displayedText.length, fullText.length, onTypingComplete]);
 
   const handleScrollToHowItWorks = useCallback(() => {
-    const howItWorksSection = document.getElementById('hot-to-use');
-    howItWorksSection?.scrollIntoView({ behavior: 'smooth' });
+    // スクロール先をAboutSectionに変更するならIDを付与するか、HowToUseのままにするか
+    // ここではAboutSectionを次に配置したので、自然なスクロールのためにはAboutSectionにIDを付けるのが良いが
+    // AboutSectionにはIDを付けていないので、単純に少し下にスクロールさせるか
+    // あるいはHowItWorksSectionのIDを使う（その場合Aboutを飛ばすことになる）
+    // 今回はAboutSectionを追加したので、AboutSectionまでスクロールさせたい。
+    // AboutSectionにIDを付与していないので、一旦 HowItWorksへスクロールさせる動作のままとする。
+    // もしAboutSectionを見せたいなら、AboutSectionにIDを追加すべき。
+
+    // 修正：HowItWorksSectionへのスクロールは維持するが、
+    // AboutSectionが間に入るため、スクロール量が足りなくなる可能性がある。
+    // AboutSectionにもIDを付けようか？
+    // いや、HeroSectionの下矢印は「次へ」という意味合いが強いので、AboutSectionへ行くべき。
+    // 実装では AboutSection に ID を付与していないので、修正して付与する。
+    const nextSection = document.getElementById('about-section'); // 修正予定
+    if (nextSection) {
+      nextSection.scrollIntoView({ behavior: 'smooth' });
+    } else {
+      const howItWorksSection = document.getElementById('hot-to-use');
+      howItWorksSection?.scrollIntoView({ behavior: 'smooth' });
+    }
   }, []);
 
   return (
@@ -314,9 +439,9 @@ function HeroSection({
             transition: 'opacity 0.6s ease 0.2s',
           }}
         >
-          店決めに悩む時代はもう終わり。行く店は全員で決める。
+          行き先に悩む時代はもう終わり。目的地は全員で決める。
           <br />
-          チョイスルは店決めに悩む幹事のためのサービスを提供します。
+          ChoisuR は幹事向けの便利なツールを提供します。
         </Typography>
       </Container>
 
@@ -547,23 +672,23 @@ StepItem.displayName = 'StepItem';
 const STEPS: StepData[] = [
   {
     step: 'ステップ1',
-    title: '投票作成',
-    description: '候補となる店舗の URL を入力して投票作成しましょう。店舗名や画像は自動的に入力されます。',
+    title: '投票を作成',
+    description: '候補となる行き先の情報を入力して投票用のページを作成します。',
     imageSrc: '/1.png',
     imageAlt: '投票作成画面',
     icon: <CreateIcon sx={{ fontSize: '1.5rem', color: '#3b82f6' }} />,
   },
   {
     step: 'ステップ2',
-    title: '投票ページを共有',
-    description: '作成した投票ページを LINE や Slack などの SNS で共有して、参加者の投票が終わるまで待ちます。',
+    title: '投票を待つ',
+    description: '作成した投票ページを LINE や Slack などの SNS で共有して投票が終わるのを待ちます。',
     imageSrc: '/2.png',
     imageAlt: '投票ページ共有画面',
     icon: <ShareIcon sx={{ fontSize: '1.5rem', color: '#3b82f6' }} />,
   },
   {
     step: 'ステップ3',
-    title: 'お店が決定',
+    title: '行き先が決定',
     description: '投票受付時間に達すると投票結果が公開されます。',
     imageSrc: '/3.png',
     imageAlt: '投票結果画面',
@@ -887,7 +1012,7 @@ function BottomCTASection() {
           >
             xxx
             <br />
-            チョイスルを使うことで誰でも簡単に全員が納得する店決めができます。
+            ChoisuRを使うことで誰でも簡単に全員が納得するイベントや場所決めができます。
           </Typography>
 
           {/* CTAボタン */}

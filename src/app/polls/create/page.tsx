@@ -269,7 +269,7 @@ export default function Index() {
                 variant="h6"
                 sx={{ fontWeight: 600, color: 'text.primary', mb: 1, fontSize: '1rem' }}
               >
-                候補 <span style={{ color: '#f44336' }}>*</span>
+                店舗情報 <span style={{ color: '#f44336' }}>*</span>
               </Typography>
               <Typography variant="body1" color="text.secondary" sx={{ mb: 0.5, fontSize: '0.875rem' }}>
                 候補となるお店の情報を入力してください。

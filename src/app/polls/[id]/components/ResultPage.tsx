@@ -163,29 +163,11 @@ function ResultOptionCard({
                 height: 72,
                 flexShrink: 0,
                 borderRadius: 0.5,
-                position: 'relative',
-                overflow: 'hidden',
+                backgroundImage: `linear-gradient(rgba(15,23,42,0.25), rgba(15,23,42,0.25)), url(${option.image})`,
+                backgroundSize: 'cover',
+                backgroundPosition: 'center',
               }}
-            >
-              <Box
-                component="img"
-                src={option.image}
-                referrerPolicy="no-referrer"
-                alt=""
-                sx={{
-                  width: '100%',
-                  height: '100%',
-                  objectFit: 'cover',
-                }}
-              />
-              <Box
-                sx={{
-                  position: 'absolute',
-                  inset: 0,
-                  background: 'rgba(15,23,42,0.25)',
-                }}
-              />
-            </Box>
+            />
           )}
           <Box>
             <Typography

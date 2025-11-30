@@ -1,6 +1,6 @@
 'use client';
 
-import { Box, Card, CardContent, Chip, LinearProgress, Typography } from '@mui/material';
+import { Box, Card, CardContent, CardMedia, Chip, LinearProgress, Typography } from '@mui/material';
 import { Restaurant as RestaurantIcon } from '@mui/icons-material';
 import type { DBPollOption as Option, Voter } from '@/services/db/poll/types';
 import { CustomButton } from '@/app/components/CustomButton';
@@ -40,50 +40,25 @@ export function PollOptionCard({
         position: 'relative',
       }}
     >
-      <Box
+      <CardMedia
         component="a"
         href={option.url}
         target="_blank"
         rel="noopener noreferrer"
         sx={{
-          display: 'block',
-          position: 'relative',
           aspectRatio: '16/10',
+          backgroundImage: option.image
+            ? `url(${option.image})`
+            : 'linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%)',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          position: 'relative',
           borderRadius: '4px 4px 0 0',
           overflow: 'hidden',
           textDecoration: 'none',
           cursor: 'pointer',
-          bgcolor: '#f8f9fa',
         }}
       >
-        {option.image ? (
-          <Box
-            component="img"
-            src={option.image}
-            alt={option.title || 'Option image'}
-            referrerPolicy="no-referrer"
-            sx={{
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              width: '100%',
-              height: '100%',
-              objectFit: 'cover',
-            }}
-          />
-        ) : (
-          <Box
-            sx={{
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              width: '100%',
-              height: '100%',
-              background: 'linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%)',
-            }}
-          />
-        )}
-
         {/* 予算ラベル（画像の右上） */}
         {option.budgetMin || option.budgetMax ? (
           <Box
@@ -136,7 +111,6 @@ export function PollOptionCard({
               left: '50%',
               transform: 'translate(-50%, -50%)',
               textAlign: 'center',
-              zIndex: 1,
             }}
           >
             <RestaurantIcon
@@ -159,7 +133,7 @@ export function PollOptionCard({
             </Typography>
           </Box>
         )}
-      </Box>
+      </CardMedia>
 
       <CardContent
         sx={{
@@ -426,3 +400,4 @@ function ResultDisplay({ votes, percentage }: ResultDisplayProps) {
     </>
   );
 }
+

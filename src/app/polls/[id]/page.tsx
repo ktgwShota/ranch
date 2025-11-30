@@ -101,7 +101,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const { id } = await params;
   if (!id) {
     return {
-      title: '投票が見つかりません | チョイスル',
+      title: '投票が見つかりません | ChoisuR',
     };
   }
 
@@ -111,7 +111,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
     if (!result.success || !result.data) {
       return {
-        title: '投票が見つかりません | チョイスル',
+        title: '投票が見つかりません | ChoisuR',
       };
     }
 
@@ -120,7 +120,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     const totalVotes = calculateTotalVotes(poll);
     const winningOption = getWinningOption(poll);
 
-    const title = `${poll.title} | チョイスル`;
+    const title = `${poll.title} | ChoisuR`;
     const description = isClosed
       ? `投票結果: ${poll.title}。総投票数: ${totalVotes}票。${winningOption ? `最多得票: ${winningOption.title}` : ''}`
       : `${poll.title}の投票ページ。${poll.options.length}つの選択肢から選んで投票できます。`;
@@ -144,7 +144,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   } catch (error) {
     console.error('Error generating metadata:', error);
     return {
-      title: '投票ページ | チョイスル',
+      title: '投票ページ | ChoisuR',
     };
   }
 }

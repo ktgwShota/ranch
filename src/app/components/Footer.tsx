@@ -17,7 +17,7 @@ export default function Footer() {
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
   const aboutLinks = [
-    { label: 'チョイスルについて', href: '/about', icon: <InfoIcon fontSize="small" /> },
+    { label: 'ChoisuRについて', href: '/about', icon: <InfoIcon fontSize="small" /> },
     { label: '利用規約', href: '/terms', icon: <GavelIcon fontSize="small" /> },
     { label: 'プライバシーポリシー', href: '/privacy', icon: <PrivacyIcon fontSize="small" /> },
     { label: 'お問い合わせ', href: '/contact', icon: <ContactIcon fontSize="small" /> },
@@ -56,7 +56,7 @@ export default function Footer() {
                 letterSpacing: '-0.02em',
               }}
             >
-              チョイスル
+              ChoisuR
             </Typography>
             <Typography
               variant="body1"
@@ -135,7 +135,7 @@ export default function Footer() {
             textAlign: 'center',
           }}
         >
-          © 2025 チョイスル. All rights reserved.
+          © 2025 ChoisuR. All rights reserved.
         </Typography>
       </Container>
     </Box>
