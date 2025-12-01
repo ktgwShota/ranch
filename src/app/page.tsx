@@ -195,34 +195,71 @@ function AboutSection() {
     {
       title: '会員登録なしで即スタート',
       description: '面倒なアカウント登録やログインは一切不要。誰でもすぐに投票を作成できます。',
-      icon: <FlashOnIcon sx={{ fontSize: 40, color: '#3b82f6' }} />,
+      icon: <FlashOnIcon sx={{ fontSize: 40 }} />,
+      color: '#3b82f6',
+      bgColor: '#eff6ff',
     },
     {
       title: 'URLをシェアするだけ',
       description: '投票ページを作成してURLを共有。LINEやSlackで簡単にメンバーを招待できます。',
-      icon: <LinkIcon sx={{ fontSize: 40, color: '#3b82f6' }} />,
+      icon: <LinkIcon sx={{ fontSize: 40 }} />,
+      color: '#0ea5e9',
+      bgColor: '#f0f9ff',
     },
     {
-      title: 'みんなで決める納得感',
-      description: '多数決で、参加者全員が納得できる「行き先選び」をサポートします。',
-      icon: <GroupIcon sx={{ fontSize: 40, color: '#3b82f6' }} />,
+      title: '全員で決める公平性',
+      description: '多数決で行き先を決めることで全員の意見を尊重した公平な意思決定をサポートします。',
+      icon: <GroupIcon sx={{ fontSize: 40 }} />,
+      color: '#8b5cf6',
+      bgColor: '#f5f3ff',
     },
   ];
 
   return (
     <Box
       ref={sectionRef}
+      id="about-section"
       sx={{
-        py: { xs: 8, md: 12 },
-        backgroundColor: '#f8fafc',
+        py: { xs: 10, md: 12 },
+        backgroundColor: '#ffffff',
+        position: 'relative',
+        overflow: 'hidden',
       }}
     >
-      <Container maxWidth={false} sx={{ maxWidth: CONTAINER_MAX_WIDTH }}>
-        <Box sx={{ textAlign: 'center', mb: 8, opacity: isVisible ? 1 : 0, transform: isVisible ? 'translateY(0)' : 'translateY(20px)', transition: 'all 0.6s ease' }}>
-          <Typography variant="h2" sx={{ ...sectionTitleStyles, mb: 3 }}>
+      {/* 背景装飾 */}
+      <Box
+        sx={{
+          position: 'absolute',
+          top: '-20%',
+          right: '-10%',
+          width: '600px',
+          height: '600px',
+          borderRadius: '50%',
+          background: 'radial-gradient(circle, rgba(59,130,246,0.03) 0%, rgba(59,130,246,0) 70%)',
+          zIndex: 0,
+        }}
+      />
+
+      <Container maxWidth={false} sx={{ maxWidth: CONTAINER_MAX_WIDTH, position: 'relative', zIndex: 1 }}>
+        <Box
+          sx={{
+            textAlign: 'center',
+            mb: 10,
+            opacity: isVisible ? 1 : 0,
+            transform: isVisible ? 'translateY(0)' : 'translateY(20px)',
+            transition: 'all 0.8s cubic-bezier(0.16, 1, 0.3, 1)',
+          }}
+        >
+          <Typography
+            variant="h2"
+            sx={{ ...sectionTitleStyles, mb: 3, fontSize: { xs: '2rem', md: '2.5rem' }, letterSpacing: '-0.02em' }}
+          >
             ChoisuR について
           </Typography>
-          <Typography variant="body1" sx={{ ...sectionSubtitleStyles, maxWidth: '800px', lineHeight: 1.7 }}>
+          <Typography
+            variant="body1"
+            sx={{ ...sectionSubtitleStyles, maxWidth: '700px', lineHeight: 1.8, color: 'text.secondary' }}
+          >
             ChoisuR はイベントの行き先を公平に決めるための多数決ツールです。
             <br />
             食事会 / 交流会 / 社員旅行など、あらゆるシーンでご利用いただけます。
@@ -233,7 +270,7 @@ function AboutSection() {
           sx={{
             display: 'grid',
             gridTemplateColumns: { xs: '1fr', md: 'repeat(3, 1fr)' },
-            gap: 4,
+            gap: { xs: 4, md: 5 },
           }}
         >
           {features.map((feature, index) => (
@@ -241,43 +278,77 @@ function AboutSection() {
               key={index}
               sx={{
                 bgcolor: 'white',
-                p: 4,
-                borderRadius: 4,
-                boxShadow: '0 4px 20px rgba(0,0,0,0.05)',
+                p: { xs: 4, md: 5 },
+                borderRadius: 6,
+                boxShadow: '0 10px 40px -10px rgba(0,0,0,0.05)',
                 textAlign: 'center',
                 opacity: isVisible ? 1 : 0,
-                transform: isVisible ? 'translateY(0)' : 'translateY(30px)',
-                transition: `all 0.6s ease ${index * 0.2 + 0.2}s`,
+                transform: isVisible ? 'translateY(0)' : 'translateY(40px)',
+                transition: `all 0.8s cubic-bezier(0.16, 1, 0.3, 1) ${index * 0.15 + 0.2}s`,
                 display: 'flex',
                 flexDirection: 'column',
                 alignItems: 'center',
                 height: '100%',
+                position: 'relative',
+                overflow: 'hidden',
+                cursor: 'default',
+                borderTop: `4px solid ${feature.color}`, // アクセントボーダー
+                '&:hover': {
+                  transform: 'translateY(-8px)',
+                  boxShadow: `0 20px 40px -10px ${feature.color}25`, // 色付きシャドウ
+                },
               }}
             >
               <Box
                 sx={{
-                  width: 80,
-                  height: 80,
+                  width: 88,
+                  height: 88,
                   borderRadius: '50%',
-                  bgcolor: '#eff6ff',
+                  bgcolor: feature.bgColor,
+                  color: feature.color,
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  mb: 3,
+                  mb: 4,
+                  transition: 'transform 0.3s ease',
+                  '&:hover': {
+                    transform: 'scale(1.05)',
+                  },
                 }}
               >
                 {feature.icon}
               </Box>
-              <Typography variant="h5" sx={{ fontWeight: 700, mb: 2, color: 'text.primary' }}>
+              <Typography
+                variant="h5"
+                sx={{
+                  fontWeight: 800,
+                  mb: 2.5,
+                  color: 'text.primary',
+                  fontSize: '1.25rem',
+                  letterSpacing: '-0.01em',
+                }}
+              >
                 {feature.title}
               </Typography>
-              <Typography variant="body1" sx={{ color: 'text.secondary', lineHeight: 1.6 }}>
+              <Typography variant="body1" sx={{ color: 'text.secondary', lineHeight: 1.7, fontSize: '1rem' }}>
                 {feature.description}
               </Typography>
             </Box>
           ))}
         </Box>
       </Container>
+
+      {/* 境界線の点線 */}
+      <Box
+        sx={{
+          position: 'absolute',
+          bottom: 0,
+          left: 0,
+          width: '100%',
+          borderBottom: '6px dashed #3b82f6',
+          opacity: 0.75,
+        }}
+      />
     </Box>
   );
 }
@@ -294,7 +365,7 @@ function HeroSection({
   const [isOverlayVisible, setIsOverlayVisible] = useState(false);
   const [displayedText, setDisplayedText] = useState('');
   const [showCursor, setShowCursor] = useState(true);
-  const fullText = '"幹事の時間" もっと大切に。';
+  const fullText = '"幹事の悩み" を解決。';
 
   const startTyping = useCallback(() => {
     let currentIndex = 0;
@@ -332,20 +403,7 @@ function HeroSection({
   }, [displayedText.length, fullText.length, onTypingComplete]);
 
   const handleScrollToHowItWorks = useCallback(() => {
-    // スクロール先をAboutSectionに変更するならIDを付与するか、HowToUseのままにするか
-    // ここではAboutSectionを次に配置したので、自然なスクロールのためにはAboutSectionにIDを付けるのが良いが
-    // AboutSectionにはIDを付けていないので、単純に少し下にスクロールさせるか
-    // あるいはHowItWorksSectionのIDを使う（その場合Aboutを飛ばすことになる）
-    // 今回はAboutSectionを追加したので、AboutSectionまでスクロールさせたい。
-    // AboutSectionにIDを付与していないので、一旦 HowItWorksへスクロールさせる動作のままとする。
-    // もしAboutSectionを見せたいなら、AboutSectionにIDを追加すべき。
-
-    // 修正：HowItWorksSectionへのスクロールは維持するが、
-    // AboutSectionが間に入るため、スクロール量が足りなくなる可能性がある。
-    // AboutSectionにもIDを付けようか？
-    // いや、HeroSectionの下矢印は「次へ」という意味合いが強いので、AboutSectionへ行くべき。
-    // 実装では AboutSection に ID を付与していないので、修正して付与する。
-    const nextSection = document.getElementById('about-section'); // 修正予定
+    const nextSection = document.getElementById('about-section');
     if (nextSection) {
       nextSection.scrollIntoView({ behavior: 'smooth' });
     } else {
@@ -395,7 +453,7 @@ function HeroSection({
         <Typography
           variant="h1"
           sx={{
-            fontSize: { xs: '2.5rem', md: '3rem' },
+            fontSize: { xs: '2.25rem', md: '2.75rem' },
             fontWeight: 700,
             color: 'white',
             lineHeight: 1.2,
@@ -441,7 +499,7 @@ function HeroSection({
         >
           行き先に悩む時代はもう終わり。目的地は全員で決める。
           <br />
-          ChoisuR は幹事向けの便利なツールを提供します。
+          ChoisuR なら公平に全員の意思を反映した目的地が決まります。
         </Typography>
       </Container>
 
@@ -732,7 +790,7 @@ function HowItWorksSection() {
           sx={{
             ...sectionSubtitleStyles,
             maxWidth: '600px',
-            mb: 6,
+            mb: 10,
             ...fadeInStyles(isSubtitleVisible),
           }}
         >
@@ -839,7 +897,7 @@ function FAQSection() {
           variant="body1"
           sx={{
             ...sectionSubtitleStyles,
-            mb: 4,
+            mb: 10,
             ...fadeInStyles(isSubtitleVisible),
           }}
         >
@@ -996,8 +1054,8 @@ function BottomCTASection() {
               textShadow: '0 4px 10px rgba(0, 0, 0, 0.5)',
             }}
           >
-            <Box component="span" sx={{ color: TEAL_ACCENT }}>
-              全員を尊重</Box>する意思決定
+            全員の<Box component="span" sx={{ color: TEAL_ACCENT }}>
+              意思</Box>を反映
           </Typography>
 
           {/* 説明文 */}

@@ -7,8 +7,6 @@ export interface CreatePollRequest {
   options: Array<{
     url: string;
     title: string;
-    budgetMin?: string;
-    budgetMax?: string;
     description?: string;
   }>;
   endDate?: string | null;

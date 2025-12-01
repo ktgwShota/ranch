@@ -9,9 +9,6 @@ interface OGPData {
   title: string;
   image: string | null;
   description?: string | null;
-  budgetMin?: string;
-  budgetMax?: string;
-  budgetOptions?: Array<{ label: string; min: string; max: string }>;
   url?: string | null;
   type?: string | null;
   siteName?: string | null;
