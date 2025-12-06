@@ -93,7 +93,7 @@ export default function FaqSection() {
 
   return (
     <Box
-      id="faq-section"
+      id="faq"
       style={{
         paddingTop: '4rem',
         paddingBottom: '4rem',

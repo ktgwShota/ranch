@@ -1,6 +1,5 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
 import { Delete as DeleteIcon } from '@mui/icons-material';
 import { Box, Divider, IconButton } from '@mui/material';
 import { Control, FieldErrors, UseFormRegister } from 'react-hook-form';
@@ -9,7 +8,6 @@ import { PollOption } from '../types';
 import { UrlInput } from './UrlInput';
 import { DescriptionInput } from './DescriptionInput';
 import { TitleDisplay } from './TitleDisplay';
-import { validateUrl } from '@/utils/url';
 
 export function OptionCard({
   option,
@@ -32,58 +30,6 @@ export function OptionCard({
   control: Control<PollFormData>;
   errors?: FieldErrors<PollFormData['options'][0]>;
 }) {
-  const onOptionChangeRef = useRef(onOptionChange);
-  const optionRef = useRef(option);
-
-  useEffect(() => {
-    onOptionChangeRef.current = onOptionChange;
-    optionRef.current = option;
-  }, [onOptionChange, option]);
-
-  useEffect(() => {
-    if (!option.url.trim() || validateUrl(option.url) !== null) {
-      const updates: Partial<PollOption> = {};
-      if (!option.url.trim() && optionRef.current.title) {
-        updates.title = undefined;
-      }
-      if (Object.keys(updates).length > 0) {
-        onOptionChangeRef.current(updates);
-      }
-      return;
-    }
-
-    const timer = setTimeout(async () => {
-      try {
-        const response = await fetch('/api/ogp', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ url: option.url }),
-        });
-
-        const responseData = await response.json().catch(() => null);
-        if (!responseData) return;
-
-        const data: {
-          title?: string;
-        } = responseData;
-
-        const updates: Partial<PollOption> = {};
-
-        if (data.title && data.title !== optionRef.current.title) {
-          updates.title = data.title;
-        }
-
-        if (Object.keys(updates).length > 0) {
-          onOptionChangeRef.current(updates);
-        }
-      } catch (error) {
-        console.error('Error fetching OGP:', error);
-      }
-    }, 800);
-
-    return () => clearTimeout(timer);
-  }, [option.url]);
-
   return (
     <Box
       sx={{

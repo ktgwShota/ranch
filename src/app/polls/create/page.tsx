@@ -25,7 +25,6 @@ import { useForm, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { pollSchema, type PollFormData } from '@/lib/schemas/poll';
 import { PollOption } from './types';
-import { validateUrl } from '../../../utils/url';
 import { OptionCard } from './components/OptionCard';
 import { AddOptionButton } from './components/AddOptionButton';
 import { VotingDeadline } from './components/VotingDeadline';
@@ -282,11 +281,8 @@ export default function Index() {
               >
                 候補リスト <span style={{ color: '#f44336' }}>*</span>
               </Typography>
-              <Typography variant="body1" color="text.secondary" sx={{ mb: 0.5, fontSize: '0.875rem' }}>
-                候補となる飲食店のURLを入力してください。
-              </Typography>
-              <Typography variant="body1" color="text.secondary" sx={{ fontSize: '0.875rem' }}>対応サイト（
-                <a href="https://tabelog.com/" target="_blank" rel="noopener noreferrer" style={{ color: '#1976d2', textDecoration: 'none' }}>食べログ</a> / <a href="https://www.gnavi.co.jp/" target="_blank" rel="noopener noreferrer" style={{ color: '#1976d2', textDecoration: 'none' }}>ぐるなび</a>）の URL を使用すると店名が自動的に入力されます。
+              <Typography variant="body1" color="text.secondary" sx={{ fontSize: '0.875rem' }}>
+                候補となる店舗の情報を入力してください
               </Typography>
             </Box>
 

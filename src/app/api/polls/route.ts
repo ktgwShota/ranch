@@ -102,9 +102,11 @@ export async function POST(req: Request) {
     );
 
     // endDateとendTimeからendDateTimeを計算
+    // endTimeが未設定の場合は23:59をデフォルト値として使用
     let endDateTime: string | null = null;
-    if (body.endDate && body.endTime) {
-      endDateTime = new Date(`${body.endDate}T${body.endTime}`).toISOString();
+    if (body.endDate) {
+      const endTime = body.endTime || '23:59';
+      endDateTime = new Date(`${body.endDate}T${endTime}`).toISOString();
     }
 
     const result = await createPoll(
