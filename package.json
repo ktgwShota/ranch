@@ -28,6 +28,8 @@
     "@hookform/resolvers": "^5.2.2",
     "@mui/icons-material": "^7.3.2",
     "@mui/material": "^7.3.2",
+    "@mui/x-date-pickers": "^8.21.0",
+    "dayjs": "^1.11.19",
     "framer-motion": "^12.23.12",
     "next": "15.4.6",
     "react": "19.1.0",

@@ -61,3 +61,30 @@ INSERT OR IGNORE INTO poll_options (pollId, optionId, url, title, description, v
   ('sample-poll-1', 1, 'https://example.com/restaurant1', 'レストランA', '美味しいイタリアン', 3, '["user1", "user2", "user3"]'),
   ('sample-poll-1', 2, 'https://example.com/restaurant2', 'レストランB', '人気の和食', 2, '["user4", "user5"]'),
   ('sample-poll-1', 3, 'https://example.com/restaurant3', 'レストランC', '安い定食屋', 1, '["user6"]');
+
+-- Schedules テーブルの作成（日程調整用）
+CREATE TABLE IF NOT EXISTS schedules (
+  id TEXT PRIMARY KEY,
+  title TEXT NOT NULL,
+  dates TEXT NOT NULL,        -- JSON: [{date: "YYYY-MM-DD", times: ["HH:mm"]}]
+  endDateTime TEXT,           -- 締切日時（ISO形式）
+  confirmedDateTime TEXT,     -- 確定した日程（"YYYY-MM-DD" or "YYYY-MM-DD-HH:mm"）
+  createdBy TEXT NOT NULL,
+  createdAt TEXT NOT NULL,
+  isClosed INTEGER DEFAULT 0
+);
+
+-- Schedule Responses テーブルの作成（日程調整の回答）
+CREATE TABLE IF NOT EXISTS schedule_responses (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  scheduleId TEXT NOT NULL,
+  respondentId TEXT NOT NULL,  -- ブラウザごとの一意ID（localStorage）
+  name TEXT NOT NULL,
+  availability TEXT NOT NULL,  -- JSON: {"YYYY-MM-DD-HH:mm": "available"|"maybe"|"unavailable"}
+  createdAt TEXT NOT NULL,
+  FOREIGN KEY (scheduleId) REFERENCES schedules (id) ON DELETE CASCADE
+);
+
+-- Schedule関連のインデックス作成
+CREATE INDEX IF NOT EXISTS idx_schedule_responses_scheduleId ON schedule_responses(scheduleId);
+CREATE INDEX IF NOT EXISTS idx_schedule_responses_respondentId ON schedule_responses(respondentId);

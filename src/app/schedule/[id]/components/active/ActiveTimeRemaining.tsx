@@ -1,9 +1,11 @@
+'use client';
+
 import { Box, Typography } from '@mui/material';
 import { useState, useEffect } from 'react';
-import type { DBPoll as Poll } from '@/services/db/poll/types';
 
-interface PollTimeRemainingProps {
-  poll: Poll;
+interface ActiveTimeRemainingProps {
+  endDateTime: string | null;
+  isClosed: boolean;
 }
 
 function formatTime(seconds: number): string {
@@ -27,12 +29,11 @@ function formatTime(seconds: number): string {
   }
 }
 
-export function PollTimeRemaining({ poll }: PollTimeRemainingProps) {
+export default function ActiveTimeRemaining({ endDateTime, isClosed }: ActiveTimeRemainingProps) {
   const [, setTick] = useState(0);
 
-  // リアルタイム更新のため、1秒ごとに再レンダリング
   useEffect(() => {
-    if (!poll.endDateTime || poll.isClosed === 1) {
+    if (!endDateTime || isClosed) {
       return;
     }
 
@@ -41,16 +42,16 @@ export function PollTimeRemaining({ poll }: PollTimeRemainingProps) {
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [poll]);
+  }, [endDateTime, isClosed]);
 
   const getTimeRemaining = (): number => {
-    if (!poll.endDateTime) return 0;
-    const endTime = new Date(poll.endDateTime).getTime();
+    if (!endDateTime) return 0;
+    const endTime = new Date(endDateTime).getTime();
     const now = Date.now();
     return Math.max(0, Math.ceil((endTime - now) / 1000));
   };
 
-  const hasEndTime = !!poll.endDateTime;
+  const hasEndTime = !!endDateTime;
   const timeLabel = hasEndTime ? formatTime(getTimeRemaining()) : '無制限';
 
   return (

@@ -1,21 +1,13 @@
-'use client';
-
 import { LAYOUT_CONSTANTS } from '@/config/constants';
 import {
   ContactMail as ContactIcon,
   Gavel as GavelIcon,
   Info as InfoIcon,
   PrivacyTip as PrivacyIcon,
-  AssignmentReturn as ReturnIcon,
-  LocalShipping as ShippingIcon,
-  Store as StoreIcon,
 } from '@mui/icons-material';
-import { Box, Container, Divider, Link, Typography, useMediaQuery, useTheme } from '@mui/material';
+import { Box, Container, Divider, Link, Typography } from '@mui/material';
 
 export default function Footer() {
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
-
   const aboutLinks = [
     { label: '当サイトについて', href: '/about', icon: <InfoIcon fontSize="small" /> },
     { label: '利用規約', href: '/terms', icon: <GavelIcon fontSize="small" /> },
@@ -34,17 +26,19 @@ export default function Footer() {
     >
       <Container maxWidth={false} sx={{ maxWidth: LAYOUT_CONSTANTS.MAX_CONTENT_WIDTH, pt: 6, pb: 3 }}>
         <Box
-          display="flex"
-          flexDirection={isMobile ? 'column' : 'row'}
-          justifyContent="space-between"
-          alignItems={isMobile ? 'center' : 'flex-start'}
+          sx={{
+            display: 'flex',
+            flexDirection: { xs: 'column', sm: 'row' },
+            justifyContent: 'space-between',
+            alignItems: { xs: 'center', sm: 'flex-start' },
+          }}
         >
           {/* タイトル */}
           <Box
             sx={{
               flex: 1,
               minWidth: 300,
-              textAlign: isMobile ? 'center' : 'left',
+              textAlign: { xs: 'center', sm: 'left' },
             }}
           >
             <Typography
@@ -62,14 +56,16 @@ export default function Footer() {
 
           {/* リンクセクション */}
           <Box
-            display="flex"
-            flexDirection={isMobile ? 'column' : 'row'}
-            gap={6}
-            justifyContent={isMobile ? 'center' : 'flex-end'}
-            flexWrap="nowrap"
+            sx={{
+              display: 'flex',
+              flexDirection: { xs: 'column', sm: 'row' },
+              gap: 6,
+              justifyContent: { xs: 'center', sm: 'flex-end' },
+              flexWrap: 'nowrap',
+            }}
           >
             {/* ABOUT */}
-            <Box textAlign={isMobile ? 'center' : 'left'}>
+            <Box sx={{ textAlign: { xs: 'center', sm: 'left' } }}>
               <Typography
                 variant="h6"
                 fontWeight="600"
@@ -95,7 +91,7 @@ export default function Footer() {
                       fontWeight: 500,
                       fontSize: '0.85rem',
                       transition: 'all 0.2s ease',
-                      justifyContent: isMobile ? 'center' : 'flex-start',
+                      justifyContent: { xs: 'center', sm: 'flex-start' },
                       '&:hover': {
                         color: 'white',
                         transform: 'translateX(4px)',

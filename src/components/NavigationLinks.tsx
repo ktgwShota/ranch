@@ -22,6 +22,7 @@ export default function NavigationLinks({
 }: NavigationLinksProps) {
   const pathname = usePathname();
   const isCreatePollPage = pathname === '/polls/create';
+  const isCreateSchedulePage = pathname === '/schedule/create';
   const [isHowToUseVisible, setIsHowToUseVisible] = useState(false);
   const [isFaqVisible, setIsFaqVisible] = useState(false);
 
@@ -93,6 +94,11 @@ export default function NavigationLinks({
     color: isCreatePollPage ? '#f97316' : textColor,
   };
 
+  const createScheduleLinkStyle = {
+    ...linkStyle,
+    color: isCreateSchedulePage ? '#f97316' : textColor,
+  };
+
   return (
     <Box sx={{ display: 'flex', alignItems: 'center', gap: 3 }}>
       {onHowToUseClick ? (
@@ -141,9 +147,16 @@ export default function NavigationLinks({
       )}
       <Link
         href="/polls/create"
-        style={{ textDecoration: 'none' } as React.CSSProperties}
+        style={{ textDecoration: 'none' }}
       >
-        <Typography sx={createPollLinkStyle}>投票作成</Typography>
+        <Typography sx={createPollLinkStyle}>店決め</Typography>
+      </Link>
+
+      <Link
+        href="/schedule/create"
+        style={{ textDecoration: 'none' }}
+      >
+        <Typography sx={createScheduleLinkStyle}>日程調整</Typography>
       </Link>
     </Box>
   );

@@ -3,39 +3,36 @@
 import {
   Alert,
   Box,
-  Checkbox,
   Container,
-  FormControlLabel,
   Paper,
   TextField,
   Typography,
-  Accordion,
-  AccordionSummary,
-  AccordionDetails,
   Tabs,
   Tab,
 } from '@mui/material';
 import {
-  ExpandMore as ExpandMoreIcon,
   Restaurant as RestaurantIcon,
   Place as PlaceIcon,
 } from '@mui/icons-material';
 import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { useForm, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { pollSchema, type PollFormData } from '@/lib/schemas/poll';
 import { PollOption } from './types';
 import { OptionCard } from './components/OptionCard';
 import { AddOptionButton } from './components/AddOptionButton';
-import { VotingDeadline } from './components/VotingDeadline';
 import { CreatePollButton } from './components/CreatePollButton';
 import { LAYOUT_CONSTANTS } from '@/config/constants';
+import AdvancedSettingsAccordion from '@/components/AdvancedSettingsAccordion';
+import DeadlineInput from '@/components/DeadlineInput';
+import TermsAgreementCheckbox from '@/components/TermsAgreementCheckbox';
 
 const MAX_OPTIONS = 6;
 const MIN_OPTIONS = 2;
 
 export default function Index() {
-  const [category, setCategory] = useState('RESTAURANT');
+  const router = useRouter();
 
   // 今日の日付を取得（YYYY-MM-DD形式）
   const todayDate = new Date().toISOString().split('T')[0];
@@ -46,8 +43,6 @@ export default function Index() {
   // 1週間後の日付と時刻を計算（デフォルト値）
   const oneWeekLater = new Date();
   oneWeekLater.setDate(oneWeekLater.getDate() + 7);
-  const defaultEndDate = oneWeekLater.toISOString().split('T')[0];
-  const defaultEndTime = `${oneWeekLater.getHours().toString().padStart(2, '0')}:${oneWeekLater.getMinutes().toString().padStart(2, '0')}`;
 
   // 1ヶ月後の日付を計算（最大値）
   const oneMonthLater = new Date();
@@ -62,7 +57,6 @@ export default function Index() {
     watch,
     setValue,
     setError,
-    clearErrors,
   } = useForm<PollFormData>({
     resolver: zodResolver(pollSchema),
     defaultValues: {
@@ -86,6 +80,7 @@ export default function Index() {
   const watchedOptions = watch('options');
   const watchedEndDate = watch('endDate');
   const watchedEndTime = watch('endTime');
+  const watchedHasAgreedToTerms = watch('hasAgreedToTerms');
 
   // 内部状態としてPollOptionを管理（OGP取得などのロジック用）
   const [pollOptions, setPollOptions] = useState<PollOption[]>([
@@ -112,10 +107,8 @@ export default function Index() {
 
   const handleCategoryChange = (event: React.SyntheticEvent, newValue: string) => {
     if (newValue === 'SCHEDULE') {
-      alert('準備中です');
-      return;
+      router.push('/schedule/create');
     }
-    setCategory(newValue);
   };
 
   const handleAddOption = () => {
@@ -224,7 +217,7 @@ export default function Index() {
         <Box component="form" onSubmit={handleSubmit(onSubmit)}>
           {/* カテゴリ切り替えタブ */}
           <Tabs
-            value={category}
+            value="RESTAURANT"
             onChange={handleCategoryChange}
             variant="fullWidth"
             indicatorColor="primary"
@@ -309,170 +302,74 @@ export default function Index() {
           </Box>
 
           {/* 詳細設定 */}
-          <Accordion
-            sx={{
-              boxShadow: 'none',
-              border: '1px solid #e5e7eb',
-              borderRadius: 0.5,
-              '&:before': {
-                display: 'none',
-              },
-              mb: 3,
-              '&.Mui-expanded': {
-                mb: 3,
-              },
-            }}
-          >
-            <AccordionSummary
-              expandIcon={<ExpandMoreIcon />}
-              sx={{
-                py: 2.5,
-                px: 3,
-                minHeight: '56px',
-                '&.Mui-expanded': {
-                  minHeight: '56px',
-                  borderBottom: '1px solid #e5e7eb',
-                },
-                '& .MuiAccordionSummary-content': {
-                  my: 0,
-                  margin: 0,
-                  alignItems: 'center',
-                  '&.Mui-expanded': {
-                    margin: 0,
-                  },
-                },
-                '& .MuiAccordionSummary-expandIconWrapper': {
-                  transition: 'transform 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
-                  color: 'text.secondary',
-                  '&.Mui-expanded': {
-                    transform: 'rotate(180deg)',
-                  },
-                },
-              }}
-            >
+          <AdvancedSettingsAccordion>
+            <DeadlineInput
+              endDate={watchedEndDate || ''}
+              endTime={watchedEndTime || ''}
+              todayDate={todayDate}
+              maxEndDate={maxEndDate}
+              currentTimeString={currentTimeString}
+              onEndDateChange={(value) => setValue('endDate', value)}
+              onEndTimeChange={(value) => setValue('endTime', value)}
+              dateError={errors.endDate?.message}
+              timeError={errors.endTime?.message}
+            />
+
+            {/* //完成してるが日程調整の方ではまだ実装してないので一旦コメントアウト */}
+            {/* <Box sx={{ mt: 3 }}>
               <Typography
                 variant="h6"
-                sx={{
-                  fontWeight: 600,
-                  color: 'text.primary',
-                  fontSize: '1rem',
-                  lineHeight: 1.5,
-                }}
+                sx={{ fontWeight: 600, color: 'text.primary', mb: 1, fontSize: '15px' }}
               >
-                詳細設定
+                編集用パスワード
               </Typography>
-            </AccordionSummary>
-            <AccordionDetails sx={{ px: 3, pb: 3 }}>
-              <VotingDeadline
-                endDate={watchedEndDate}
-                endTime={watchedEndTime}
-                todayDate={todayDate}
-                maxDate={maxEndDate}
-                currentTimeString={currentTimeString}
-                onEndDateChange={(value) => {
-                  setValue('endDate', value);
-                  if (value === todayDate && watchedEndTime && watchedEndTime < currentTimeString) {
-                    setValue('endTime', '');
-                  }
+              <Typography variant="body1" color="text.secondary" sx={{ mb: 2, fontSize: '0.875rem' }}>
+                パスワードを設定すると主催者以外のメンバーがパスワードを使用して投票に関する操作ができるようになります。
+              </Typography>
+              <TextField
+                fullWidth
+                type="password"
+                {...register('password')}
+                variant="outlined"
+                sx={{
+                  '& .MuiOutlinedInput-root': {
+                    borderRadius: 0.5,
+                    fontSize: '1rem',
+                    '&:hover .MuiOutlinedInput-notchedOutline': {
+                      borderColor: '#1976d2',
+                    },
+                    '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                      borderColor: '#1976d2',
+                      borderWidth: 2,
+                    },
+                  },
+                  '& .MuiInputBase-input::placeholder': {
+                    fontSize: '0.875rem',
+                  },
                 }}
-                onEndTimeChange={(value) => setValue('endTime', value)}
-                register={register}
-                errors={errors}
               />
-
-              <Box>
-                <Typography
-                  variant="h6"
-                  sx={{ mt: 2, fontWeight: 600, color: 'text.primary', mb: 1, fontSize: '15px' }}
-                >
-                  編集用パスワード
-                </Typography>
-                <Typography variant="body1" color="text.secondary" sx={{ mb: 2, fontSize: '0.875rem' }}>
-                  パスワードを設定すると主催者以外のメンバーがパスワードを使用して投票に関する操作ができるようになります。
-                </Typography>
-                <TextField
-                  fullWidth
-                  type="password"
-                  {...register('password')}
-                  variant="outlined"
-                  sx={{
-                    '& .MuiOutlinedInput-root': {
-                      borderRadius: 0.5,
-                      fontSize: '1rem',
-                      '&:hover .MuiOutlinedInput-notchedOutline': {
-                        borderColor: '#1976d2',
-                      },
-                      '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                        borderColor: '#1976d2',
-                        borderWidth: 2,
-                      },
-                    },
-                    '& .MuiInputBase-input::placeholder': {
-                      fontSize: '0.875rem',
-                    },
-                  }}
-                />
-              </Box>
-            </AccordionDetails>
-          </Accordion>
+            </Box> */}
+          </AdvancedSettingsAccordion>
 
           <Box
             sx={{
               height: '1px',
-              background:
-                'linear-gradient(90deg, transparent, rgba(102, 126, 234, 0.3), transparent)',
+              background: 'linear-gradient(90deg, transparent, rgba(102, 126, 234, 0.3), transparent)',
               mb: 3,
               mx: 2,
             }}
           />
 
-
-          <Box display="flex" justifyContent="center" my={4}>
-            <FormControlLabel
-              control={
-                <Checkbox
-                  {...register('hasAgreedToTerms')}
-                  color="primary"
-                  size="small"
-                  sx={{
-                    p: 0,
-                  }}
-                />
-              }
-              label={
-                <Typography
-                  variant="body1"
-                  color="text.secondary"
-                  sx={{ fontWeight: 500, position: 'relative', top: '0.5px', fontSize: '0.875rem' }}
-                >
-                  <a
-                    href="/terms"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    style={{
-                      color: '#1976d2',
-                      textDecoration: 'none',
-                      paddingLeft: 4,
-                    }}
-                  >
-                    利用規約
-                  </a>
-                  に同意する
-                </Typography>
-              }
-            />
-            {errors.hasAgreedToTerms && (
-              <Typography variant="caption" color="error" sx={{ mt: 0.5, display: 'block' }}>
-                {errors.hasAgreedToTerms.message}
-              </Typography>
-            )}
-          </Box>
+          <TermsAgreementCheckbox
+            checked={watchedHasAgreedToTerms}
+            onChange={(checked) => setValue('hasAgreedToTerms', checked)}
+            error={errors.hasAgreedToTerms?.message}
+          />
 
           <Box
             sx={{
               height: '1px',
-              background:
-                'linear-gradient(90deg, transparent, rgba(102, 126, 234, 0.3), transparent)',
+              background: 'linear-gradient(90deg, transparent, rgba(102, 126, 234, 0.3), transparent)',
               mb: 3,
               mx: 2,
             }}
@@ -481,7 +378,7 @@ export default function Index() {
           <Box component="div">
             <CreatePollButton
               loading={isSubmitting}
-              disabled={isSubmitting || !watch('hasAgreedToTerms')}
+              disabled={isSubmitting || !watchedHasAgreedToTerms}
               onClick={handleSubmit(onSubmit)}
             />
           </Box>
