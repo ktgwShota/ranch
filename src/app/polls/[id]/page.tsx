@@ -96,14 +96,7 @@ function generateStructuredData(poll: DBPoll) {
   };
 }
 
-// // 静的メタデータ: インデックスさせない
-// export const metadata: Metadata = {
-//   robots: {
-//     index: false,
-//     follow: false,
-//   },
-// };
-
+// 動的メタデータを生成
 // 動的メタデータを生成
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { id } = await params;
@@ -133,9 +126,17 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       ? `投票結果: ${poll.title}。総投票数: ${totalVotes}票。${winningOption ? `最多得票: ${winningOption.title}` : ''}`
       : `${poll.title}の投票ページ。${poll.options.length}つの選択肢から選んで投票できます。`;
 
+    // ★★★ 条件を外して、すべての動的ページで noindex を設定 ★★★
+    const robotsSetting: Metadata['robots'] = {
+      index: false, // 無条件で noindex
+      follow: true,
+    };
+
     return {
       title,
       description,
+      // ★★★ robots設定を無条件で追加 ★★★
+      robots: robotsSetting,
       openGraph: {
         title,
         description,
