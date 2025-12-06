@@ -4,7 +4,8 @@ import AboutSection from './AboutSection';
 import HowToUseSection from './HowToUseSection';
 import BottomCTASection from './CtaSection';
 import HeroSection from './HeroSection';
-import FaqSection, { FAQ_ITEMS } from './FaqSection';
+import FaqSection from './FaqSection';
+import { FAQ_ITEMS } from './constants';
 
 export const metadata: Metadata = {
   title: 'ChoisuR | 多数決ツール',
