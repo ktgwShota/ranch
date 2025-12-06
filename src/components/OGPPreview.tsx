@@ -3,7 +3,7 @@
 import { Restaurant as RestaurantIcon } from '@mui/icons-material';
 import { Box, Skeleton, Typography } from '@mui/material';
 import { useEffect, useState, useRef } from 'react';
-import { validateUrl } from '../../utils/url';
+import { validateUrl } from '@/utils/url';
 
 interface OGPData {
   title: string;

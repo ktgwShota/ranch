@@ -31,39 +31,48 @@ export default function HeroSection() {
   const [isSubtitleVisible, setIsSubtitleVisible] = useState(false);
   const [showCursor, setShowCursor] = useState(true);
 
-  const startTyping = useCallback(() => {
-    // アニメーション開始直前に一旦テキストをクリア
-    setDisplayedText('');
+  useEffect(() => {
+    // アニメーション制御用の一連のフロー
+    const runAnimation = async () => {
+      // 0. マウント直後はフルテキストが入っているが、一旦アニメーションのためにクリアする
+      // ただしハイドレーション不一致を防ぐため、useEffect内で実行
 
-    let currentIndex = 0;
-    const typingInterval = setInterval(() => {
-      if (currentIndex < TITLE.length) {
-        setDisplayedText(TITLE.slice(0, currentIndex + 1));
-        currentIndex++;
-      } else {
-        clearInterval(typingInterval);
-      }
-    }, TYPING_SPEED);
+      // 1. タイトルフェードインまでの待機
+      await new Promise((resolve) => setTimeout(resolve, ANIMATION_DELAYS.TITLE_START));
+
+      // 2. フェードイン開始と同時にテキストをリセットしてタイピング準備
+      setIsTitleVisible(true);
+      setDisplayedText('');
+
+      // 3. タイピングアニメーション
+      let currentIndex = 0;
+      const intervalId = setInterval(() => {
+        if (currentIndex < TITLE.length) {
+          setDisplayedText(TITLE.slice(0, currentIndex + 1));
+          currentIndex++;
+        } else {
+          clearInterval(intervalId);
+          // タイピング完了
+
+          // 4. サブタイトル表示までの待機
+          setTimeout(() => {
+            setIsSubtitleVisible(true);
+            // カーソルを消すならここ
+            setShowCursor(false);
+          }, ANIMATION_DELAYS.TYPING_COMPLETE_DELAY);
+        }
+      }, TYPING_SPEED);
+
+      return () => clearInterval(intervalId);
+    };
+
+    runAnimation();
   }, []);
 
   useEffect(() => {
-    setTimeout(() => {
-      setIsTitleVisible(true);
-      startTyping();
-    }, ANIMATION_DELAYS.TITLE_START);
-  }, [startTyping]);
-
-  useEffect(() => {
-    setShowCursor(displayedText.length < TITLE.length);
-  }, [displayedText.length]);
-
-  useEffect(() => {
-    if (displayedText === TITLE) {
-      const timeoutId = setTimeout(() => {
-        setIsSubtitleVisible(true);
-      }, ANIMATION_DELAYS.TYPING_COMPLETE_DELAY);
-
-      return () => clearTimeout(timeoutId);
+    // カーソル表示制御（タイピング中は表示）
+    if (displayedText.length === TITLE.length) {
+      // タイピング完了後もしばらく表示させておくなどの制御が可能
     }
   }, [displayedText]);
 

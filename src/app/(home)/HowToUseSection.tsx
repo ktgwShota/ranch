@@ -26,7 +26,7 @@ const sectionSubtitleStyles = {
   mx: 'auto',
 };
 
-export default function HowItWorksSection() {
+export default function HowToUseSection() {
   return (
     <Box
       id="hot-to-use"
@@ -76,7 +76,6 @@ export default function HowItWorksSection() {
     </Box>
   );
 }
-
 
 type StepData = {
   step: string;

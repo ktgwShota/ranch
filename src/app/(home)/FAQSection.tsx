@@ -21,75 +21,52 @@ function FAQAccordionItem({ item, index, expanded, onExpand }: FAQAccordionItemP
       onChange={onExpand(`panel${index}`)}
       disableGutters
       elevation={0}
-      style={{
-        backgroundColor: 'transparent',
-        marginBottom: 0,
-      }}
       sx={{
+        backgroundColor: '#fff',
+        borderRadius: '8px',
+        border: '1px solid #e2e8f0',
+        marginBottom: 0,
+        overflow: 'hidden',
         '&:before': { display: 'none' },
+        transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
       }}
     >
       <AccordionSummary
-        expandIcon={<ExpandMoreIcon style={{ color: '#3b82f6' }} />}
-        style={{
-          backgroundColor: 'white',
-          borderRadius: '12px',
-          marginBottom: 0,
-          border: '1px solid #e2e8f0',
-          transition: 'all 0.2s ease',
-          ...(isExpanded && {
-            borderBottomLeftRadius: 0,
-            borderBottomRightRadius: 0,
-            borderBottom: 'none',
-            backgroundColor: '#fff',
-          }),
-        }}
+        expandIcon={<ExpandMoreIcon sx={{ color: '#94a3b8' }} />}
         sx={{
-          '&:hover': {
-            backgroundColor: '#f8fafc',
+          padding: { xs: '0 16px', md: '0 20px' },
+          minHeight: { xs: '64px', md: '72px' },
+          '& .MuiAccordionSummary-content': {
+            margin: { xs: '12px 0', md: '12px 0' },
+          },
+          '&.Mui-expanded': {
+            minHeight: { xs: '64px', md: '72px' },
           },
         }}
       >
         <Typography
-          style={{
-            fontWeight: 600,
-            color: 'rgba(0, 0, 0, 0.87)',
-            fontSize: '0.95rem',
-          }}
           sx={{
-            '@media (min-width: 900px)': {
-              fontSize: '1rem',
-            },
+            fontWeight: 700,
+            color: '#1e293b',
+            fontSize: { xs: '0.95rem', md: '1rem' },
+            fontFeatureSettings: '"palt"',
           }}
         >
           {item.question}
         </Typography>
       </AccordionSummary>
       <AccordionDetails
-        style={{
-          backgroundColor: 'white',
-          borderLeft: '1px solid #e2e8f0',
-          borderRight: '1px solid #e2e8f0',
-          borderBottom: '1px solid #e2e8f0',
-          borderBottomLeftRadius: '12px',
-          borderBottomRightRadius: '12px',
-          marginTop: 0,
-          paddingTop: '1rem',
-          paddingBottom: '1.5rem',
-          paddingLeft: '1.5rem',
-          paddingRight: '1.5rem',
+        sx={{
+          padding: { xs: '0 20px 24px 20px', md: '0 24px 32px 24px' },
+          marginTop: '-8px', // 少しタイトに
         }}
       >
         <Typography
-          style={{
-            color: 'rgba(0, 0, 0, 0.6)',
-            lineHeight: 1.8,
-            fontSize: '0.9rem',
-          }}
           sx={{
-            '@media (min-width: 900px)': {
-              fontSize: '0.95rem',
-            },
+            color: '#64748b',
+            lineHeight: 1.8,
+            fontSize: { xs: '0.9rem', md: '0.95rem' },
+            whiteSpace: 'pre-wrap', // 改行を反映
           }}
         >
           {item.answer}
@@ -125,7 +102,7 @@ interface FAQSectionProps {
   faqItems: { question: string; answer: string }[];
 }
 
-export default function FAQSection() {
+export default function FaqSection() {
   const [expanded, setExpanded] = React.useState<string | false>(false);
 
   const handleChange = (panel: string) => (event: React.SyntheticEvent, isExpanded: boolean) => {
