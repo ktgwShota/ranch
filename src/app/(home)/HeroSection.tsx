@@ -47,14 +47,7 @@ export default function HeroSection() {
   }, []);
 
   useEffect(() => {
-    // マウントされたらアニメーションシーケンス開始
-    // 1. まずタイトルを表示状態にする（ただしこの瞬間はクリアされているか、あるいはアニメーションでfadeInする）
-
-    // アニメーション開始までは opacity 0 (Server render状態) のまま待機し、
-    // 開始のタイミングで opacity 1 にするのと同時にタイピングを始める。
-
     setTimeout(() => {
-      // ここで初めて可視化＆タイピング開始
       setIsTitleVisible(true);
       startTyping();
     }, ANIMATION_DELAYS.TITLE_START);
@@ -121,8 +114,6 @@ export default function HeroSection() {
             minHeight: { xs: '3.6rem', md: '4.32rem' },
             display: 'inline-flex',
             alignItems: 'center',
-            // isTitleVisible が false (SSR時含む) は opacity: 0
-            // これにより "幹事の悩み..." というテキストはDOMにあるが見えない状態になる
             opacity: isTitleVisible ? 1 : 0,
             transform: isTitleVisible
               ? 'translateY(0) scale(1)'

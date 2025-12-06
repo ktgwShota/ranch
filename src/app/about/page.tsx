@@ -1,7 +1,7 @@
 import { Box, Container, Paper, Typography } from '@mui/material';
 import { LAYOUT_CONSTANTS } from '@/config/constants';
-import PageHeader from '@/app/components/PageHeader';
-import StyledList from '@/app/components/StyledList';
+import PageHeader from '@/components/PageHeader';
+import StyledList from '@/components/StyledList';
 
 export default function AboutPage() {
   return (

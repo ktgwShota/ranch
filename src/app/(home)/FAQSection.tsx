@@ -3,6 +3,7 @@
 import { Box, Container, Typography, Accordion, AccordionSummary, AccordionDetails } from '@mui/material';
 import { ExpandMore as ExpandMoreIcon } from '@mui/icons-material';
 import React from 'react';
+import ScrollReveal from '@/components/ScrollReveal';
 
 interface FAQAccordionItemProps {
   item: { question: string; answer: string };
@@ -152,40 +153,42 @@ export default function FAQSection() {
           maxWidth: '960px',
         }}
       >
-        <Box>
-          <Typography
-            variant="h2"
-            style={{
-              fontSize: '1.75rem',
-              fontWeight: 700,
-              color: 'rgba(0, 0, 0, 0.87)',
-              textAlign: 'center',
-              marginBottom: '1rem',
-            }}
-            sx={{
-              '@media (min-width: 900px)': {
-                fontSize: '2.25rem',
-              },
-            }}
-          >
-            FAQ
-          </Typography>
-          <Typography
-            variant="body1"
-            style={{
-              fontWeight: 'bold',
-              fontSize: '1.125rem',
-              color: 'rgba(0, 0, 0, 0.6)',
-              textAlign: 'center',
-              marginLeft: 'auto',
-              marginRight: 'auto',
-              maxWidth: '600px',
-              marginBottom: '4rem',
-            }}
-          >
-            よくある質問
-          </Typography>
-        </Box>
+        <ScrollReveal>
+          <Box>
+            <Typography
+              variant="h2"
+              style={{
+                fontSize: '1.75rem',
+                fontWeight: 700,
+                color: 'rgba(0, 0, 0, 0.87)',
+                textAlign: 'center',
+                marginBottom: '1rem',
+              }}
+              sx={{
+                '@media (min-width: 900px)': {
+                  fontSize: '2.25rem',
+                },
+              }}
+            >
+              FAQ
+            </Typography>
+            <Typography
+              variant="body1"
+              style={{
+                fontWeight: 'bold',
+                fontSize: '1.125rem',
+                color: 'rgba(0, 0, 0, 0.6)',
+                textAlign: 'center',
+                marginLeft: 'auto',
+                marginRight: 'auto',
+                maxWidth: '600px',
+                marginBottom: '4rem',
+              }}
+            >
+              よくある質問
+            </Typography>
+          </Box>
+        </ScrollReveal>
 
         <Box
           style={{
@@ -198,13 +201,14 @@ export default function FAQSection() {
           }}
         >
           {FAQ_ITEMS.map((item, index) => (
-            <FAQAccordionItem
-              key={index}
-              item={item}
-              index={index}
-              expanded={expanded}
-              onExpand={handleChange}
-            />
+            <ScrollReveal key={index} mode="slide" direction="up" distance={30} delay={index * 0.1}>
+              <FAQAccordionItem
+                item={item}
+                index={index}
+                expanded={expanded}
+                onExpand={handleChange}
+              />
+            </ScrollReveal>
           ))}
         </Box>
       </Container>

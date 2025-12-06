@@ -6,6 +6,7 @@ import {
   Restaurant as RestaurantIcon,
 } from '@mui/icons-material';
 import BrowserWindow from '@/components/BrowserWindow';
+import ScrollReveal from '@/components/ScrollReveal';
 
 const CONTAINER_MAX_WIDTH = '960px';
 
@@ -24,6 +25,58 @@ const sectionSubtitleStyles = {
   textAlign: 'center' as const,
   mx: 'auto',
 };
+
+export default function HowItWorksSection() {
+  return (
+    <Box
+      id="hot-to-use"
+      sx={{
+        pt: { xs: 8, md: 10 },
+        pb: { xs: 8, md: 10 },
+        backgroundColor: '#ffffff',
+      }}
+    >
+      <Container maxWidth={false} sx={{ maxWidth: CONTAINER_MAX_WIDTH }}>
+        <ScrollReveal viewportAmount={1}>
+          <Typography variant="h2" sx={{ ...sectionTitleStyles }}>
+            How To Use
+          </Typography>
+          <Typography
+            variant="body1"
+            sx={{
+              ...sectionSubtitleStyles,
+              maxWidth: '600px',
+              mb: 10,
+            }}
+          >
+            利用方法
+          </Typography>
+        </ScrollReveal>
+
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: { xs: 8, md: 12 } }}>
+          {STEPS.map((step, index) => (
+            <Fragment key={index}>
+              <ScrollReveal
+                mode="slide"
+                direction={index % 2 === 0 ? 'left' : 'right'}
+                distance={100}
+                duration={0.8}
+              >
+                <StepItem step={step} index={index} />
+              </ScrollReveal>
+              {index < STEPS.length - 1 && (
+                <ScrollReveal delay={0.2} mode="fade" duration={0.8}>
+                  <DividerLine />
+                </ScrollReveal>
+              )}
+            </Fragment>
+          ))}
+        </Box>
+      </Container>
+    </Box>
+  );
+}
+
 
 type StepData = {
   step: string;
@@ -207,44 +260,6 @@ function StepItem({ step, index }: { step: StepData; index: number }) {
         address={step.address!}
         isEven={isEven}
       />
-    </Box>
-  );
-}
-
-export default function HowItWorksSection() {
-  return (
-    <Box
-      id="hot-to-use"
-      sx={{
-        pt: { xs: 8, md: 10 },
-        pb: { xs: 8, md: 10 },
-        backgroundColor: '#ffffff',
-      }}
-    >
-      <Container maxWidth={false} sx={{ maxWidth: CONTAINER_MAX_WIDTH }}>
-        <Typography variant="h2" sx={{ ...sectionTitleStyles }}>
-          How To Use
-        </Typography>
-        <Typography
-          variant="body1"
-          sx={{
-            ...sectionSubtitleStyles,
-            maxWidth: '600px',
-            mb: 10,
-          }}
-        >
-          利用方法
-        </Typography>
-
-        <Box sx={{ display: 'flex', flexDirection: 'column', gap: { xs: 8, md: 12 } }}>
-          {STEPS.map((step, index) => (
-            <Fragment key={index}>
-              <StepItem step={step} index={index} />
-              {index < STEPS.length - 1 && <DividerLine />}
-            </Fragment>
-          ))}
-        </Box>
-      </Container>
     </Box>
   );
 }

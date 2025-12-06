@@ -4,6 +4,7 @@ import {
   Group as GroupIcon,
   Link as LinkIcon,
 } from '@mui/icons-material';
+import ScrollReveal from '@/components/ScrollReveal';
 
 const CONTAINER_MAX_WIDTH = '960px';
 
@@ -164,27 +165,29 @@ export default function AboutSection() {
       />
 
       <Container maxWidth={false} sx={{ maxWidth: CONTAINER_MAX_WIDTH, position: 'relative', zIndex: 1 }}>
-        <Box
-          sx={{
-            textAlign: 'center',
-            mb: 12,
-          }}
-        >
-          <Typography
-            variant="h2"
-            sx={{ ...sectionTitleStyles, mb: 3, fontSize: { xs: '2rem', md: '2.5rem' }, letterSpacing: '-0.02em' }}
+        <ScrollReveal mode="slide" direction="none" distance={30} duration={1} viewportAmount={0.9}>
+          <Box
+            sx={{
+              textAlign: 'center',
+              mb: 12,
+            }}
           >
-            ChoisuR について
-          </Typography>
-          <Typography
-            variant="body1"
-            sx={{ ...sectionSubtitleStyles, maxWidth: '700px', lineHeight: 1.8, color: 'text.secondary' }}
-          >
-            ChoisuR はイベントの行き先を公平に決めるための多数決ツールです。
-            <br />
-            食事会 / 交流会 / 旅行先の決定など、あらゆるシーンでご利用いただけます。
-          </Typography>
-        </Box>
+            <Typography
+              variant="h2"
+              sx={{ ...sectionTitleStyles, mb: 3, fontSize: { xs: '2rem', md: '2.5rem' }, letterSpacing: '-0.02em' }}
+            >
+              ChoisuR について
+            </Typography>
+            <Typography
+              variant="body1"
+              sx={{ ...sectionSubtitleStyles, maxWidth: '700px', lineHeight: 1.8, color: 'text.secondary' }}
+            >
+              ChoisuR はイベントの行き先を公平に決めるための多数決ツールです。
+              <br />
+              食事会 / 交流会 / 旅行先の決定など、あらゆるシーンでご利用いただけます。
+            </Typography>
+          </Box>
+        </ScrollReveal>
 
         <Box
           sx={{
@@ -194,15 +197,23 @@ export default function AboutSection() {
           }}
         >
           {features.map((feature, index) => (
-            <FeatureCard
+            <ScrollReveal
               key={index}
-              title={feature.title}
-              description={feature.description}
-              icon={feature.icon}
-              color={feature.color}
-              bgColor={feature.bgColor}
-              index={index}
-            />
+              mode="pop"
+              distance={40}
+              delay={index * 0.2}
+              duration={1}
+              viewportAmount={0.4}
+            >
+              <FeatureCard
+                title={feature.title}
+                description={feature.description}
+                icon={feature.icon}
+                color={feature.color}
+                bgColor={feature.bgColor}
+                index={index}
+              />
+            </ScrollReveal>
           ))}
         </Box>
       </Container>

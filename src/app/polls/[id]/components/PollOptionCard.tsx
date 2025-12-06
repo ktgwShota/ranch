@@ -3,7 +3,7 @@
 import { Box, Card, CardContent, CardMedia, Chip, LinearProgress, Typography } from '@mui/material';
 import { Restaurant as RestaurantIcon } from '@mui/icons-material';
 import type { DBPollOption as Option, Voter } from '@/services/db/poll/types';
-import { CustomButton } from '@/app/components/CustomButton';
+import { CustomButton } from '@/components/CustomButton';
 import { Check as CheckIcon, ThumbUp as ThumbUpIcon } from '@mui/icons-material';
 
 interface OptionCardProps {

@@ -28,7 +28,7 @@ import {
   MarkEmailRead as MarkEmailReadIcon,
 } from '@mui/icons-material';
 import { LAYOUT_CONSTANTS } from '@/config/constants';
-import PageHeader from '@/app/components/PageHeader';
+import PageHeader from '@/components/PageHeader';
 
 interface Contact {
   id: number;

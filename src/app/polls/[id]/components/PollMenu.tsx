@@ -20,7 +20,7 @@ import {
 } from '@mui/icons-material';
 import { useState } from 'react';
 import type { DBPoll as Poll } from '@/services/db/poll/types';
-import { CustomDialog } from '@/app/components/CustomDialog';
+import { CustomDialog } from '@/components/CustomDialog';
 import { useOrganizer } from '../hooks/useOrganizer';
 import { useRouter } from 'next/navigation';
 import { closePoll, deletePoll } from '@/lib/api/pollApi';
