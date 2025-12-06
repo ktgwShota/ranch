@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { Box, Paper, Typography, Button } from '@mui/material';
-import { useTutorialStore } from '@/app/stores/tutorialStore';
+import { useTutorialStore } from '@/stores/tutorialStore';
 
 export function Tutorial() {
   const { isActive, currentStepIndex, steps, goToNextStep, finishTutorial } = useTutorialStore();

@@ -26,8 +26,9 @@ export default function AboutPage() {
             サービス概要
           </Typography>
           <Typography variant="body1" color="text.secondary" sx={{ mb: 2, lineHeight: 1.8 }}>
-            ChoisuR は、飲み会や食事会のお店選びに特化したログイン不要・無料で使用できる投票ツールです。
-            主要なグルメサイトに対応し、URLを貼るだけで写真付きのアンケートを簡単に作成・共有できます。
+            ChoisuR は無料で使用できる多数決ツールです。
+            <br />
+            食事会 / 交流会 / 旅行先の決定など、あらゆるシーンでご利用いただけます。
           </Typography>
         </Box>
 
@@ -39,9 +40,9 @@ export default function AboutPage() {
             主な機能
           </Typography>
           <StyledList items={[
-            'グルメサイトのURLから自動で候補リストを取得',
-            '写真付きの投票ページを簡単に作成',
-            'ログイン不要で誰でも投票可能',
+            '会員登録不要で、すぐに投票ページを作成',
+            'URLをシェアするだけで、メンバー全員が投票可能',
+            '多数決で公平に全員の意思を反映',
             'リアルタイムで投票結果を確認',
           ]} />
         </Box>

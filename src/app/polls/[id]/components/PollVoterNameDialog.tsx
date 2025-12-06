@@ -2,8 +2,8 @@
 
 import { TextField } from '@mui/material';
 import { useState, useEffect } from 'react';
-import { CustomDialog } from '@/app/components/CustomDialog';
-import { useErrorStore } from '@/app/stores/errorStore';
+import { CustomDialog } from '@/components/CustomDialog';
+import { useErrorStore } from '@/stores/errorStore';
 
 interface PollVoterNameDialogProps {
   open: boolean;

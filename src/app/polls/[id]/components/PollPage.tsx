@@ -6,7 +6,7 @@ import { usePollVote } from '../hooks/usePollVote';
 import { PollHeader } from './PollHeader';
 import { PollOptionCard } from './PollOptionCard';
 import { PollVoterNameDialog } from './PollVoterNameDialog';
-import { useTutorialStore } from '@/app/stores/tutorialStore';
+import { useTutorialStore } from '@/stores/tutorialStore';
 import type { DBPoll as Poll } from '@/services/db/poll/types';
 
 const DIALOG_MODE = {

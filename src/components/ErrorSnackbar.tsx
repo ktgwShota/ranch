@@ -1,7 +1,7 @@
 'use client';
 
 import { Snackbar, Alert, Box } from '@mui/material';
-import { useErrorStore } from '@/app/stores/errorStore';
+import { useErrorStore } from '@/stores/errorStore';
 
 export function ErrorSnackbar() {
   const { errorMessage, isOpen, closeError } = useErrorStore();

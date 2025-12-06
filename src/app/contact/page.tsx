@@ -13,7 +13,7 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { LAYOUT_CONSTANTS } from '@/config/constants';
-import PageHeader from '@/app/components/PageHeader';
+import PageHeader from '@/components/PageHeader';
 import { contactSchema, type ContactFormData } from '@/lib/schemas/contact';
 
 export default function ContactPage() {

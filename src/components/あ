@@ -1,0 +1,128 @@
+# アニメーション情報メモ
+
+## 定数・設定値
+
+### ANIMATION_DELAYS
+- TITLE_START: 300ms - タイトル表示開始までの遅延
+- TYPING_COMPLETE_DELAY: 300ms - タイピング完了後の遅延
+- ARROW_DELAY: 1100ms - スクロール矢印表示までの遅延
+- STEP_STAGGER: 100ms - ステップ間の遅延
+- FAQ_STAGGER: 100ms - FAQアイテム間の遅延
+- FAQ_FIRST_ITEM_DELAY: 200ms - FAQ最初のアイテムの遅延
+
+### その他
+- TYPING_SPEED: 150ms - タイピングアニメーションの速度
+- INTERSECTION_THRESHOLD: 0.5 - IntersectionObserverの閾値
+
+## HeroSection
+
+### アニメーション
+1. **オーバーレイフェードイン**
+   - opacity: 0 → 1
+   - transition: opacity 1.2s ease
+
+2. **タイトル表示**
+   - 300ms後に表示開始
+   - opacity: 0 → 1
+   - transform: translateY(50px) scale(0.9) → translateY(0) scale(1)
+   - transition: opacity 0.6s ease, transform 0.6s ease
+
+3. **タイピングアニメーション**
+   - 150ms間隔で1文字ずつ表示
+   - カーソルはタイピング中のみ表示
+
+4. **サブタイトル表示**
+   - タイピング完了後300ms後に表示
+   - opacity: 0 → 1
+   - transition: opacity 0.6s ease 0.2s
+
+5. **スクロール矢印**
+   - タイピング完了後1100ms後に表示
+   - opacity: 0 → 1
+   - transition: opacity 0.6s ease
+   - バウンスアニメーション: 2s infinite
+   - ホバー時: translateY(5px)
+
+## AboutSection
+
+### アニメーション
+1. **セクションタイトル・説明**
+   - IntersectionObserver (threshold: 0.2) で検知
+   - opacity: 0 → 1
+   - transform: translateY(20px) → translateY(0)
+   - transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1)
+
+2. **FeatureCard**
+   - 各カードに遅延を適用
+   - opacity: 0 → 1
+   - transform: translateY(30px) → translateY(0)
+   - transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1) ${index * 0.12 + 0.2}s
+
+## HowItWorksSection
+
+### アニメーション
+1. **タイトル・サブタイトル**
+   - IntersectionObserver (threshold: 0.5) で検知
+   - タイトル: opacity 0 → 1 (fadeInStyles)
+   - サブタイトル: 100ms後に表示 (fadeInStyles)
+
+2. **StepItem**
+   - 最初のアイテム: 200ms後に表示開始
+   - その他のアイテム: 各100msずつ遅延
+   - opacity: 0 → 1
+   - transform: translateX(-50px or 50px) → translateX(0)
+   - transition: opacity 0.5s ease ${delay}, transform 0.5s ease ${delay}
+   - 偶数インデックス: 左から (-50px)
+   - 奇数インデックス: 右から (50px)
+
+3. **DividerLine**
+   - Step1表示後、各ステップのアニメーション完了後、ワンテンポ遅れて表示
+   - opacity: 0 → 0.6
+   - transform: scaleX(0) → scaleX(1)
+   - transition: opacity 0.8s ease, transform 0.8s ease
+   - transitionDelay: ${(index + 1) * 0.2 + 0.5}s
+
+## BottomCTASection
+
+### アニメーション
+1. **背景**
+   - マウント時に即座に表示
+   - opacity: 0 → 1
+   - transition: opacity 1.2s ease
+
+2. **タイトル・説明**
+   - マウント時に即座に表示
+   - opacity: 0 → 1
+   - transform: translateY(30px) → translateY(0)
+   - transition: opacity 0.8s ease 0.1s, transform 0.8s ease 0.1s
+
+3. **ボタン・FeatureBadge**
+   - マウント時に即座に表示
+   - opacity: 0 → 1
+   - transition: opacity 0.6s ease 0.7s (FeatureBadgeのみ)
+
+## FAQSection
+
+### アニメーション
+1. **タイトル・サブタイトル**
+   - IntersectionObserver (threshold: 0.5) で検知
+   - タイトル: 即座に表示
+   - サブタイトル: 100ms後に表示
+   - fadeInStylesを使用
+
+2. **FAQアイテム**
+   - 最初のアイテム: 200ms後に表示
+   - その他のアイテム: 各100msずつ遅延
+   - opacity: 0 → 1
+   - transform: translateY(20px) → translateY(0)
+   - transition: opacity 0.5s ease, transform 0.5s ease
+   - 追加のIntersectionObserver (threshold: 0.2) で個別に検知
+
+## 使用している技術
+
+- IntersectionObserver API
+- useState, useEffect, useRef, useCallback (React Hooks)
+- CSS transitions
+- CSS keyframes (@keyframes bounce)
+- setTimeout/setInterval
+

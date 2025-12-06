@@ -67,7 +67,7 @@ export default function Footer() {
                 mx: isMobile ? 'auto' : 0,
               }}
             >
-              サイトのキャッチコピー
+              公平な意思決定をサポートする多数決ツール
             </Typography>
           </Box>
 
