@@ -96,6 +96,14 @@ function generateStructuredData(poll: DBPoll) {
   };
 }
 
+// // 静的メタデータ: インデックスさせない
+// export const metadata: Metadata = {
+//   robots: {
+//     index: false,
+//     follow: false,
+//   },
+// };
+
 // 動的メタデータを生成
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { id } = await params;
