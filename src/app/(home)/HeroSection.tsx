@@ -6,9 +6,9 @@ import { useCallback, useEffect, useState } from 'react';
 
 const HEADER_HEIGHT = 80;
 const CONTAINER_MAX_WIDTH = '960px';
-const TITLE = '"幹事の悩み" を解決。';
-const SUBTITLE_1 = '行き先に悩む時代はもう終わり。目的地は全員で決める。';
-const SUBTITLE_2 = 'ChoisuR なら公平に全員の意思を反映した目的地が決まります。';
+const TITLE = '"何でもいいよ" に終止符を。';
+const SUBTITLE_1 = '幹事の悩みは公平な多数決で解決できます。';
+const SUBTITLE_2 = 'ChoisuR が忖度なしで全員が納得する答えを導き出します。';
 
 const ANIMATION_DELAYS = {
   TITLE_START: 300,
