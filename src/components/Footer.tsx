@@ -58,17 +58,6 @@ export default function Footer() {
             >
               ChoisuR
             </Typography>
-            <Typography
-              variant="body1"
-              sx={{
-                color: 'rgba(255, 255, 255, 0.7)',
-                fontSize: '0.85rem',
-                maxWidth: 400,
-                mx: isMobile ? 'auto' : 0,
-              }}
-            >
-              公平な意思決定をサポートする多数決ツール
-            </Typography>
           </Box>
 
           {/* リンクセクション */}

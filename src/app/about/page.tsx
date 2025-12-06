@@ -37,35 +37,15 @@ export default function AboutPage() {
             サービス概要
           </Typography>
           <Typography variant="body1" color="text.secondary" sx={{ mb: 2, lineHeight: 1.8 }}>
-            ChoisuR は無料で使用できる多数決ツールです。
-            <br />
-            食事会 / 交流会 / 旅行先の決定など、あらゆるシーンでご利用いただけます。
-          </Typography>
-        </Box>
-
-        <Box sx={{ mb: 4 }}>
-          <Typography
-            variant="h6"
-            sx={{ fontWeight: 600, color: 'text.primary', mb: 1.5 }}
-          >
-            主な機能
+            ChoisuR（チョイスル）は、意思決定を公正かつ迅速に行うためのオンライン多数決サービスです。
           </Typography>
           <StyledList items={[
-            '会員登録不要で、すぐに投票ページを作成',
-            'URLをシェアするだけで、メンバー全員が投票可能',
-            '多数決で公平に全員の意思を反映',
-            'リアルタイムで投票結果を確認',
+            'いつまで経っても決まらない飲み会の場所',
+            'やっぱりこちらの方が良かった...といった周囲からの不満',
           ]} />
-        </Box>
-
-        <Box sx={{ mb: 4 }}>
-          <Typography
-            variant="h6"
-            sx={{ fontWeight: 600, color: 'text.primary', mb: 1.5 }}
-          >
-            対応グルメサイト
+          <Typography variant="body1" color="text.secondary" sx={{ mt: 2, lineHeight: 1.8 }}>
+            あらゆる選択を参加者全員の納得感をもって決定することを支援します。
           </Typography>
-          <StyledList items={['食べログ', 'ぐるなび']} />
         </Box>
       </Paper>
     </Container>

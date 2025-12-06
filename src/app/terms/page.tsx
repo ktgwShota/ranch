@@ -49,8 +49,7 @@ export default function TermsPage() {
             第2条（利用登録）
           </Typography>
           <Typography variant="body1" color="text.secondary" sx={{ mb: 1.5, lineHeight: 1.8 }}>
-            当サービスは、ログイン不要でご利用いただけます。
-            投票の作成や参加は、本規約に同意した上で行ってください。
+            当サービスは、無料・登録不要でご利用いただけます。
           </Typography>
         </Box>
 
