@@ -8,7 +8,7 @@ export const FAQ_ITEMS: { question: string; answer: string }[] = [
     answer: 'アカウント登録は不要です。',
   },
   {
-    question: '対応しているブラウザを教えてくれますか？',
+    question: '対応しているブラウザを教えてください',
     answer:
       '本アプリは最新バージョンの Google Chrome / Safari のみをサポートしております。古いバージョンの Google Chrome / Safari または その他のブラウザ（Microsoft Edge / Firefox など）はサポート外です。',
   },

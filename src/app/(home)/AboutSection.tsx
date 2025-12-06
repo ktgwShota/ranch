@@ -182,9 +182,9 @@ export default function AboutSection() {
               variant="body1"
               sx={{ ...sectionSubtitleStyles, maxWidth: '700px', lineHeight: 1.8, color: 'text.secondary' }}
             >
-              ChoisuR はイベントの行き先を公平に決めるための多数決ツールです。
+              ChoisuR は無料で使用できるオンライン多数決サービスです。
               <br />
-              食事会 / 交流会 / 旅行先の決定など、あらゆるシーンでご利用いただけます。
+              「飲み会」や「旅行先」の決定など、あらゆるシーンでご利用いただけます。
             </Typography>
           </Box>
         </ScrollReveal>

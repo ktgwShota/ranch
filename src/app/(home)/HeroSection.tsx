@@ -7,7 +7,7 @@ import { useCallback, useEffect, useState } from 'react';
 const HEADER_HEIGHT = 80;
 const CONTAINER_MAX_WIDTH = '960px';
 const TITLE = '"何でもいいよ" に終止符を。';
-const SUBTITLE_1 = '幹事の悩みは公平な多数決で解決できます。';
+const SUBTITLE_1 = '幹事の悩みは「公平な多数決」で解決できます。';
 const SUBTITLE_2 = 'ChoisuR が忖度なしで全員が納得する答えを導き出します。';
 
 const ANIMATION_DELAYS = {
