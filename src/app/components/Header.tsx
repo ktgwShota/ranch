@@ -14,7 +14,6 @@ import { LAYOUT_CONSTANTS } from '@/config/constants';
 import NavigationLinks from './NavigationLinks';
 
 const HEADER_HEIGHT = 80;
-const CONTAINER_MAX_WIDTH = '960px';
 
 // スクロール位置を監視するカスタムフック
 const useScrollPosition = (callback: (scrollY: number) => void) => {
@@ -73,6 +72,8 @@ export default function Header({ isHeaderVisible: propIsHeaderVisible }: HeaderP
   const pathname = usePathname();
   const isHomePage = pathname === '/';
   const [isInHowItWorksSection, setIsInHowItWorksSection] = useState(false);
+  const [isOverHeroSection, setIsOverHeroSection] = useState(true);
+  const [isOverBottomCTASection, setIsOverBottomCTASection] = useState(false);
   const [isHeaderVisible, setIsHeaderVisible] = useState(false);
 
   // タイピングアニメーションの完了を検知
@@ -87,15 +88,48 @@ export default function Header({ isHeaderVisible: propIsHeaderVisible }: HeaderP
     }
   }, [isHomePage, propIsHeaderVisible]);
 
+  // 初期状態でヒーローセクションまたはBottomCTASectionの上にいるかどうかを判定
+  useEffect(() => {
+    if (isHomePage) {
+      const heroSection = document.getElementById('hero-section');
+      const bottomCTASection = document.getElementById('bottom-cta-section');
+
+      if (heroSection) {
+        const heroRect = heroSection.getBoundingClientRect();
+        setIsOverHeroSection(heroRect.bottom > HEADER_HEIGHT);
+      }
+
+      if (bottomCTASection) {
+        const ctaRect = bottomCTASection.getBoundingClientRect();
+        setIsOverBottomCTASection(ctaRect.top <= HEADER_HEIGHT && ctaRect.bottom > HEADER_HEIGHT);
+      }
+    }
+  }, [isHomePage]);
+
   // トップページの場合、スクロール位置を監視
   useScrollPosition(
     useCallback(() => {
       if (isHomePage) {
+        const heroSection = document.getElementById('hero-section');
         const howItWorksSection = document.getElementById('hot-to-use');
+        const bottomCTASection = document.getElementById('bottom-cta-section');
+
+        if (heroSection) {
+          const heroRect = heroSection.getBoundingClientRect();
+          // ヒーローセクションの下端がヘッダーの下端より下にある時は、ヒーローセクションの上にいる
+          setIsOverHeroSection(heroRect.bottom > HEADER_HEIGHT);
+        }
+
         if (howItWorksSection) {
           const sectionRect = howItWorksSection.getBoundingClientRect();
           // セクションの上端がヘッダーの下端に到達した時点で黒にする
           setIsInHowItWorksSection(sectionRect.top <= HEADER_HEIGHT);
+        }
+
+        if (bottomCTASection) {
+          const ctaRect = bottomCTASection.getBoundingClientRect();
+          // BottomCTASectionの上端がヘッダーの下端より上にある時は、BottomCTASectionの上にいる
+          setIsOverBottomCTASection(ctaRect.top <= HEADER_HEIGHT && ctaRect.bottom > HEADER_HEIGHT);
         }
       }
     }, [isHomePage])
@@ -114,15 +148,17 @@ export default function Header({ isHeaderVisible: propIsHeaderVisible }: HeaderP
   // 背景色以外は同じスタイルを適用
   const backgroundColor = isHomePage ? 'transparent' : '#fafafa';
   const position = isHomePage ? 'fixed' : 'static';
+  // ヒーローセクションまたはBottomCTASectionの上にいる時は白い文字、それ以外（白い背景）は黒い文字
+  const shouldUseWhiteText = isHomePage && (isOverHeroSection || isOverBottomCTASection);
   const logoColor = isHomePage
-    ? isInHowItWorksSection
-      ? '#333333'
-      : '#f9fafb'
+    ? shouldUseWhiteText
+      ? '#f9fafb' // ヒーローセクションまたはBottomCTASectionの上：白
+      : '#333333' // 白い背景のセクション：黒
     : '#333';
   const navTextColor = isHomePage
-    ? isInHowItWorksSection
-      ? '#333333'
-      : '#f9fafb'
+    ? shouldUseWhiteText
+      ? '#f9fafb' // ヒーローセクションまたはBottomCTASectionの上：白
+      : '#333333' // 白い背景のセクション：黒
     : '#333';
   const navOpacity = isHomePage && isHeaderVisible !== undefined ? (isHeaderVisible ? 1 : 0) : 1;
 

@@ -90,65 +90,6 @@ const useIntersectionObserver = (
   }, [ref, threshold, callback]);
 };
 
-const useScrollPosition = (callback: (scrollY: number) => void) => {
-  useEffect(() => {
-    let rafId: number | null = null;
-    let lastScrollY = window.scrollY;
-
-    const handleScroll = () => {
-      if (rafId !== null) {
-        cancelAnimationFrame(rafId);
-      }
-
-      rafId = requestAnimationFrame(() => {
-        const currentScrollY = window.scrollY;
-        if (Math.abs(currentScrollY - lastScrollY) >= 1) {
-          lastScrollY = currentScrollY;
-          callback(currentScrollY);
-        }
-      });
-    };
-
-    handleScroll();
-    window.addEventListener('scroll', handleScroll, { passive: true });
-
-    return () => {
-      window.removeEventListener('scroll', handleScroll);
-      if (rafId !== null) {
-        cancelAnimationFrame(rafId);
-      }
-    };
-  }, [callback]);
-};
-
-function useElementVisibility(ref: React.RefObject<HTMLElement | null>, threshold: number) {
-  const [isVisible, setIsVisible] = useState(false);
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting && entry.intersectionRatio >= threshold) {
-          setIsVisible(true);
-          observer.unobserve(entry.target);
-        }
-      },
-      { threshold }
-    );
-
-    if (ref.current) {
-      observer.observe(ref.current);
-    }
-
-    return () => {
-      if (ref.current) {
-        observer.unobserve(ref.current);
-      }
-    };
-  }, [ref, threshold]);
-
-  return isVisible;
-}
-
 const sectionTitleStyles = {
   fontSize: { xs: '1.75rem', md: '2.25rem' },
   fontWeight: 700,
@@ -1018,6 +959,7 @@ function BottomCTASection() {
   return (
     <Box
       ref={sectionRef}
+      id="bottom-cta-section"
       sx={{
         position: 'relative',
         // 背景をダークカラーに変更
