@@ -180,11 +180,11 @@ export default function AboutSection() {
             </Typography>
             <Typography
               variant="body1"
-              sx={{ ...sectionSubtitleStyles, maxWidth: '700px', lineHeight: 1.8, color: 'text.secondary' }}
+              sx={{ ...sectionSubtitleStyles, lineHeight: 1.8, color: 'text.secondary', }}
             >
-              ChoisuR は無料で使用できるオンライン多数決サービスです。
+              ChoisuR は "多数決" によってイベントの『場所』や『日程』を公平かつ迅速に決定するためのサービスです。
               <br />
-              「飲み会」や「旅行先」の決定など、あらゆるシーンでご利用いただけます。
+              飲み会の店決めから日程調整まで、あらゆるイベントの意思決定にご利用いただけます。
             </Typography>
           </Box>
         </ScrollReveal>

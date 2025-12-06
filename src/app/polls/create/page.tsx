@@ -111,7 +111,7 @@ export default function Index() {
   }, [watchedOptions]);
 
   const handleCategoryChange = (event: React.SyntheticEvent, newValue: string) => {
-    if (newValue === 'GENERAL') {
+    if (newValue === 'SCHEDULE') {
       alert('準備中です');
       return;
     }
@@ -231,8 +231,8 @@ export default function Index() {
             textColor="primary"
             sx={{ mb: 4, borderBottom: 1, borderColor: 'divider' }}
           >
-            <Tab icon={<RestaurantIcon />} label="飲食店" value="RESTAURANT" />
-            <Tab icon={<PlaceIcon />} label="イベント全般" value="GENERAL" />
+            <Tab icon={<RestaurantIcon />} label="店決め" value="RESTAURANT" />
+            <Tab icon={<PlaceIcon />} label="日程調整" value="SCHEDULE" />
           </Tabs>
 
           <Box>

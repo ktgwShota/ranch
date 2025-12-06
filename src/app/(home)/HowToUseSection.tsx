@@ -91,7 +91,7 @@ const STEPS: StepData[] = [
   {
     step: 'ステップ1',
     title: 'ページを作成',
-    description: '多数決の投票先となる候補の情報を入力して多数決を行うためのページを作成します。',
+    description: 'イベントの開催場所となる候補の情報を入力して多数決を行うためのページを作成します。',
     imageSrc: '/1.png',
     imageAlt: '投票作成画面',
     icon: <CreateIcon sx={{ fontSize: '1.5rem', color: '#3b82f6' }} />,
@@ -100,7 +100,7 @@ const STEPS: StepData[] = [
   {
     step: 'ステップ2',
     title: 'ページを共有',
-    description: '多数決に参加するメンバーに作成したページを LINE や Slack などの SNS で共有します。',
+    description: 'イベントに参加するメンバーに作成したページを LINE や Slack などの SNS で共有します。',
     imageSrc: '/2.png',
     imageAlt: '投票ページ共有画面',
     icon: <ShareIcon sx={{ fontSize: '1.5rem', color: '#3b82f6' }} />,
@@ -108,8 +108,8 @@ const STEPS: StepData[] = [
   },
   {
     step: 'ステップ3',
-    title: '行き先が決定',
-    description: '全員の投票が完了したら結果が公開されます。',
+    title: '目的地が決定',
+    description: '全員の投票が完了したら目的地が決定します。',
     imageSrc: '/3.png',
     imageAlt: '投票結果画面',
     icon: <RestaurantIcon sx={{ fontSize: '1.5rem', color: '#3b82f6' }} />,

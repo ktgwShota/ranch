@@ -6,14 +6,14 @@ import { useCallback, useEffect, useState } from 'react';
 
 const HEADER_HEIGHT = 80;
 const CONTAINER_MAX_WIDTH = '960px';
-const TITLE = '"何でもいいよ" に終止符を。';
-const SUBTITLE_1 = '幹事の悩みは「公平な多数決」で解決できます。';
-const SUBTITLE_2 = 'ChoisuR が忖度なしで全員が納得する答えを導き出します。';
+const TITLE = '"幹事が悩む時代" はもう終わり。';
+const SUBTITLE_1 = '「店決め」や「日時調整」に悩んでいませんか？';
+const SUBTITLE_2 = 'ChoisuR は幹事の負担を軽減するサービスを提供します。';
 
 const ANIMATION_DELAYS = {
   TITLE_START: 300,
   TYPING_COMPLETE_DELAY: 300,
-  ARROW_DELAY: 1100,
+  ARROW_DELAY: 600, // 短縮して早めにスクロール矢印表示
 } as const;
 
 const TYPING_SPEED = 150;

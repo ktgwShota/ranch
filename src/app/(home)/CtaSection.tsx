@@ -86,7 +86,7 @@ export default function BottomCTASection() {
                 textShadow: '0 4px 10px rgba(0, 0, 0, 0.5)',
               }}
             >
-              多数決 = 公平な意思決定
+              悩める幹事の力になる
             </Typography>
 
             <Typography
@@ -98,9 +98,9 @@ export default function BottomCTASection() {
                 mb: 6,
               }}
             >
-              もう一人で悩む必要はありません。
+              もう「店選び」や「日程調整」で悩む必要はありません。
               <br />
-              全員の意思を反映した結果がすぐにわかります。
+              ChoisuR の強力なサポートで幹事の方々の負担を軽減します。
             </Typography>
 
             <Button
