@@ -15,6 +15,17 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { LAYOUT_CONSTANTS } from '@/config/constants';
 import PageHeader from '@/components/PageHeader';
 import { contactSchema, type ContactFormData } from '@/lib/schemas/contact';
+import { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'お問い合わせ | ChoisuR',
+  description: 'ChoisuR（チョイスル）に対するお問い合わせはこちらをご利用ください',
+  openGraph: {
+    title: 'お問い合わせ | ChoisuR',
+    description: 'ChoisuR（チョイスル）に対するお問い合わせはこちらをご利用ください',
+  },
+};
+
 
 export default function ContactPage() {
   const [submitStatus, setSubmitStatus] = useState<'success' | 'error' | null>(null);

@@ -1,9 +1,17 @@
-'use client';
-
 import { Box, Container, Paper, Typography } from '@mui/material';
 import { LAYOUT_CONSTANTS } from '@/config/constants';
 import PageHeader from '@/components/PageHeader';
 import StyledList from '@/components/StyledList';
+import { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'プライバシーポリシー | ChoisuR',
+  description: 'ChoisuR（チョイスル）のプライバシーポリシーを記載したページです',
+  openGraph: {
+    title: 'プライバシーポリシー | ChoisuR',
+    description: 'ChoisuR（チョイスル）のプライバシーポリシーを記載したページです。',
+  },
+};
 
 export default function PrivacyPage() {
   return (

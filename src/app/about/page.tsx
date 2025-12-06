@@ -3,6 +3,17 @@ import { LAYOUT_CONSTANTS } from '@/config/constants';
 import PageHeader from '@/components/PageHeader';
 import StyledList from '@/components/StyledList';
 
+import { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: '当サイトについて | ChoisuR',
+  description: 'ChoisuR（チョイスル）は、無料で会員登録不要の多数決ツールです。アプリの特徴をご紹介します。',
+  openGraph: {
+    title: '当サイトについて | ChoisuR',
+    description: 'ChoisuR（チョイスル）は、無料で会員登録不要の多数決ツールです。アプリの特徴をご紹介します。',
+  },
+};
+
 export default function AboutPage() {
   return (
     <Container maxWidth={false} sx={{ maxWidth: LAYOUT_CONSTANTS.MAX_CONTENT_WIDTH }}>
@@ -16,7 +27,7 @@ export default function AboutPage() {
           backgroundColor: 'white',
         }}
       >
-        <PageHeader title="ChoisuRについて" />
+        <PageHeader title="当サイトについて" />
 
         <Box sx={{ mb: 4 }}>
           <Typography

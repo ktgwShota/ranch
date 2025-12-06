@@ -17,7 +17,7 @@ export default function Footer() {
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
   const aboutLinks = [
-    { label: 'ChoisuRについて', href: '/about', icon: <InfoIcon fontSize="small" /> },
+    { label: '当サイトについて', href: '/about', icon: <InfoIcon fontSize="small" /> },
     { label: '利用規約', href: '/terms', icon: <GavelIcon fontSize="small" /> },
     { label: 'プライバシーポリシー', href: '/privacy', icon: <PrivacyIcon fontSize="small" /> },
     { label: 'お問い合わせ', href: '/contact', icon: <ContactIcon fontSize="small" /> },

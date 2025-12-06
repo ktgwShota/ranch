@@ -19,6 +19,9 @@ export const metadata: Metadata = {
   title: 'ChoisuR | 多数決ツール',
   description:
     'ChoisuR（チョイスル）は、無料で使用できる多数決ツールです。公平な意思決定をサポートします。',
+  verification: {
+    google: 'ofTAbzl-JBzpDPsfdbPZB74tnrA85pfVYutehiKDxsw',
+  },
 };
 
 export default function RootLayout({
