@@ -207,21 +207,21 @@ function AboutSection() {
     {
       title: '会員登録なしで即スタート',
       description: '面倒なアカウント登録やログインは一切不要。誰でもすぐに投票を作成できます。',
-      icon: <FlashOnIcon sx={{ fontSize: 40 }} />,
+      icon: <FlashOnIcon sx={{ fontSize: 32 }} />,
       color: '#3b82f6',
       bgColor: '#eff6ff',
     },
     {
       title: 'URLをシェアするだけ',
       description: '投票ページを作成してURLを共有。LINEやSlackで簡単にメンバーを招待できます。',
-      icon: <LinkIcon sx={{ fontSize: 40 }} />,
+      icon: <LinkIcon sx={{ fontSize: 32 }} />,
       color: '#0ea5e9',
       bgColor: '#f0f9ff',
     },
     {
       title: '全員で決める公平性',
       description: '多数決で行き先を決めることで全員の意見を尊重した公平な意思決定をサポートします。',
-      icon: <GroupIcon sx={{ fontSize: 40 }} />,
+      icon: <GroupIcon sx={{ fontSize: 32 }} />,
       color: '#8b5cf6',
       bgColor: '#f5f3ff',
     },
@@ -256,7 +256,7 @@ function AboutSection() {
         <Box
           sx={{
             textAlign: 'center',
-            mb: 10,
+            mb: 12,
             opacity: isVisible ? 1 : 0,
             transform: isVisible ? 'translateY(0)' : 'translateY(20px)',
             transition: 'all 0.8s cubic-bezier(0.16, 1, 0.3, 1)',
@@ -274,7 +274,7 @@ function AboutSection() {
           >
             ChoisuR はイベントの行き先を公平に決めるための多数決ツールです。
             <br />
-            食事会 / 交流会 / 社員旅行など、あらゆるシーンでご利用いただけます。
+            食事会 / 交流会 / 旅行先の決定など、あらゆるシーンでご利用いただけます。
           </Typography>
         </Box>
 
@@ -282,7 +282,7 @@ function AboutSection() {
           sx={{
             display: 'grid',
             gridTemplateColumns: { xs: '1fr', md: 'repeat(3, 1fr)' },
-            gap: { xs: 4, md: 5 },
+            gap: { xs: 3, md: 4 },
           }}
         >
           {features.map((feature, index) => (
@@ -290,61 +290,85 @@ function AboutSection() {
               key={index}
               sx={{
                 bgcolor: 'white',
-                p: { xs: 4, md: 5 },
-                borderRadius: 6,
-                boxShadow: '0 10px 40px -10px rgba(0,0,0,0.05)',
-                textAlign: 'center',
+                borderRadius: '12px 12px 1px 1px',
+                borderTop: `1px solid ${feature.color}`,
+                borderLeft: '1px solid',
+                borderRight: '1px solid',
+                borderBottom: '1px solid',
+                borderColor: '#e5e7eb',
+                overflow: 'hidden',
                 opacity: isVisible ? 1 : 0,
-                transform: isVisible ? 'translateY(0)' : 'translateY(40px)',
-                transition: `all 0.8s cubic-bezier(0.16, 1, 0.3, 1) ${index * 0.15 + 0.2}s`,
+                transform: isVisible ? 'translateY(0)' : 'translateY(30px)',
+                transition: `all 0.8s cubic-bezier(0.16, 1, 0.3, 1) ${index * 0.12 + 0.2}s`,
                 display: 'flex',
                 flexDirection: 'column',
-                alignItems: 'center',
                 height: '100%',
-                position: 'relative',
-                overflow: 'hidden',
-                cursor: 'default',
-                borderTop: `4px solid ${feature.color}`, // アクセントボーダー
-                '&:hover': {
-                  transform: 'translateY(-8px)',
-                  boxShadow: `0 20px 40px -10px ${feature.color}25`, // 色付きシャドウ
-                },
               }}
             >
+              {/* アイコンエリア */}
               <Box
                 sx={{
-                  width: 88,
-                  height: 88,
-                  borderRadius: '50%',
-                  bgcolor: feature.bgColor,
-                  color: feature.color,
                   display: 'flex',
-                  alignItems: 'center',
                   justifyContent: 'center',
-                  mb: 4,
-                  transition: 'transform 0.3s ease',
-                  '&:hover': {
-                    transform: 'scale(1.05)',
-                  },
+                  alignItems: 'center',
+                  pt: 5,
+                  pb: 4,
                 }}
               >
-                {feature.icon}
+                <Box
+                  sx={{
+                    width: 80,
+                    height: 80,
+                    borderRadius: '50%',
+                    bgcolor: feature.bgColor,
+                    color: feature.color,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}
+                >
+                  {feature.icon}
+                </Box>
               </Box>
-              <Typography
-                variant="h5"
+
+              {/* コンテンツエリア */}
+              <Box
                 sx={{
-                  fontWeight: 800,
-                  mb: 2.5,
-                  color: 'text.primary',
-                  fontSize: '1.25rem',
-                  letterSpacing: '-0.01em',
+                  px: 4,
+                  pb: 5,
+                  pt: 0,
+                  flex: 1,
+                  display: 'flex',
+                  flexDirection: 'column',
                 }}
               >
-                {feature.title}
-              </Typography>
-              <Typography variant="body1" sx={{ color: 'text.secondary', lineHeight: 1.7, fontSize: '1rem' }}>
-                {feature.description}
-              </Typography>
+                <Typography
+                  variant="h6"
+                  sx={{
+                    fontWeight: 700,
+                    mb: 2.5,
+                    color: 'text.primary',
+                    fontSize: '1.125rem',
+                    letterSpacing: '-0.01em',
+                    lineHeight: 1.5,
+                    textAlign: 'center',
+                  }}
+                >
+                  {feature.title}
+                </Typography>
+                <Typography
+                  variant="body2"
+                  sx={{
+                    color: 'text.secondary',
+                    lineHeight: 1.8,
+                    fontSize: '0.9375rem',
+                    textAlign: 'center',
+                    flex: 1,
+                  }}
+                >
+                  {feature.description}
+                </Typography>
+              </Box>
             </Box>
           ))}
         </Box>
@@ -357,8 +381,8 @@ function AboutSection() {
           bottom: 0,
           left: 0,
           width: '100%',
-          borderBottom: '6px dashed #3b82f6',
-          opacity: 0.75,
+          borderBottom: '4px dashed #eee',
+          opacity: 1,
         }}
       />
     </Box>
@@ -794,9 +818,14 @@ function HowItWorksSection() {
                     width: '100vw',
                     position: 'relative',
                     left: '50%',
-                    transform: 'translateX(-50%)',
                     background: 'linear-gradient(90deg, rgba(148,163,184,0), rgba(148,163,184,0.35), rgba(148,163,184,0))',
-                    opacity: 0.6,
+                    opacity: isStep1Visible ? 0.6 : 0,
+                    transform: isStep1Visible
+                      ? 'translateX(-50%) scaleX(1)'
+                      : 'translateX(-50%) scaleX(0)',
+                    transition: 'opacity 0.8s ease, transform 0.8s ease',
+                    // 各ステップのアニメーション完了後、ワンテンポ遅れて表示
+                    transitionDelay: `${(index + 1) * 0.2 + 0.5}s`, // 各ステップよりもワンテンポ遅く
                   }}
                 />
               )}
@@ -1035,8 +1064,7 @@ function BottomCTASection() {
               textShadow: '0 4px 10px rgba(0, 0, 0, 0.5)',
             }}
           >
-            全員の<Box component="span" sx={{ color: TEAL_ACCENT }}>
-              意思</Box>を反映
+            多数決 = 公平な意思決定
           </Typography>
 
           {/* 説明文 */}
@@ -1049,9 +1077,9 @@ function BottomCTASection() {
               mb: 6,
             }}
           >
-            xxx
+            もう一人で悩む必要はありません。
             <br />
-            ChoisuRを使うことで誰でも簡単に全員が納得するイベントや場所決めができます。
+            全員の意思を反映した結果がすぐにわかります。
           </Typography>
 
           {/* CTAボタン */}
