@@ -2,7 +2,7 @@
 
 import { useMemo } from 'react';
 import { Box, IconButton, Menu, MenuItem, Typography } from '@mui/material';
-import { EventAvailable as EventAvailableIcon, MoreVert as MoreVertIcon, Delete as DeleteIcon } from '@mui/icons-material';
+import { CheckCircle as CheckCircleIcon, MoreVert as MoreVertIcon, Delete as DeleteIcon } from '@mui/icons-material';
 import dayjs from 'dayjs';
 import 'dayjs/locale/ja';
 import HeaderBase from '../shared/HeaderBase';
@@ -65,19 +65,25 @@ export default function ResultHeader({
           sx={{
             display: 'inline-flex',
             alignItems: 'center',
-            gap: 1,
-            px: 2,
-            py: 1,
-            borderRadius: 1,
-            backgroundColor: '#dcfce7',
-            color: '#16a34a',
+            gap: 1.5,
+            px: 2.5,
+            py: 1.25,
+            borderRadius: 2,
+            backgroundColor: '#2196f3',
+            color: 'white',
+            boxShadow: '0 2px 8px rgba(33, 150, 243, 0.3)',
           }}
         >
-          <EventAvailableIcon sx={{ fontSize: 20 }} />
-          <Typography sx={{ fontWeight: 600, fontSize: '0.875rem' }}>
-            決定: {confirmedInfo.date.format('M月D日')} ({confirmedInfo.date.format('ddd')})
-            {confirmedInfo.time && ` ${confirmedInfo.time}〜`}
-          </Typography>
+          <CheckCircleIcon sx={{ fontSize: 22 }} />
+          <Box>
+            <Typography sx={{ fontWeight: 700, fontSize: '0.9rem', lineHeight: 1.2 }}>
+              {confirmedInfo.date.format('M月D日')} ({confirmedInfo.date.format('ddd')})
+              {confirmedInfo.time && ` ${confirmedInfo.time}〜`}
+            </Typography>
+            <Typography sx={{ fontSize: '0.7rem', opacity: 0.9 }}>
+              確定済み
+            </Typography>
+          </Box>
         </Box>
       )}
     </HeaderBase>

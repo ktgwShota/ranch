@@ -53,7 +53,7 @@ export default function ResultPage({ scheduleData }: ResultPageProps) {
         onDeleteClick={actionsHook.handleDeleteClick}
       />
 
-      <Paper elevation={0} sx={{ mb: 2, borderRadius: '2px', overflow: 'hidden', border: '1px solid #ddd' }}>
+      <Paper elevation={0} sx={{ mb: 2, borderRadius: '2px', border: '1px solid #ddd' }}>
         {/* Desktop */}
         <Box sx={{ display: { xs: 'none', sm: 'block' } }}>
           <Box sx={{ overflowX: 'auto' }}>

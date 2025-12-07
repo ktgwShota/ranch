@@ -16,9 +16,8 @@ const roboto = Roboto({
 });
 
 export const metadata: Metadata = {
-  title: 'ChoisuR | 多数決ツール',
-  description:
-    'ChoisuR（チョイスル）は、無料で使用できる多数決ツールです。公平な意思決定をサポートします。',
+  title: 'ChoisuR | 日程調整 / 店決め（多数決）ツール',
+  description: 'ChoisuR（チョイスル）は、飲み会やイベントの日程調整 / 店決め（多数決）をサポートする完全無料のツールです。会員登録やログインは不要。PC・スマホから誰でも簡単にご利用いただけます。',
   verification: {
     google: 'ofTAbzl-JBzpDPsfdbPZB74tnrA85pfVYutehiKDxsw',
   },

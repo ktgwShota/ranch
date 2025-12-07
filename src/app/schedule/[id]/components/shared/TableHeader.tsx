@@ -17,7 +17,6 @@ export default function TableHeader({
   responses,
   confirmedDateTime,
   bestKeys,
-  confirmedLabel = '確定',
 }: TableHeaderProps) {
   return (
     <Box sx={{ display: 'flex' }}>
@@ -50,7 +49,6 @@ export default function TableHeader({
             total={responses.length}
             isConfirmed={isConfirmed}
             isBest={isBest}
-            confirmedLabel={confirmedLabel}
           />
         );
       })}

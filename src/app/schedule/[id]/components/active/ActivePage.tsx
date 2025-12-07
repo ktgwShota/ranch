@@ -65,7 +65,7 @@ export default function ActivePage({ scheduleData }: ActivePageProps) {
         onDeleteClick={actionsHook.handleDeleteClick}
       />
 
-      <Paper elevation={0} sx={{ mb: 2, borderRadius: '2px', overflow: 'hidden', border: '1px solid #ddd' }}>
+      <Paper elevation={0} sx={{ mb: 2, borderRadius: '2px', border: '1px solid #ddd' }}>
         <Box sx={{ display: { xs: 'block', sm: 'none' } }}>
           <ActiveTableMobile {...scheduleTableProps} />
         </Box>

@@ -23,7 +23,6 @@ export default function ResultTableDesktop({
         allDateTimes={allDateTimes}
         responses={responses}
         confirmedDateTime={confirmedDateTime}
-        confirmedLabel="決定"
       />
 
       {/* 回答者行 */}

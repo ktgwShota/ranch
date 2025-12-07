@@ -6,13 +6,6 @@ import { getCloudflareContext } from '@opennextjs/cloudflare';
 import ActivePage from './components/active/ActivePage';
 import ResultPage from './components/result/ResultPage';
 
-export const metadata = {
-  robots: {
-    index: false,
-    follow: false,
-  },
-};
-
 interface PageProps {
   params: Promise<{ id: string }>;
 }

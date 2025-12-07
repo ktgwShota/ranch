@@ -97,11 +97,9 @@ export default function TableRow({
               py: showMyBadge ? 2.5 : 1,
               borderRight: '1px solid #e5e7eb',
               '&:last-child': { borderRight: 'none' },
-              backgroundColor: isConfirmed
+              backgroundColor: isBest && !isConfirmed
                 ? 'rgba(76, 175, 80, 0.08)'
-                : isBest
-                  ? 'rgba(76, 175, 80, 0.08)'
-                  : 'transparent',
+                : 'transparent',
             }}
           >
             <StatusIcon status={status} size={24} />

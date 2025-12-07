@@ -8,14 +8,14 @@ import FaqSection from './FaqSection';
 import { FAQ_ITEMS } from './constants';
 
 export const metadata: Metadata = {
-  title: 'ChoisuR | 多数決ツール',
-  description: 'ChoisuR（チョイスル）は無料のオンライン多数決ツールです。食事会 / 交流会 / 旅行先の決定など、あらゆるシーンでご利用いただけます。',
+  title: 'ChoisuR | 日程調整 / 店決め（多数決）ツール',
+  description: 'ChoisuR（チョイスル）は、飲み会やイベントの日程調整 / 店決め（多数決）をサポートする完全無料のツールです。会員登録やログインは不要。PC・スマホから誰でも簡単にご利用いただけます。',
   alternates: {
     canonical: 'https://choisur.jp',
   },
   openGraph: {
-    title: 'ChoisuR | 多数決ツール',
-    description: 'ChoisuR（チョイスル）は無料のオンライン多数決ツールです。食事会 / 交流会 / 旅行先の決定など、あらゆるシーンでご利用いただけます。',
+    title: 'ChoisuR | 日程調整 / 店決め（多数決）ツール',
+    description: 'ChoisuR（チョイスル）は、飲み会やイベントの日程調整 / 店決め（多数決）をサポートする完全無料のツールです。会員登録やログインは不要。PC・スマホから誰でも簡単にご利用いただけます。',
     url: 'https://choisur.jp',
     siteName: 'ChoisuR',
     locale: 'ja_JP',
@@ -23,8 +23,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'ChoisuR | 多数決ツール',
-    description: 'ChoisuR（チョイスル）は無料のオンライン多数決ツールです。食事会 / 交流会 / 旅行先の決定など、あらゆるシーンでご利用いただけます。',
+    title: 'ChoisuR | 日程調整 / 店決め（多数決）ツール',
+    description: 'ChoisuR（チョイスル）は、飲み会やイベントの日程調整 / 店決め（多数決）をサポートする完全無料のツールです。会員登録やログインは不要。PC・スマホから誰でも簡単にご利用いただけます。',
   },
 };
 
