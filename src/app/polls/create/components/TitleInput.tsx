@@ -1,0 +1,46 @@
+import { Box, TextField, Typography } from '@mui/material';
+
+export function TitleInput({
+  title,
+  onChange,
+}: {
+  title: string;
+  onChange: (value: string) => void;
+}) {
+  return (
+    <Box>
+      <Typography
+        variant="h6"
+        gutterBottom
+        sx={{ fontWeight: 600, color: 'text.primary', mb: 1.5, fontSize: '1rem' }}
+      >
+        タイトル <span style={{ color: '#f44336' }}>*</span>
+      </Typography>
+      <TextField
+        fullWidth
+        placeholder="歓迎会のお店はどこがいい？"
+        value={title}
+        onChange={(e) => onChange(e.target.value)}
+        variant="outlined"
+        sx={{
+          mb: 3,
+          '& .MuiOutlinedInput-root': {
+            borderRadius: 0.5,
+
+            fontSize: '1rem',
+            '&:hover .MuiOutlinedInput-notchedOutline': {
+              borderColor: '#1976d2',
+            },
+            '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+              borderColor: '#1976d2',
+              borderWidth: 2,
+            },
+          },
+          '& .MuiInputBase-input::placeholder': {
+            fontSize: '0.875rem',
+          },
+        }}
+      />
+    </Box>
+  );
+}
