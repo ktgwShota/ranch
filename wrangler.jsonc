@@ -1,51 +1,59 @@
-/**
- * For more details on how to configure Wrangler, refer to:
- * https://developers.cloudflare.com/workers/wrangler/configuration/
- */
 {
-	"$schema": "node_modules/wrangler/config-schema.json",
-	"name": "my-next-app",
-	"main": ".open-next/worker.js",
-	"compatibility_date": "2025-03-01",
-	"compatibility_flags": [
-		"nodejs_compat",
-		"global_fetch_strictly_public"
-	],
-	"assets": {
-		"binding": "ASSETS",
-		"directory": ".open-next/assets"
-	},
-	"observability": {
-		"enabled": true
-	}
-	/**
-	 * Smart Placement
-	 * Docs: https://developers.cloudflare.com/workers/configuration/smart-placement/#smart-placement
-	 */
-	// "placement": { "mode": "smart" }
-	/**
-	 * Bindings
-	 * Bindings allow your Worker to interact with resources on the Cloudflare Developer Platform, including
-	 * databases, object storage, AI inference, real-time communication and more.
-	 * https://developers.cloudflare.com/workers/runtime-apis/bindings/
-	 */
-	/**
-	 * Environment Variables
-	 * https://developers.cloudflare.com/workers/wrangler/configuration/#environment-variables
-	 */
-	// "vars": { "MY_VARIABLE": "production_value" }
-	/**
-	 * Note: Use secrets to store sensitive data.
-	 * https://developers.cloudflare.com/workers/configuration/secrets/
-	 */
-	/**
-	 * Static Assets
-	 * https://developers.cloudflare.com/workers/static-assets/binding/
-	 */
-	// "assets": { "directory": "./public/", "binding": "ASSETS" }
-	/**
-	 * Service Bindings (communicate between multiple Workers)
-	 * https://developers.cloudflare.com/workers/wrangler/configuration/#service-bindings
-	 */
-	// "services": [{ "binding": "MY_SERVICE", "service": "my-service" }]
+  // ========================
+  // Wrangler configuration
+  // ========================
+
+  // Worker 名称
+  "name": "myapp",
+
+  // メインスクリプト（OpenNextが生成したWorker）
+  "main": ".open-next/worker.js",
+
+  "compatibility_date": "2024-09-23",
+  "compatibility_flags": ["nodejs_compat"],
+
+  "assets": {
+    "directory": ".open-next/assets",
+    "binding": "ASSETS"
+  },
+
+  // デフォルト環境（ローカル開発用）
+  "d1_databases": [
+    {
+      "binding": "DB", // コード側でアクセスする際の binding 名
+      "database_name": "myapp-local", // ローカル用 DB
+      "database_id": "1", // ローカル環境では任意の値でOK
+      "migrations_dir": "src/services/db/migrations"
+    }
+  ],
+
+  // 各環境設定
+  "env": {
+    "stg": {
+      // ステージング環境
+      // Cloudflare 上の myapp-stg DB に接続
+      // 使用例: npx wrangler deploy --env stg
+      "d1_databases": [
+        {
+          "binding": "DB",
+          "database_name": "myapp-stg", // ステージング用 DB
+          "database_id": "3b67aa00-feff-4cb3-ad35-c2b690a222bb",
+          "migrations_dir": "src/services/db/migrations"
+        }
+      ]
+    },
+    "prd": {
+      // 本番環境
+      // Cloudflare 上の myapp-prd DB に接続
+      // 使用例: npx wrangler deploy --env prd
+      "d1_databases": [
+        {
+          "binding": "DB",
+          "database_name": "myapp-prd", // 本番用 DB
+          "database_id": "c1f272b5-6479-479c-a6e3-61f3ecb94150",
+          "migrations_dir": "src/services/db/migrations"
+        }
+      ]
+    }
+  }
 }
